@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.helix.ae" ExtensionBundleVersion="1.0.0" ExtensionBundleName="Helix AE">
+	<ExtensionList>
+		<Extension Id="com.helix.ae.panel" Version="1.0.0"/>
+	</ExtensionList>
+	<ExecutionEnvironment>
+		<HostList>
+			<Host Name="AEFT" Version="[16.0,99.9]"/>
+		</HostList>
+		<LocaleList>
+			<Locale Code="All"/>
+		</LocaleList>
+	</ExecutionEnvironment>
+	<DispatchInfoList>
+		<Extension Id="com.helix.ae.panel">
+			<DispatchInfo>
+				<Resources>
+					<MainPath>./index.html</MainPath>
+					<CEFCommandLine>
+						<Parameter>--enable-nodejs</Parameter>
+					</CEFCommandLine>
+				</Resources>
+				<Lifecycle>
+					<AutoVisible>true</AutoVisible>
+				</Lifecycle>
+				<UI>
+					<Type>Panel</Type>
+					<Menu>Helix AE</Menu>
+					<Geometry>
+						<Size>
+							<Height>500</Height>
+							<Width>300</Width>
+						</Size>
+					</Geometry>
+				</UI>
+			</DispatchInfo>
+		</Extension>
+	</DispatchInfoList>
+</ExtensionManifest>

@@ -1,0 +1,14 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Adobe CEP
+Integration/helixae/.debug
+Integration/helixae/node_modules/
+
+# OS
+Thumbs.db
+.DS_Store
+desktop.ini
