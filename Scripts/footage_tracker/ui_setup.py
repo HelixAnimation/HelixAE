@@ -265,38 +265,10 @@ class UISetup(QObject):
 
         title_bar_layout.addStretch()
 
-        # Window settings buttons (lock, open on start, always on top)
-        # Lock window button
+        # Lock window button (hidden)
         self.tracker.btn_lockWindow = QPushButton("🔓")
         self.tracker.btn_lockWindow.setCheckable(True)
-        self.tracker.btn_lockWindow.setFixedSize(24, 24)
-        self.tracker.btn_lockWindow.setToolTip("Lock window (prevent moving/resizing)")
-        # Set font directly - more reliable than stylesheet
-        font = QFont()
-        font.setFamily("Segoe UI Emoji")
-        font.setPointSize(10)
-        self.tracker.btn_lockWindow.setFont(font)
-        self.tracker.btn_lockWindow.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #ccc;
-                border: none;
-                font-family: "Segoe UI Emoji";
-                font-size: 14px;
-                border-radius: 2px;
-                padding: 0px;
-            }
-            QPushButton:hover {
-                background-color: #4a4a4a;
-                color: white;
-            }
-            QPushButton:checked {
-                background-color: rgb(129, 84, 32);
-                color: white;
-            }
-        """)
-        self.tracker.btn_lockWindow.clicked.connect(self.toggleWindowLock)
-        title_bar_layout.addWidget(self.tracker.btn_lockWindow)
+        self.tracker.btn_lockWindow.hide()
 
         # Open on start button
         self.tracker.btn_openOnStart = QPushButton("🚀")
@@ -365,28 +337,6 @@ class UISetup(QObject):
         self.tracker.btn_alwaysOnTop.clicked.connect(self.toggleAlwaysOnTop)
         title_bar_layout.addWidget(self.tracker.btn_alwaysOnTop)
 
-        # Close button on the right
-        close_button = QPushButton("✕")
-        close_button.setObjectName("titleBarClose")
-        close_button.setFixedSize(32, 24)
-        close_button.setToolTip("Close window")
-        close_button.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #888;
-                border: none;
-                font-size: 16px;
-                font-weight: bold;
-                padding: 0px;
-            }
-            QPushButton:hover {
-                background-color: #c42b1c;
-                color: white;
-                border-radius: 3px;
-            }
-        """)
-        close_button.clicked.connect(self.tracker.dlg_footage.close)
-        title_bar_layout.addWidget(close_button)
 
         # Return the title bar widget
         return title_bar

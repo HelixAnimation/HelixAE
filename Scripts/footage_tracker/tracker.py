@@ -55,6 +55,9 @@ class AEFootageTracker(QObject):
         self.import_shots = ImportShots(self)
         self.startup_warnings = StartupWarnings(self)
 
+        self.group_by_mode_3d = 'shot'  # 'shot' or 'identifier'
+        self.group_by_mode_2d = 'shot'  # 'shot' or 'identifier'
+
         # Expose Kitsu properties for compatibility
         self.kitsu = self.kitsu_integration.kitsu
 
@@ -65,6 +68,15 @@ class AEFootageTracker(QObject):
     def kitsuShotData(self):
         """Property to access Kitsu shot data"""
         return self.kitsu_integration.kitsuShotData
+
+    @err_catcher(name=__name__)
+    def toggleGroupMode(self, group):
+        """Toggle grouping mode for a specific render group ('3D Renders' or '2D Renders')"""
+        if group == "3D Renders":
+            self.group_by_mode_3d = 'identifier' if self.group_by_mode_3d == 'shot' else 'shot'
+        elif group == "2D Renders":
+            self.group_by_mode_2d = 'identifier' if self.group_by_mode_2d == 'shot' else 'shot'
+        self.loadFootageData()
 
     @err_catcher(name=__name__)
     def openFootageVersionTracker(self, pos_x=None, pos_y=None):

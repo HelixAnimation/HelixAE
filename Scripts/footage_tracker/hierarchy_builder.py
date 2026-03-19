@@ -474,6 +474,27 @@ class HierarchyBuilder:
         }
 
     @err_catcher(name=__name__)
+    def pivot_to_identifier_first(self, render_data):
+        """Pivot 3D render hierarchy from shot > identifier > aov to identifier > shot > aov"""
+        pivoted = {}
+        for shot, identifiers in render_data.items():
+            if not isinstance(identifiers, dict):
+                continue
+            for identifier, aovs in identifiers.items():
+                if not isinstance(aovs, dict):
+                    continue
+                if identifier not in pivoted:
+                    pivoted[identifier] = {}
+                if shot not in pivoted[identifier]:
+                    pivoted[identifier][shot] = {}
+                for aov, footage_list in aovs.items():
+                    if aov not in pivoted[identifier][shot]:
+                        pivoted[identifier][shot][aov] = []
+                    if isinstance(footage_list, list):
+                        pivoted[identifier][shot][aov].extend(footage_list)
+        return pivoted
+
+    @err_catcher(name=__name__)
     def buildShotAlternativesIndex(self, hierarchy):
         """Create reverse lookup: (identifier, aov) → [shots]"""
         alternatives = {}

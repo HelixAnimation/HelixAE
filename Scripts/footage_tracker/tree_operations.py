@@ -198,6 +198,18 @@ class TreeOperations(QObject):
                 f" ({len(self.shot_alternatives)} alternatives)"
             )
 
+            # Pivot render hierarchies if identifier-first mode is active per group
+            if getattr(self.tracker, 'group_by_mode_3d', 'shot') == 'identifier':
+                if hierarchy.get("3D Renders"):
+                    hierarchy["3D Renders"] = self.hierarchy_builder.pivot_to_identifier_first(
+                        hierarchy["3D Renders"]
+                    )
+            if getattr(self.tracker, 'group_by_mode_2d', 'shot') == 'identifier':
+                if hierarchy.get("2D Renders"):
+                    hierarchy["2D Renders"] = self.hierarchy_builder.pivot_to_identifier_first(
+                        hierarchy["2D Renders"]
+                    )
+
             # Render tree using tree renderer
             print("[FOOTAGE] Rendering tree widget...")
             render_start = time.perf_counter()

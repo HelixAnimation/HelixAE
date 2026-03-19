@@ -180,6 +180,16 @@ class TreeRenderer:
         if not render_data or not isinstance(render_data, dict):
             return groupItem
 
+        # Add small toggle button on the group header row
+        self._addGroupToggleButton(groupItem, group)
+
+        # Identifier-first mode: data is already pivoted to {identifier: {shot: {aov: [footage]}}}
+        mode_attr = 'group_by_mode_3d' if group == "3D Renders" else 'group_by_mode_2d'
+        group_by_mode = getattr(self.tracker, mode_attr, 'shot')
+        if group_by_mode == 'identifier':
+            self._buildRenderTreeIdentifierFirst(groupItem, render_data, group)
+            return groupItem
+
         for shot in sorted(render_data.keys()):
             if not shot or not isinstance(render_data[shot], dict):
                 continue
@@ -280,7 +290,116 @@ class TreeRenderer:
         return groupItem
 
     @err_catcher(name=__name__)
-    def _render2DFootage(self, parentItem, identifier, shot, footageData, aov, footage_type_prefix="[2D] ", suffix=""):
+    def _addGroupToggleButton(self, groupItem, group):
+        """Replace column 0 of the group header with an inline label + toggle button"""
+        mode_attr = 'group_by_mode_3d' if group == "3D Renders" else 'group_by_mode_2d'
+        current_mode = getattr(self.tracker, mode_attr, 'shot')
+        btn_label = "By Shot" if current_mode == 'shot' else "By ID"
+
+        text_color = "#64ff96" if group == "3D Renders" else "#64c8ff"
+
+        lbl = QLabel(f"📁 {group}")
+        font = self.tracker.tw_footage.font()
+        font.setBold(True)
+        lbl.setFont(font)
+        lbl.setStyleSheet(f"color: {text_color}; background: transparent;")
+
+        btn = QLabel(btn_label)
+        btn.setFixedSize(52, 14)
+        btn.setAlignment(Qt.AlignCenter)
+        btn.setToolTip("Toggle grouping: Shot > Identifier  or  Identifier > Shot")
+        btn.setStyleSheet("""
+            QLabel {
+                background-color: #3a3a5c;
+                color: #aaaacc;
+                border: 1px solid #555580;
+                border-radius: 3px;
+                font-size: 10px;
+                padding: 0px;
+            }
+            QLabel:hover {
+                background-color: #4a4a7c;
+                color: white;
+            }
+        """)
+        btn.mousePressEvent = lambda e, g=group: self.tracker.toggleGroupMode(g)
+
+        wrapper = QWidget()
+        wrapper.setStyleSheet("background: transparent;")
+        wrapper.setFixedHeight(20)
+        layout = QHBoxLayout(wrapper)
+        layout.setContentsMargins(4, 2, 4, 2)
+        layout.setSpacing(6)
+        layout.addWidget(lbl)
+        layout.addWidget(btn)
+        layout.addStretch()
+
+        from qtpy.QtCore import QSize
+        groupItem.setSizeHint(0, QSize(0, 22))
+        self.tracker.tw_footage.setItemWidget(groupItem, 0, wrapper)
+        # Clear text to prevent double-rendering under the widget
+        groupItem.setText(0, "")
+
+    @err_catcher(name=__name__)
+    def _buildRenderTreeIdentifierFirst(self, groupItem, render_data, group):
+        """Build render tree in identifier > shot > aov order (for both 3D and 2D renders)"""
+        is_2d = (group == "2D Renders")
+
+        for identifier in sorted(render_data.keys()):
+            if not identifier or not isinstance(render_data[identifier], dict):
+                continue
+
+            identifierItem = QTreeWidgetItem()
+            identifierItem.setText(0, identifier)
+            identifierItem.setData(0, Qt.UserRole, {'type': 'group', 'level': 'identifier'})
+            identifierItem.setForeground(0, QBrush(QColor(180, 150, 255)))
+            font = identifierItem.font(0)
+            font.setBold(True)
+            identifierItem.setFont(0, font)
+            groupItem.addChild(identifierItem)
+
+            for shot in sorted(render_data[identifier].keys()):
+                shot_data = render_data[identifier][shot]
+                if not isinstance(shot_data, dict):
+                    continue
+
+                if not is_2d:
+                    shotItem = QTreeWidgetItem()
+                    shotItem.setText(0, shot)
+                    shotItem.setData(0, Qt.UserRole, {'type': 'group', 'level': 'shot'})
+                    shotItem.setForeground(0, QBrush(QColor(150, 180, 255)))
+                    font = shotItem.font(0)
+                    font.setBold(True)
+                    shotItem.setFont(0, font)
+                    identifierItem.addChild(shotItem)
+
+                item_counts = {}
+                for aov in sorted(shot_data.keys()):
+                    aov_data = shot_data.get(aov, [])
+                    if not isinstance(aov_data, list):
+                        continue
+                    for footageData in aov_data:
+                        if not isinstance(footageData, dict):
+                            continue
+                        key = aov
+                        if key not in item_counts:
+                            item_counts[key] = 0
+                        suffix = f" ({item_counts[key]})" if item_counts[key] > 0 else ""
+                        item_counts[key] += 1
+
+                        if is_2d:
+                            path_lower = footageData.get('path', '').lower()
+                            footage_type_prefix = "[PB] " if '/playblasts/' in path_lower else "[2D] "
+                            # Use shot name as label — identifier is already shown as parent
+                            self._render2DFootage(
+                                identifierItem, identifier, shot, footageData, aov,
+                                footage_type_prefix, suffix, label=shot
+                            )
+                        else:
+                            self._render3DFootage(shotItem, aov, footageData, shot, identifier, suffix)
+
+    @err_catcher(name=__name__)
+    def _render2DFootage(self, parentItem, identifier, shot, footageData, aov, footage_type_prefix="[2D] ", suffix="", label=None):
         """Render 2D footage item
         Args:
             parentItem: The parent shot item in the tree
@@ -300,7 +419,7 @@ class TreeRenderer:
 
         # Set identifier text with prefix and suffix
         clean_identifier = identifier
-        identifierItem.setText(0, footage_type_prefix + identifier + suffix)
+        identifierItem.setText(0, label + suffix if label is not None else footage_type_prefix + identifier + suffix)
 
         # Determine footage_type from prefix
         footage_type = 'playblast' if '[PB]' in footage_type_prefix else '2drender'
