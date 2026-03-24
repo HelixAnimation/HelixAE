@@ -24,26 +24,20 @@ class HelixAE_Export:
         if not self.core.projects.ensureProject() or not self.core.users.ensureUser():
             return False
 
-        curfile = self.core.getCurrentFileName()
-        fname = self.core.getScenefileData(curfile)
-        entityType = "context" if fname["filename"] == "invalid" else fname["filename"]
-
         self.dlg_export = QDialog()
         self.core.parentWindow(self.dlg_export)
         self.dlg_export.setWindowTitle("Helix AE - Export")
 
-        self.setupExportUI(entityType)
+        self.setupExportUI()
         self.exportGetTasks()
         self.dlg_export.show()
         return True
 
-    def setupExportUI(self, entityType):
+    def setupExportUI(self):
         """Build export dialog UI"""
         lo_export = QVBoxLayout()
         self.dlg_export.setLayout(lo_export)
 
-        self.rb_task = QRadioButton(f"Export into current {entityType}")
-        self.rb_task.setChecked(True)  # Always checked by default
         self.w_task = QWidget()
         lo_prismExport = QVBoxLayout()
         self.w_task.setLayout(lo_prismExport)
@@ -100,12 +94,9 @@ class HelixAE_Export:
         button_layout.addStretch()
 
         self.b_render = QPushButton("Add to Render Queue")
-        self.b_export = QPushButton("Render")
 
         button_layout.addWidget(self.b_render)
-        button_layout.addWidget(self.b_export)
 
-        lo_export.addWidget(self.rb_task)
         lo_export.addWidget(self.w_task)
         lo_export.addStretch()
         lo_export.addLayout(button_layout)
@@ -122,7 +113,6 @@ class HelixAE_Export:
             )
         )
         self.le_task.editingFinished.connect(self.exportGetVersions)
-        self.b_export.clicked.connect(self.saveExport)
         self.b_render.clicked.connect(self.renderAndSave)
 
     def getOutputModules(self):
@@ -234,8 +224,6 @@ class HelixAE_Export:
     @err_catcher(name=__name__)
     def saveExport(self):
         """Execute export to render queue"""
-        if not self.rb_task.isChecked():
-            return
         
         taskName = self.le_task.text()
         if not taskName:
@@ -361,8 +349,6 @@ class HelixAE_Export:
     @err_catcher(name=__name__)
     def renderAndSave(self):
         """Save the project and add to render queue, then start rendering"""
-        if not self.rb_task.isChecked():
-            return
 
         taskName = self.le_task.text()
         if not taskName:
@@ -387,26 +373,9 @@ class HelixAE_Export:
             )
             return False
 
-        # First, save the current project (with archive info)
+        # Save as new version (same as CEP Save Version button)
         try:
-            currentFile = self.core.getCurrentFileName()
-            if not currentFile:
-                QMessageBox.warning(
-                    self.core.messageParent,
-                    "Warning",
-                    "No file is currently open. Please save or create a file first."
-                )
-                return False
-
-            # Use ae_core.saveScene which includes archive info generation
-            saveResult = self.main.ae_core.saveScene(origin="renderAndSave", filepath=currentFile)
-            if not saveResult:
-                QMessageBox.warning(
-                    self.core.messageParent,
-                    "Warning",
-                    "Save failed. Render cancelled."
-                )
-                return False
+            self.core.saveScene()
         except Exception as e:
             QMessageBox.warning(
                 self.core.messageParent,
@@ -499,10 +468,6 @@ class HelixAE_Export:
             details=details
         )
 
-        self.core.popup(
-            f"Saved and added to render queue!\n\nOutput: {outputPath}"
-            "\n\nClick Render in AE's Render Queue to start."
-        )
         self.dlg_export.close()
 
         return True

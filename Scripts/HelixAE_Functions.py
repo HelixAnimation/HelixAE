@@ -70,6 +70,16 @@ class HelixAE_Functions(object):
     @err_catcher(name=__name__)
     def startup(self, origin):
         origin.timer.stop()
+
+        # Disable Prism's built-in framerange mismatch check on scene open
+        try:
+            checks = self.core.sanities.checksToRun.get("onSceneOpen", {}).get("checks", [])
+            self.core.sanities.checksToRun["onSceneOpen"]["checks"] = [
+                c for c in checks if c["name"] != "checkFramerange"
+            ]
+        except Exception:
+            pass
+
         appIcon = QIcon(self.appIcon)
         qapp = QApplication.instance()
         qapp.setWindowIcon(appIcon)
@@ -89,6 +99,7 @@ class HelixAE_Functions(object):
         self.checkAeAlive()
         origin.startAutosaveTimer()
 
+
     @err_catcher(name=__name__)
     def checkAeAlive(self):
         if "psutil" not in globals():
@@ -101,45 +112,27 @@ class HelixAE_Functions(object):
 
     @err_catcher(name=__name__)
     def sendCmd(self, cmd):
-        """Send command via ae_core persistent connection if available, otherwise create new socket"""
-        # Try to use ae_core persistent connection first
-        if hasattr(self, 'ae_core') and self.ae_core._socket:
-            try:
-                self.ae_core._socket.sendall(cmd.encode("utf-8"))
-                data = self.ae_core._socket.recv(1024)
-                return data
-            except Exception:
-                # Connection failed, try to reconnect
-                if self.ae_core._tryConnect():
-                    try:
-                        self.ae_core._socket.sendall(cmd.encode("utf-8"))
-                        data = self.ae_core._socket.recv(1024)
-                        return data
-                    except Exception as e:
-                        logger.debug("ae_core reconnection failed: %s" % str(e))
-                        pass
-
-        # Fallback to creating new socket connection
-        HOST = '127.0.0.1'
-        PORT = 9888
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
+        """Send a lightweight command over a short-lived socket (does not block the ae_core mutex)"""
+        import socket as _socket
+        HOST, PORT = '127.0.0.1', 9888
+        try:
+            with _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM) as s:
+                s.settimeout(3.0)
                 s.connect((HOST, PORT))
-            except Exception as e:
-                logger.debug("sending cmd: %s" % cmd)
-                return None
-
-            try:
-                data = (cmd).encode("utf-8")
-                s.sendall(data)
-                data = s.recv(1024)
-                return data
-            except ConnectionResetError:
-                logger.debug("Connection reset while receiving data for cmd: %s" % cmd)
-                return None
-            except Exception as e:
-                logger.debug("Error sending cmd: %s - %s" % (cmd, str(e)))
-                return None
+                s.sendall(cmd.encode("utf-8"))
+                chunks = []
+                while True:
+                    chunk = s.recv(65536)
+                    if not chunk:
+                        break
+                    if b'\x00' in chunk:
+                        chunks.append(chunk[:chunk.index(b'\x00')])
+                        break
+                    chunks.append(chunk)
+                return b''.join(chunks)
+        except Exception as e:
+            logger.debug("sendCmd failed: %s" % str(e))
+            return None
 
     @err_catcher(name=__name__)
     def getAePid(self):
@@ -147,7 +140,7 @@ class HelixAE_Functions(object):
         result = self.sendCmd(cmd)
         if result:
             try:
-                return result.decode("utf-8")
+                return result.decode("utf-8").strip('\x00')
             except Exception:
                 pass
         return None
@@ -774,4 +767,32 @@ if (app.project && app.project.activeItem && app.project.activeItem instanceof C
             return tracker.openFootageVersionTracker()
         except Exception as e:
             self.core.popup(f"Failed to open Footage Tracker:\n{str(e)}")
+            return None
+
+    @err_catcher(name=__name__)
+    def openImportDialog(self):
+        """Open the Footage Tracker import dialog directly"""
+        try:
+            tracker = self.ae_footage
+            if tracker is None:
+                error_msg = self._ae_footage_init_error or "Unknown error"
+                self.core.popup(f"Import dialog is not available.\n\nInitialization error:\n{error_msg}")
+                return None
+            return tracker.context_menu.showUnifiedImportDialog()
+        except Exception as e:
+            self.core.popup(f"Failed to open Import dialog:\n{str(e)}")
+            return None
+
+    @err_catcher(name=__name__)
+    def checkIssues(self):
+        """Run the footage tracker issues check from the shelf button"""
+        try:
+            tracker = self.ae_footage
+            if tracker is None:
+                error_msg = self._ae_footage_init_error or "Unknown error"
+                self.core.popup(f"Check Issues is not available.\n\nInitialization error:\n{error_msg}")
+                return None
+            return tracker.runStartupWarningsCheck()
+        except Exception as e:
+            self.core.popup(f"Failed to run Check Issues:\n{str(e)}")
             return None

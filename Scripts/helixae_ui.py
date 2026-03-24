@@ -28,7 +28,7 @@ class RenderDlg(QDialog):
         self.setLayout(layout)
 
         # Instructions
-        info_label = QLabel("Select a render template and click Render")
+        info_label = QLabel("Select a render template and click Add to Render Queue")
         layout.addWidget(info_label)
 
         # Template combo
@@ -44,15 +44,10 @@ class RenderDlg(QDialog):
         button_layout = QHBoxLayout()
         button_layout.addStretch()
 
-        self.render_save_btn = QPushButton("Render & Save")
+        self.render_save_btn = QPushButton("Add to Render Queue")
         self.render_save_btn.clicked.connect(self.renderAndSave)
         self.render_save_btn.setEnabled(False)  # Disabled until templates load
         button_layout.addWidget(self.render_save_btn)
-
-        self.render_btn = QPushButton("Render")
-        self.render_btn.clicked.connect(self.render)
-        self.render_btn.setEnabled(False)  # Disabled until templates load
-        button_layout.addWidget(self.render_btn)
 
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(self.close)
@@ -75,11 +70,9 @@ class RenderDlg(QDialog):
         if templates:
             for template in templates:
                 self.template_combo.addItem(template)
-            self.render_btn.setEnabled(True)
             self.render_save_btn.setEnabled(True)
         else:
             self.template_combo.addItem("No templates available")
-            self.render_btn.setEnabled(False)
             self.render_save_btn.setEnabled(False)
 
     @err_catcher(name=__name__)

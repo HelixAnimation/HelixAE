@@ -34,11 +34,24 @@ class HelixAECore:
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._socket.settimeout(0.5)  # Quick timeout for initial connect
             self._socket.connect(('127.0.0.1', 9888))
-            self._socket.settimeout(None)  # Remove timeout for normal use
+            self._socket.settimeout(15.0)  # 15s timeout for normal operations
             return True
         except Exception as e:
             self._socket = None
             return False
+
+    def _recvAll(self):
+        """Read from socket until the null-byte sentinel, handling large responses."""
+        chunks = []
+        while True:
+            chunk = self._socket.recv(65536)
+            if not chunk:
+                break
+            if b'\x00' in chunk:
+                chunks.append(chunk[:chunk.index(b'\x00')])
+                break
+            chunks.append(chunk)
+        return b''.join(chunks)
 
     @err_catcher(name=__name__)
     def startup(self, origin):
@@ -94,13 +107,13 @@ class HelixAECore:
 
             try:
                 self._socket.sendall(script.encode("utf-8"))
-                return self._socket.recv(16384)
-            except (ConnectionError, BrokenPipeError, OSError) as e:
-                # Connection lost - try to reconnect once
+                return self._recvAll()
+            except (ConnectionError, BrokenPipeError, OSError, socket.timeout) as e:
+                # Connection lost or timed out - reconnect once and retry
                 self._socket = None
                 if self._tryConnect():
                     self._socket.sendall(script.encode("utf-8"))
-                    return self._socket.recv(16384)
+                    return self._recvAll()
                 raise Exception(f"Connection to After Effects lost: {e}")
 
     @err_catcher(name=__name__)
@@ -329,7 +342,7 @@ class HelixAECore:
                     archive_data = archive_info.generate_archive_info(tracker, filepath, hierarchy)
 
                     if archive_info.write_archive_json(archive_data, archive_path):
-                        self.core.popup(f"Archive info saved automatically!\n\nFile: {archive_path}")
+                        pass
                     else:
                         self.core.popup("Failed to save archive info file.")
                 else:

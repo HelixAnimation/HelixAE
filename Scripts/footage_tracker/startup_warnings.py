@@ -204,37 +204,6 @@ class StartupWarnings(QObject):
                         'identifier': identifier or ''  # Use the render layer identifier
                     })
 
-            # Check frame range if available (for image sequences)
-            try:
-                start_frame = int(start_frame) if start_frame else 0
-                end_frame = int(end_frame) if end_frame else 0
-            except (ValueError, TypeError):
-                start_frame = 0
-                end_frame = 0
-
-            if start_frame > 0 or end_frame > 0:
-                frame_range = footage.get('frameRange', {})
-                kitsu_frame_range = frame_range.get('kitsuFrameRange', {})
-                kitsu_start = kitsu_frame_range.get('start', None)
-                kitsu_end = kitsu_frame_range.get('end', None)
-
-                # If we have Kitsu data, compare
-                if kitsu_start is not None and kitsu_end is not None:
-                    try:
-                        kitsu_start = int(kitsu_start)
-                        kitsu_end = int(kitsu_end)
-                        if abs(start_frame - kitsu_start) > 10 or abs(end_frame - kitsu_end) > 10:
-                            issues['frame_range_mismatch'].append({
-                                'name': f"[{group}] {name}",
-                                'comp_range': f"{start_frame}-{end_frame}",
-                                'kitsu_range': f"{kitsu_start}-{kitsu_end}",
-                                'shot': footage.get('shotName', ''),
-                                'group': group,
-                                'original_name': name,
-                                'identifier': identifier or ''
-                            })
-                    except (ValueError, TypeError):
-                        pass
 
     def _checkComp(self, comp_name, comp_data, project_fps, issues):
         """Check a composition for frame range, FPS, and resolution issues"""
@@ -286,9 +255,8 @@ class StartupWarnings(QObject):
         except (ValueError, TypeError):
             pass
 
-        # Check frame range mismatch with Kitsu
-        if kitsu_data and shot_name:
-            # Kitsu data structure: {'frameRange': "1001-1080", 'start': 1001, 'end': 1080, 'fps': 24}
+        # Check frame range mismatch with Kitsu - disabled
+        if False and kitsu_data and shot_name:
             kitsu_start = kitsu_data.get('start', None)
             kitsu_end = kitsu_data.get('end', None)
 
@@ -296,11 +264,9 @@ class StartupWarnings(QObject):
                 try:
                     kitsu_start = int(kitsu_start)
                     kitsu_end = int(kitsu_end)
-                    # Compare frame ranges
                     comp_duration = end_frame - start_frame
                     kitsu_duration = kitsu_end - kitsu_start
 
-                    # Allow some tolerance but flag major mismatches
                     if abs(start_frame - kitsu_start) > 10 or abs(end_frame - kitsu_end) > 10:
                         issues['frame_range_mismatch'].append({
                             'name': f"[Comp] {comp_name}",
@@ -371,9 +337,10 @@ class StartupWarnings(QObject):
 
     def _showWarningDialog(self, issues, project_fps, no_issues_mode=False):
         """Show warning dialog with all found issues - with checkboxes for selective updating"""
-        dlg = QDialog()
+        parent = getattr(self.tracker, 'dlg_footage', None)
+        dlg = QDialog(parent)
         self._current_dialog = dlg  # Store reference for reload after bypass
-        dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
+        dlg.setWindowFlags(Qt.Window | Qt.WindowTitleHint | Qt.WindowCloseButtonHint | Qt.WindowStaysOnTopHint)
         dlg.setWindowTitle("Footage Issues")
         dlg.resize(1100, 700)
         # Removed hardcoded stylesheet to use global theme
@@ -653,13 +620,6 @@ class StartupWarnings(QObject):
             fps_btn.setStyleSheet(self._buttonStyle("#3498DB"))
             fps_btn.clicked.connect(lambda: self._fixAllFPS(dlg))
             button_layout.addWidget(fps_btn)
-
-        if issues['frame_range_mismatch']:
-            frame_range_btn = QPushButton(f"Update {non_ignored_frame_range} Frame Range")
-            frame_range_btn.setStyleSheet(self._buttonStyle("#AB26FF"))
-            # Read from cached items when clicked and filter out ignored items
-            frame_range_btn.clicked.connect(lambda: self._syncAllCompsWithKitsu(dlg))
-            button_layout.addWidget(frame_range_btn)
 
         # Resolution button for comps only
         if non_ignored_resolution_comps > 0:
