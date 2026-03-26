@@ -34,7 +34,7 @@ class HelixAECore:
             self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self._socket.settimeout(0.5)  # Quick timeout for initial connect
             self._socket.connect(('127.0.0.1', 9888))
-            self._socket.settimeout(15.0)  # 15s timeout for normal operations
+            self._socket.settimeout(120.0)  # 120s timeout - imports can take a long time
             return True
         except Exception as e:
             self._socket = None

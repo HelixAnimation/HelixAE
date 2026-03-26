@@ -4,6 +4,10 @@ const csInterface = new CSInterface();
     const net = require('net');
 
     const server = net.createServer((socket) => {
+        socket.on('error', (err) => {
+            console.error('Socket error:', err.message);
+        });
+
         socket.on('data', (data) => {
             data = String(data);
             if (data === "pid") {
@@ -11,7 +15,9 @@ const csInterface = new CSInterface();
                 return;
             } else {
                 csInterface.evalScript(data, (result) => {
-                    socket.write((result === "" ? "null" : result) + '\x00');
+                    if (!socket.destroyed) {
+                        socket.write((result === "" ? "null" : result) + '\x00');
+                    }
                 });
             }
         });
