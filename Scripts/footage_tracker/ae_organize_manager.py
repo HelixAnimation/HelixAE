@@ -556,7 +556,7 @@ class AEOrganizeManager(QObject):
                                 result = self.tracker.ae_ops.createFolderStructure(parent_folder_id, part)
                                 self.tracker.debugLog.append(f"    - Folder creation result: {result}")
 
-                                if result.get('success'):
+                                if isinstance(result, dict) and result.get('success'):
                                     folder_id = result.get('folderId', 0)  # Note: 'folderId' not 'folder_id'
                                     created_folders[current_path] = folder_id
                                     parent_folder_id = folder_id  # Use this folder as parent for next folder
@@ -570,7 +570,7 @@ class AEOrganizeManager(QObject):
                                     parent_folder_id = 0
                                     self.tracker.debugLog.append(
                                         f"    - Folder creation failed or already exists:"
-                                        f" {result.get('error', 'Unknown error')}"
+                                        f" {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
                                     )
                             else:
                                 # Folder already exists, use its ID as parent for next folder
@@ -623,7 +623,7 @@ class AEOrganizeManager(QObject):
 
                     self.tracker.debugLog.append(f"  - Organization result: {result}")
 
-                    if result.get('success'):
+                    if isinstance(result, dict) and result.get('success'):
                         organized_count += 1
                         if actual_rename_name == item['name']:
                             self.tracker.debugLog.append(
@@ -656,7 +656,7 @@ class AEOrganizeManager(QObject):
                             comment_result = self.tracker.main.ae_core.executeAppleScript(script_add_comment)
                             self.tracker.debugLog.append(f"  - Comment result: {comment_result}")
                     else:
-                        error_msg = f"Failed to organize {item['name']}: {result.get('error', 'Unknown error')}"
+                        error_msg = f"Failed to organize {item['name']}: {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
                         errors.append(error_msg)
                         self.tracker.debugLog.append(f"  - ERROR: {error_msg}")
 
@@ -871,7 +871,7 @@ class AEOrganizeManager(QObject):
                                 result = self.tracker.ae_ops.createFolderStructure(parent_folder_id, part)
                                 self.tracker.debugLog.append(f"    - Folder creation result: {result}")
 
-                                if result.get('success'):
+                                if isinstance(result, dict) and result.get('success'):
                                     folder_id = result.get('folderId', 0)  # Note: 'folderId' not 'folder_id'
                                     created_folders[current_path] = folder_id
                                     parent_folder_id = folder_id  # Use this folder as parent for next folder
@@ -885,7 +885,7 @@ class AEOrganizeManager(QObject):
                                     parent_folder_id = 0
                                     self.tracker.debugLog.append(
                                         f"    - Folder creation failed or already exists:"
-                                        f" {result.get('error', 'Unknown error')}"
+                                        f" {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
                                     )
                             else:
                                 # Folder already exists, use its ID as parent for next folder
@@ -921,7 +921,7 @@ class AEOrganizeManager(QObject):
 
                     self.tracker.debugLog.append(f"  - Organization result: {result}")
 
-                    if result.get('success'):
+                    if isinstance(result, dict) and result.get('success'):
                         organized_count += 1
                         if item['name'] == target_name:
                             self.tracker.debugLog.append(
@@ -930,7 +930,7 @@ class AEOrganizeManager(QObject):
                         else:
                             self.tracker.debugLog.append(f"  - Successfully moved and renamed item {organized_count}")
                     else:
-                        error_msg = f"Failed to organize {item['name']}: {result.get('error', 'Unknown error')}"
+                        error_msg = f"Failed to organize {item['name']}: {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
                         errors.append(error_msg)
                         self.tracker.debugLog.append(f"  - ERROR: {error_msg}")
 
