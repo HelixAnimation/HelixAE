@@ -879,7 +879,6 @@ class UISetup(QObject):
         dlg.show()
         dlg.activateWindow()
 
-    @err_catcher(name=__name__)
     def openDocumentation(self):
         """Open HelixAE documentation in the default browser"""
         import webbrowser
