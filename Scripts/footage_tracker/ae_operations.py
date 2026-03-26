@@ -39,7 +39,8 @@ class AEOperations:
             path_lower = oldPath.lower()
             if '.exr' in oldPath and '3drender' in path_lower:
                 # This looks like a 3D render - verify by checking path structure
-                # Split path and check for version folder followed by potential AOV folder
+                # 3D render paths: .../3dRender/.../v####/<aov_subfolder>/<file>.exr
+                # Any subfolder between version folder and the filename counts as an AOV folder.
                 path_parts = oldPath.replace('\\', '/').split('/')
 
                 # Find version folder index
@@ -49,18 +50,11 @@ class AEOperations:
                         version_idx = i
                         break
 
-                # Check if there's a subfolder after version that could be an AOV folder
-                if version_idx >= 0 and version_idx + 1 < len(path_parts):
+                # If there is at least one path component between version folder and filename,
+                # treat it as an AOV subfolder (structure is the signal, not the name).
+                if version_idx >= 0 and version_idx + 2 <= len(path_parts) - 1:
                     next_folder = path_parts[version_idx + 1]
-                    # Valid AOV folder: single letter OR common AOV names
-                    is_aov = (
-                        (len(next_folder) == 1 and next_folder.isalpha()) or
-                        next_folder.lower() in [
-                            'cryptomatte', 'beauty', 'depth', 'motionvectors', 'normal', 'position',
-                            'uv', 'albedo', 'shadow', 'reflection', 'refraction', 'specular',
-                            'emission', 'id', 'mask', 'cryptomattes'
-                        ]
-                    )
+                    is_aov = True  # any subfolder after version = AOV folder in 3dRender context
                     if is_aov:
                         is_3d_render = True
                         self.tracker.debugLog.append(
@@ -88,16 +82,9 @@ class AEOperations:
                         f"updateFootageVersion: aov_folder = '{aov_folder}' (len={len(aov_folder)})"
                     )
 
-                    # Check if it's a valid AOV folder (single letter OR common AOV names
-                    # like cryptomatte, beauty, etc.)
-                    is_aov_folder = (
-                        (len(aov_folder) == 1 and aov_folder.isalpha()) or  # Single letter AOV (Z, R, G, B, etc.)
-                        aov_folder.lower() in [
-                            'cryptomatte', 'beauty', 'depth', 'motionvectors', 'normal', 'position',
-                            'uv', 'albedo', 'shadow', 'reflection', 'refraction', 'specular',
-                            'emission', 'id', 'mask', 'cryptomattes'
-                        ]  # Common AOV names
-                    )
+                    # Any subfolder between version folder and the filename is treated as an AOV folder.
+                    # We already confirmed is_3d_render=True by reaching this branch.
+                    is_aov_folder = version_idx + 2 <= len(path_parts) - 1
 
                     if is_aov_folder:
                         # This is a 3D render with AOV folder structure

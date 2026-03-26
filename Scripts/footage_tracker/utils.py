@@ -461,33 +461,41 @@ class FootageUtils:
     @staticmethod
     def ensureSequencePath(path):
         """Ensure path points to the first frame of a sequence or the folder"""
+        _footage_exts = {
+            '.exr', '.jpg', '.jpeg', '.png', '.tif', '.tiff', '.tga', '.bmp', '.psd', '.hdr', '.pic', '.ai',
+            '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.flv', '.webm'
+        }
         try:
             # If it's already a directory that exists and contains sequences, find first frame
             if os.path.isdir(path):
                 files = sorted([f for f in os.listdir(path) if os.path.isfile(os.path.join(path, f))])
                 for f in files:
-                    if re.search(r'[._]\d{4,5}[._]', f):
+                    if re.search(r'[._]\d{4,5}[._]', f) and any(f.lower().endswith(ext) for ext in _footage_exts):
                         return os.path.join(path, f)
                 # No sequence found, return directory path
                 return path
-            
+
             # If the exact path exists and is a file, return it
             if os.path.isfile(path):
                 return path
-            
+
             # Extract base info from path
             parentDir = os.path.dirname(path)
             filename = os.path.basename(path)
-            
+
             # If parent directory doesn't exist, return original path
             if not os.path.isdir(parentDir):
                 return path
-            
-            # Try to find matching sequence files
-            files = sorted([f for f in os.listdir(parentDir) if os.path.isfile(os.path.join(parentDir, f))])
+
+            # Try to find matching sequence files (footage only)
+            files = sorted([
+                f for f in os.listdir(parentDir)
+                if os.path.isfile(os.path.join(parentDir, f))
+                and any(f.lower().endswith(ext) for ext in _footage_exts)
+            ])
             if not files:
                 return path
-            
+
             # Extract base name (everything before frame number)
             baseMatch = re.match(r'^(.+?)[._]?\d{4,5}[._]', filename)
             if baseMatch:
@@ -496,13 +504,13 @@ class FootageUtils:
                 for f in files:
                     if f.startswith(baseName) and re.search(r'[._]\d{4,5}[._]', f):
                         return os.path.join(parentDir, f)
-            
+
             # If we can't match pattern, return first file with frame numbers
             for f in files:
                 if re.search(r'[._]\d{4,5}[._]', f):
                     return os.path.join(parentDir, f)
-            
-            # Last resort: return first file
+
+            # Last resort: return first footage file
             return os.path.join(parentDir, files[0])
         except Exception as e:
             # If anything fails, return original path
@@ -511,29 +519,37 @@ class FootageUtils:
     @staticmethod
     def ensureStillPath(path):
         """Ensure path points to a single still image file"""
+        _footage_exts = {
+            '.exr', '.jpg', '.jpeg', '.png', '.tif', '.tiff', '.tga', '.bmp', '.psd', '.hdr', '.pic', '.ai',
+            '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.flv', '.webm'
+        }
         try:
             # If the exact path exists and is a file, return it
             if os.path.isfile(path):
                 return path
-            
+
             # If path is a directory, find a still image (no frame numbers)
             parentDir = path if os.path.isdir(path) else os.path.dirname(path)
-            
+
             if not os.path.isdir(parentDir):
                 return path
-            
-            files = [f for f in os.listdir(parentDir) if os.path.isfile(os.path.join(parentDir, f))]
+
+            files = [
+                f for f in os.listdir(parentDir)
+                if os.path.isfile(os.path.join(parentDir, f))
+                and any(f.lower().endswith(ext) for ext in _footage_exts)
+            ]
             if not files:
                 return path
-            
+
             # Look for files WITHOUT frame numbers
             for f in files:
                 if not re.search(r'[._]\d{4,5}[._]', f):
                     fullPath = os.path.join(parentDir, f)
                     if os.path.isfile(fullPath):
                         return fullPath
-            
-            # If no still found, return first file
+
+            # If no still found, return first footage file
             return os.path.join(parentDir, files[0])
         except Exception as e:
             return path
