@@ -27,6 +27,10 @@ class AEOrganizeManager(QObject):
         try:
             print(f"DEBUG: AEOrganizeManager.organizeFolder called with folder: {folder_name}")
 
+            # Test AE connectivity
+            test_result = self.tracker.main.ae_core.executeAppleScript("app.project.numItems;")
+            print(f"DEBUG: AE connectivity test (numItems): {repr(test_result)}")
+
             # Get the current folder tree widget item
             folder_item = self._getFolderTreeItem(folder_name)
             if not folder_item:
