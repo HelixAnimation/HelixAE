@@ -216,7 +216,7 @@ class AEOrganizeManager(QObject):
             # Build the final path (exclude root folder from path_parts)
             if path_parts:
                 # Filter out the root folder if it's in the path parts
-                filtered_parts = [part for part in path_parts if part != f"📁 {folder_name}" and part != folder_name]
+                filtered_parts = [part for part in path_parts if part != f"📁 {folder_name}" and part != folder_name and part.strip()]
 
                 if filtered_parts:
                     final_path = f"{folder_name}/{'/'.join(filtered_parts)}"

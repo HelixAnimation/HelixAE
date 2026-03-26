@@ -1826,16 +1826,20 @@ class AEOperations:
             """
 
             result = self.main.ae_core.executeAppleScript(script)
+            print(f"DEBUG: createFolderStructure raw socket result: {repr(result)}")
             if isinstance(result, bytes):
                 result = result.decode('utf-8')
 
             # Parse the JSON result
             try:
                 import json
-                return json.loads(result)
+                parsed = json.loads(result)
+                if parsed is None:
+                    return {'success': False, 'error': f'AE returned null for folder: {folder_path}'}
+                return parsed
             except Exception:
                 # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:'):
+                if result and result.startswith('ERROR:'):
                     return {'success': False, 'error': result}
                 else:
                     return {'success': True, 'folder_id': 0, 'folder_name': folder_path, 'raw_result': result}
