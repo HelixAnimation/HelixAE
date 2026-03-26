@@ -533,13 +533,13 @@ class AEOrganizeManager(QObject):
 
                     # Create folder structure if not already created
                     if folder_path not in created_folders:
-                        self.tracker.debugLog.append(f"  - Creating folder structure for: '{folder_path}'")
+                        print(f"DEBUG: Creating folder structure for: '{folder_path}'")
 
                         # Create folder structure in AE project
                         folder_parts = folder_path.split('/')
                         current_path = ""
 
-                        self.tracker.debugLog.append(f"  - Folder parts: {folder_parts}")
+                        print(f"DEBUG: Folder parts: {folder_parts}")
 
                         parent_folder_id = 0  # Start with root folder (0)
                         for j, part in enumerate(folder_parts):
@@ -549,29 +549,22 @@ class AEOrganizeManager(QObject):
                                 current_path = part
 
                             if current_path not in created_folders:
-                                self.tracker.debugLog.append(
-                                    f"    - Creating folder '{part}' with parent ID {parent_folder_id}"
-                                )
+                                print(f"DEBUG: createFolderStructure(parent={parent_folder_id}, name='{part}')")
 
                                 result = self.tracker.ae_ops.createFolderStructure(parent_folder_id, part)
-                                self.tracker.debugLog.append(f"    - Folder creation result: {result}")
+                                print(f"DEBUG: Folder creation raw result: {repr(result)} (type: {type(result).__name__})")
 
                                 if isinstance(result, dict) and result.get('success'):
                                     folder_id = result.get('folderId', 0)  # Note: 'folderId' not 'folder_id'
                                     created_folders[current_path] = folder_id
                                     parent_folder_id = folder_id  # Use this folder as parent for next folder
-                                    self.tracker.debugLog.append(
-                                        f"    - Folder '{part}' created successfully with ID: {folder_id}"
-                                        f" (stored in created_folders)"
-                                    )
+                                    print(f"DEBUG: Folder '{part}' created with ID: {folder_id}")
                                 else:
                                     # Folder might already exist, try to find it
                                     created_folders[current_path] = 0
                                     parent_folder_id = 0
-                                    self.tracker.debugLog.append(
-                                        f"    - Folder creation failed or already exists:"
-                                        f" {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
-                                    )
+                                    error_detail = result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)
+                                    print(f"DEBUG: Folder creation failed: {error_detail}")
                             else:
                                 # Folder already exists, use its ID as parent for next folder
                                 parent_folder_id = created_folders[current_path]
@@ -856,13 +849,13 @@ class AEOrganizeManager(QObject):
 
                     # Create folder structure if not already created
                     if folder_path not in created_folders:
-                        self.tracker.debugLog.append(f"  - Creating folder structure for: '{folder_path}'")
+                        print(f"DEBUG: Creating folder structure for: '{folder_path}'")
 
                         # Create folder structure in AE project
                         folder_parts = folder_path.split('/')
                         current_path = ""
 
-                        self.tracker.debugLog.append(f"  - Folder parts: {folder_parts}")
+                        print(f"DEBUG: Folder parts: {folder_parts}")
 
                         parent_folder_id = 0  # Start with root folder (0)
                         for j, part in enumerate(folder_parts):
@@ -872,29 +865,22 @@ class AEOrganizeManager(QObject):
                                 current_path = part
 
                             if current_path not in created_folders:
-                                self.tracker.debugLog.append(
-                                    f"    - Creating folder '{part}' with parent ID {parent_folder_id}"
-                                )
+                                print(f"DEBUG: createFolderStructure(parent={parent_folder_id}, name='{part}')")
 
                                 result = self.tracker.ae_ops.createFolderStructure(parent_folder_id, part)
-                                self.tracker.debugLog.append(f"    - Folder creation result: {result}")
+                                print(f"DEBUG: Folder creation raw result: {repr(result)} (type: {type(result).__name__})")
 
                                 if isinstance(result, dict) and result.get('success'):
                                     folder_id = result.get('folderId', 0)  # Note: 'folderId' not 'folder_id'
                                     created_folders[current_path] = folder_id
                                     parent_folder_id = folder_id  # Use this folder as parent for next folder
-                                    self.tracker.debugLog.append(
-                                        f"    - Folder '{part}' created successfully with ID: {folder_id}"
-                                        f" (stored in created_folders)"
-                                    )
+                                    print(f"DEBUG: Folder '{part}' created with ID: {folder_id}")
                                 else:
                                     # Folder might already exist, try to find it
                                     created_folders[current_path] = 0
                                     parent_folder_id = 0
-                                    self.tracker.debugLog.append(
-                                        f"    - Folder creation failed or already exists:"
-                                        f" {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
-                                    )
+                                    error_detail = result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)
+                                    print(f"DEBUG: Folder creation failed: {error_detail}")
                             else:
                                 # Folder already exists, use its ID as parent for next folder
                                 parent_folder_id = created_folders[current_path]

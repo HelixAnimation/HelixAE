@@ -1914,6 +1914,7 @@ class AEOperations:
             """
 
             result = self.main.ae_core.executeAppleScript(script)
+            print(f"DEBUG: duplicateFootageItem raw socket result: {repr(result)}")
             if isinstance(result, bytes):
                 result = result.decode('utf-8')
 
