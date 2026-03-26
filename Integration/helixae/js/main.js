@@ -45,6 +45,12 @@ function setupButtons() {
         thisButton.setAttribute("onclick", `onButtonClick('${value}')`);
         w_buttons.appendChild(thisButton);
     };
+
+    const docsButton = document.createElement("BUTTON");
+    docsButton.innerHTML = "Documentation";
+    docsButton.setAttribute("class", "scriptButton");
+    docsButton.setAttribute("onclick", "csInterface.openURLInDefaultBrowser('https://chorbest.github.io/HelixAE/')");
+    w_buttons.appendChild(docsButton);
 }
 
 function launchHelixAE() {
