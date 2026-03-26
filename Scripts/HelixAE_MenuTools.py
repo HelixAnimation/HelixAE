@@ -101,9 +101,9 @@ class CommandHandler(QObject):
         elif cmd == "projectBrowser":
             result = pcore.projectBrowser()
         elif cmd == "importMedia":
-            result = pcore.appPlugin.openImportMediaDlg()
-        elif cmd == "checkVersions":
-            result = pcore.appPlugin.checkVersions()
+            result = pcore.appPlugin.openImportDialog()
+        elif cmd == "checkIssues":
+            result = pcore.appPlugin.checkIssues()
         elif cmd == "settings":
             result = pcore.prismSettings()
         elif cmd == "render":

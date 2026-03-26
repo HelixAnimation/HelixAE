@@ -21,7 +21,7 @@ class UnifiedImportDialog(QDialog):
     """Unified dialog for importing 3D and 2D footage with shot selection"""
 
     def __init__(self, tracker):
-        super(UnifiedImportDialog, self).__init__(tracker.dlg_footage)
+        super(UnifiedImportDialog, self).__init__(getattr(tracker, 'dlg_footage', None))
         self.tracker = tracker
         self.core = tracker.core
         self.main = tracker.main
@@ -56,7 +56,7 @@ class UnifiedImportDialog(QDialog):
     def _setupUI(self):
         """Setup the dialog UI - single unified table"""
         self.setWindowTitle("Import Footage")
-        self.resize(950, 650)
+        self.resize(700, 650)
 
         layout = QVBoxLayout()
         self.setLayout(layout)
@@ -81,12 +81,6 @@ class UnifiedImportDialog(QDialog):
 
         top_layout.addStretch()
 
-        # Import All Lighting button
-        self.import_all_lighting_btn = QPushButton("Import All Lighting")
-        self.import_all_lighting_btn.clicked.connect(self._importAllLighting)
-        self.import_all_lighting_btn.setToolTip("Import all lighting task AOVs from selected shot(s)")
-        top_layout.addWidget(self.import_all_lighting_btn)
-
         layout.addLayout(top_layout)
 
         # Options row
@@ -108,15 +102,7 @@ class UnifiedImportDialog(QDialog):
         self.chb_filter_pb.stateChanged.connect(lambda: self._toggleTypeFilter('pb'))
         options_layout.addWidget(self.chb_filter_pb)
 
-        # Separator
-        options_layout.addWidget(QWidget())
         options_layout.addStretch()
-
-        # Show/Hide Shot column checkbox
-        self.chb_show_shot = QCheckBox("Show Shot Column")
-        self.chb_show_shot.setChecked(True)
-        self.chb_show_shot.stateChanged.connect(self._toggleShotColumn)
-        options_layout.addWidget(self.chb_show_shot)
 
         layout.addLayout(options_layout)
 
@@ -172,10 +158,6 @@ class UnifiedImportDialog(QDialog):
         button_layout.addWidget(import_btn)
 
         layout.addLayout(button_layout)
-
-    def _toggleShotColumn(self, state):
-        """Show or hide the Shot column"""
-        self.table.setColumnHidden(0, state == Qt.Unchecked)
 
     def _toggleTypeFilter(self, type_key):
         """Toggle type filter (3d, 2d, or pb)"""
@@ -436,11 +418,7 @@ class UnifiedImportDialog(QDialog):
         self.all_selected_items = []
 
         if not self.shots:
-            self.import_all_lighting_btn.setEnabled(False)
             return
-
-        # Enable Import All Lighting button
-        self.import_all_lighting_btn.setEnabled(True)
 
         # Collect data for all selected shots - 3D, 2D, and Playblasts
         for shot_entity in self.shots:
@@ -825,20 +803,6 @@ class UnifiedImportDialog(QDialog):
         for item in self.table.selectedItems():
             selected_rows.add(item.row())
         self.selection_label.setText(f"{len(selected_rows)} AOV(s) selected")
-
-    @err_catcher(name=__name__)
-    def _importAllLighting(self):
-        """Import all lighting task AOVs from selected shots"""
-        if not self.shots:
-            self.core.popup("No shots selected.")
-            return
-
-        # Import lighting for all selected shots
-        for shot_entity in self.shots:
-            shot_name = self.core.entities.getShotName(shot_entity)
-            if not shot_name:
-                continue
-            self._importLightingForShot(shot_entity, shot_name)
 
     @err_catcher(name=__name__)
     def _importLightingForShot(self, shot_entity, shot_name):

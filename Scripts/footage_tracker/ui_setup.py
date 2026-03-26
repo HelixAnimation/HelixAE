@@ -270,39 +270,6 @@ class UISetup(QObject):
         self.tracker.btn_lockWindow.setCheckable(True)
         self.tracker.btn_lockWindow.hide()
 
-        # Open on start button
-        self.tracker.btn_openOnStart = QPushButton("🚀")
-        self.tracker.btn_openOnStart.setCheckable(True)
-        self.tracker.btn_openOnStart.setFixedSize(24, 24)
-        self.tracker.btn_openOnStart.setToolTip("Auto-open on After Effects startup")
-        font = QFont()
-        font.setFamily("Segoe UI Emoji")
-        font.setPointSize(10)
-        self.tracker.btn_openOnStart.setFont(font)
-        self.tracker.btn_openOnStart.setStyleSheet("""
-            QPushButton {
-                background-color: transparent;
-                color: #ccc;
-                border: none;
-                font-family: "Segoe UI Emoji";
-                font-size: 14px;
-                border-radius: 2px;
-                padding: 0px;
-            }
-            QPushButton:hover {
-                background-color: #4a4a4a;
-                color: white;
-            }
-            QPushButton:checked {
-                background-color: rgb(129, 84, 32);
-                color: white;
-            }
-        """)
-        settings = QSettings("Prism", "AfterEffectsPlugin")
-        self.tracker.btn_openOnStart.setChecked(settings.value("FootageTracker/OpenOnStart", False, type=bool))
-        self.tracker.btn_openOnStart.clicked.connect(self.toggleOpenOnStart)
-        title_bar_layout.addWidget(self.tracker.btn_openOnStart)
-
         # Always on top button
         self.tracker.btn_alwaysOnTop = QPushButton("📌")
         self.tracker.btn_alwaysOnTop.setCheckable(True)
@@ -331,9 +298,12 @@ class UISetup(QObject):
                 color: white;
             }
         """)
+        settings = QSettings("Prism", "AfterEffectsPlugin")
         saved_always_on_top = settings.value("FootageTracker/AlwaysOnTop", False, type=bool)
-        actual_is_on_top = bool(self.tracker.dlg_footage.windowFlags() & Qt.WindowStaysOnTopHint)
-        self.tracker.btn_alwaysOnTop.setChecked(saved_always_on_top or actual_is_on_top)
+        self.tracker.btn_alwaysOnTop.setChecked(saved_always_on_top)
+        if saved_always_on_top:
+            base_flags = Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint
+            self.tracker.dlg_footage.setWindowFlags(base_flags | Qt.WindowStaysOnTopHint)
         self.tracker.btn_alwaysOnTop.clicked.connect(self.toggleAlwaysOnTop)
         title_bar_layout.addWidget(self.tracker.btn_alwaysOnTop)
 
@@ -868,11 +838,6 @@ class UISetup(QObject):
             self.tracker.btn_lockWindow.setText("🔓")
             self.tracker.btn_lockWindow.setToolTip("Lock window (prevent moving/resizing)")
 
-    def toggleOpenOnStart(self):
-        """Toggle auto-open on After Effects startup"""
-        settings = QSettings("Prism", "AfterEffectsPlugin")
-        settings.setValue("FootageTracker/OpenOnStart", self.tracker.btn_openOnStart.isChecked())
-
     def toggleAlwaysOnTop(self):
         """Toggle always on top"""
         is_on_top = self.tracker.btn_alwaysOnTop.isChecked()
@@ -882,14 +847,13 @@ class UISetup(QObject):
         settings = QSettings("Prism", "AfterEffectsPlugin")
         settings.setValue("FootageTracker/AlwaysOnTop", is_on_top)
 
+        # Always rebuild from base flags to avoid stripping window decorations
+        base_flags = Qt.Window | Qt.WindowMinimizeButtonHint | Qt.WindowMaximizeButtonHint | Qt.WindowCloseButtonHint
         if is_on_top:
-            # Set always on top flag
-            dlg.setWindowFlags(dlg.windowFlags() | Qt.WindowStaysOnTopHint)
+            dlg.setWindowFlags(base_flags | Qt.WindowStaysOnTopHint)
         else:
-            # Remove always on top flag
-            dlg.setWindowFlags(dlg.windowFlags() & ~Qt.WindowStaysOnTopHint)
+            dlg.setWindowFlags(base_flags)
 
-        # Re-show window to apply flags
         dlg.show()
         dlg.activateWindow()
 

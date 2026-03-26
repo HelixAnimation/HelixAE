@@ -7,11 +7,11 @@ const csInterface = new CSInterface();
         socket.on('data', (data) => {
             data = String(data);
             if (data === "pid") {
-                socket.write(`${process.pid}`);
+                socket.write(`${process.pid}\x00`);
                 return;
             } else {
                 csInterface.evalScript(data, (result) => {
-                    socket.write(result === "" ? "null" : result);
+                    socket.write((result === "" ? "null" : result) + '\x00');
                 });
             }
         });
@@ -33,8 +33,8 @@ function setupButtons() {
         'Project Browser...': 'projectBrowser',
         'Footage Tracker...': 'footageTracker',
         'Import Media...': 'importMedia',
-        'Check for New Versions...': 'checkVersions',
-        'Helix Settings...': 'settings',
+        'Check Issues': 'checkIssues',
+        'Prism Settings...': 'settings',
         'Render...': 'render',
     };
     const w_buttons = document.getElementById("w_buttons");
