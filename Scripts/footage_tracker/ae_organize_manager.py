@@ -673,7 +673,7 @@ class AEOrganizeManager(QObject):
             # Remove all empty folders from the project
             self.tracker.debugLog.append("=== REMOVING EMPTY FOLDERS ===")
             empty_folder_result = self.tracker.ae_ops.removeAllEmptyFolders()
-            deleted_count = empty_folder_result.get('deletedCount', 0)
+            deleted_count = empty_folder_result.get('deletedCount', 0) if isinstance(empty_folder_result, dict) else 0
             self.tracker.debugLog.append(f"Removed {deleted_count} empty folder(s)")
 
             # After processing all items, update composition layers if needed
@@ -782,7 +782,7 @@ class AEOrganizeManager(QObject):
             # Remove all empty folders from the project
             self.tracker.debugLog.append("=== REMOVING EMPTY FOLDERS ===")
             empty_folder_result = self.tracker.ae_ops.removeAllEmptyFolders()
-            deleted_count = empty_folder_result.get('deletedCount', 0)
+            deleted_count = empty_folder_result.get('deletedCount', 0) if isinstance(empty_folder_result, dict) else 0
             self.tracker.debugLog.append(f"Removed {deleted_count} empty folder(s)")
 
             # Show results
