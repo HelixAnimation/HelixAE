@@ -615,22 +615,18 @@ class AEOrganizeManager(QObject):
                         )
 
                     if item['type'] == 'footage':
-                        self.tracker.debugLog.append(
-                            f"  - Calling duplicateFootageItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})"
-                        )
+                        print(f"DEBUG: duplicateFootageItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})")
                         result = self.tracker.ae_ops.duplicateFootageItem(
                             item['id'], actual_rename_name, target_folder_id
                         )
                     elif item['type'] == 'comp':
-                        self.tracker.debugLog.append(
-                            f"  - Calling duplicateCompItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})"
-                        )
+                        print(f"DEBUG: duplicateCompItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})")
                         result = self.tracker.ae_ops.duplicateCompItem(item['id'], actual_rename_name, target_folder_id)
                     else:
-                        self.tracker.debugLog.append(f"  - Unknown item type: '{item['type']}', skipping")
+                        print(f"DEBUG: Unknown item type: '{item['type']}', skipping")
                         continue
 
-                    self.tracker.debugLog.append(f"  - Raw result: {repr(result)} (type: {type(result).__name__})")
+                    print(f"DEBUG: Raw result: {repr(result)} (type: {type(result).__name__})")
 
                     if isinstance(result, dict) and result.get('success'):
                         organized_count += 1
@@ -920,9 +916,7 @@ class AEOrganizeManager(QObject):
                             f"  - {action_type} footage item '{item['name']}' (ID: {item['id']})"
                             f" to '{target_name}' in folder {target_folder_id}"
                         )
-                        self.tracker.debugLog.append(
-                            f"  - Calling duplicateFootageItem(id={item['id']}, name='{target_name}', folder={target_folder_id})"
-                        )
+                        print(f"DEBUG: duplicateFootageItem(id={item['id']}, name='{target_name}', folder={target_folder_id})")
                         result = self.tracker.ae_ops.duplicateFootageItem(item['id'], target_name, target_folder_id)
                     elif item['type'] == 'comp':
                         action_type = "Moving" if item['name'] == target_name else "Moving and renaming"
@@ -930,15 +924,13 @@ class AEOrganizeManager(QObject):
                             f"  - {action_type} comp item '{item['name']}' (ID: {item['id']})"
                             f" to '{target_name}' in folder {target_folder_id}"
                         )
-                        self.tracker.debugLog.append(
-                            f"  - Calling duplicateCompItem(id={item['id']}, name='{target_name}', folder={target_folder_id})"
-                        )
+                        print(f"DEBUG: duplicateCompItem(id={item['id']}, name='{target_name}', folder={target_folder_id})")
                         result = self.tracker.ae_ops.duplicateCompItem(item['id'], target_name, target_folder_id)
                     else:
-                        self.tracker.debugLog.append(f"  - Unknown item type: '{item['type']}', skipping")
+                        print(f"DEBUG: Unknown item type: '{item['type']}', skipping")
                         continue
 
-                    self.tracker.debugLog.append(f"  - Raw result: {repr(result)} (type: {type(result).__name__})")
+                    print(f"DEBUG: Raw result: {repr(result)} (type: {type(result).__name__})")
 
                     if isinstance(result, dict) and result.get('success'):
                         organized_count += 1
