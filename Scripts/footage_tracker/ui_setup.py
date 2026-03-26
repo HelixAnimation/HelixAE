@@ -307,6 +307,28 @@ class UISetup(QObject):
         self.tracker.btn_alwaysOnTop.clicked.connect(self.toggleAlwaysOnTop)
         title_bar_layout.addWidget(self.tracker.btn_alwaysOnTop)
 
+        # Documentation button
+        self.tracker.btn_docs = QPushButton("?")
+        self.tracker.btn_docs.setFixedSize(24, 24)
+        self.tracker.btn_docs.setToolTip("Open HelixAE Documentation")
+        self.tracker.btn_docs.setFont(font)
+        self.tracker.btn_docs.setStyleSheet("""
+            QPushButton {
+                background-color: transparent;
+                color: #ccc;
+                border: none;
+                font-size: 13px;
+                font-weight: bold;
+                border-radius: 2px;
+                padding: 0px;
+            }
+            QPushButton:hover {
+                background-color: #4a4a4a;
+                color: white;
+            }
+        """)
+        self.tracker.btn_docs.clicked.connect(self.openDocumentation)
+        title_bar_layout.addWidget(self.tracker.btn_docs)
 
         # Return the title bar widget
         return title_bar
@@ -856,6 +878,12 @@ class UISetup(QObject):
 
         dlg.show()
         dlg.activateWindow()
+
+    @err_catcher(name=__name__)
+    def openDocumentation(self):
+        """Open HelixAE documentation in the default browser"""
+        import webbrowser
+        webbrowser.open("https://chorbest.github.io/HelixAE/")
 
     def applyFilter(self):
         """Filter tree items based on search text with wildcard support"""
