@@ -615,13 +615,22 @@ class AEOrganizeManager(QObject):
                         )
 
                     if item['type'] == 'footage':
+                        self.tracker.debugLog.append(
+                            f"  - Calling duplicateFootageItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})"
+                        )
                         result = self.tracker.ae_ops.duplicateFootageItem(
                             item['id'], actual_rename_name, target_folder_id
                         )
                     elif item['type'] == 'comp':
+                        self.tracker.debugLog.append(
+                            f"  - Calling duplicateCompItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})"
+                        )
                         result = self.tracker.ae_ops.duplicateCompItem(item['id'], actual_rename_name, target_folder_id)
+                    else:
+                        self.tracker.debugLog.append(f"  - Unknown item type: '{item['type']}', skipping")
+                        continue
 
-                    self.tracker.debugLog.append(f"  - Organization result: {result}")
+                    self.tracker.debugLog.append(f"  - Raw result: {repr(result)} (type: {type(result).__name__})")
 
                     if isinstance(result, dict) and result.get('success'):
                         organized_count += 1
@@ -656,14 +665,17 @@ class AEOrganizeManager(QObject):
                             comment_result = self.tracker.main.ae_core.executeAppleScript(script_add_comment)
                             self.tracker.debugLog.append(f"  - Comment result: {comment_result}")
                     else:
-                        error_msg = f"Failed to organize {item['name']}: {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
+                        error_detail = result.get('error', 'Unknown error') if isinstance(result, dict) else f"unexpected result: {repr(result)}"
+                        error_msg = f"Failed to organize {item['name']}: {error_detail}"
                         errors.append(error_msg)
                         self.tracker.debugLog.append(f"  - ERROR: {error_msg}")
 
                 except Exception as e:
+                    import traceback
                     error_msg = f"Failed to organize {item['name']}: {str(e)}"
                     errors.append(error_msg)
                     self.tracker.debugLog.append(f"  - EXCEPTION: {error_msg}")
+                    self.tracker.debugLog.append(f"  - Traceback: {traceback.format_exc()}")
                     import traceback
                     self.tracker.debugLog.append(f"  - Traceback: {traceback.format_exc()}")
 
@@ -908,7 +920,9 @@ class AEOrganizeManager(QObject):
                             f"  - {action_type} footage item '{item['name']}' (ID: {item['id']})"
                             f" to '{target_name}' in folder {target_folder_id}"
                         )
-
+                        self.tracker.debugLog.append(
+                            f"  - Calling duplicateFootageItem(id={item['id']}, name='{target_name}', folder={target_folder_id})"
+                        )
                         result = self.tracker.ae_ops.duplicateFootageItem(item['id'], target_name, target_folder_id)
                     elif item['type'] == 'comp':
                         action_type = "Moving" if item['name'] == target_name else "Moving and renaming"
@@ -916,10 +930,15 @@ class AEOrganizeManager(QObject):
                             f"  - {action_type} comp item '{item['name']}' (ID: {item['id']})"
                             f" to '{target_name}' in folder {target_folder_id}"
                         )
-
+                        self.tracker.debugLog.append(
+                            f"  - Calling duplicateCompItem(id={item['id']}, name='{target_name}', folder={target_folder_id})"
+                        )
                         result = self.tracker.ae_ops.duplicateCompItem(item['id'], target_name, target_folder_id)
+                    else:
+                        self.tracker.debugLog.append(f"  - Unknown item type: '{item['type']}', skipping")
+                        continue
 
-                    self.tracker.debugLog.append(f"  - Organization result: {result}")
+                    self.tracker.debugLog.append(f"  - Raw result: {repr(result)} (type: {type(result).__name__})")
 
                     if isinstance(result, dict) and result.get('success'):
                         organized_count += 1
@@ -930,15 +949,16 @@ class AEOrganizeManager(QObject):
                         else:
                             self.tracker.debugLog.append(f"  - Successfully moved and renamed item {organized_count}")
                     else:
-                        error_msg = f"Failed to organize {item['name']}: {result.get('error', 'Unknown error') if isinstance(result, dict) else repr(result)}"
+                        error_detail = result.get('error', 'Unknown error') if isinstance(result, dict) else f"unexpected result: {repr(result)}"
+                        error_msg = f"Failed to organize {item['name']}: {error_detail}"
                         errors.append(error_msg)
                         self.tracker.debugLog.append(f"  - ERROR: {error_msg}")
 
                 except Exception as e:
+                    import traceback
                     error_msg = f"Failed to organize {item['name']}: {str(e)}"
                     errors.append(error_msg)
                     self.tracker.debugLog.append(f"  - EXCEPTION: {error_msg}")
-                    import traceback
                     self.tracker.debugLog.append(f"  - Traceback: {traceback.format_exc()}")
 
             return organized_count, errors
