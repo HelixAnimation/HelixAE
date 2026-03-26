@@ -1,0 +1,58 @@
+site_name: HelixAE Documentation
+site_description: Prism pipeline plugin for Adobe After Effects
+repo_url: https://github.com/Chorbest/HelixAE
+repo_name: Chorbest/HelixAE
+
+theme:
+  name: material
+  palette:
+    - scheme: slate
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+    - scheme: default
+      primary: black
+      accent: deep orange
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - search.highlight
+    - search.suggest
+    - toc.follow
+  icon:
+    repo: fontawesome/brands/github
+
+nav:
+  - Overview: index.md
+  - Footage Tracker:
+    - footage-tracker/index.md
+    - The Interface: footage-tracker/interface.md
+    - Tree Grouping Modes: footage-tracker/tree-grouping.md
+    - Check Issues: footage-tracker/check-issues.md
+    - Updating Footage Versions: footage-tracker/updating-versions.md
+    - Shot Switch: footage-tracker/shot-switch.md
+    - Resize AOV Images: footage-tracker/resize-aov.md
+    - Compositions: footage-tracker/compositions.md
+    - Organise: footage-tracker/organise.md
+  - Importing: importing.md
+  - Render & Export: render-export.md
+  - Kitsu Integration: kitsu-integration.md
+  - Keyboard Shortcuts: shortcuts.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true
