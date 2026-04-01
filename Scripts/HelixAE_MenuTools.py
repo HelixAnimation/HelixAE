@@ -28,6 +28,7 @@
 
 import os
 import sys
+import json
 import socket
 import threading
 import platform
@@ -95,9 +96,12 @@ class CommandHandler(QObject):
             result = pcore.appPlugin.openAfterEffectsTools()
         elif cmd == "saveVersion":
             pcore.saveScene()
+            self._patchVersionInfo(pcore)
             result = None
         elif cmd == "saveExtended":
             result = pcore.saveWithComment()
+            if result:
+                self._patchVersionInfo(pcore)
         elif cmd == "projectBrowser":
             result = pcore.projectBrowser()
         elif cmd == "importMedia":
@@ -116,6 +120,49 @@ class CommandHandler(QObject):
             pcore.popup(cmd)
 
         return result
+
+
+    def _patchVersionInfo(self, pcore):
+        """Patch versioninfo.json with dependencies and externalFiles from archiveinfo.json."""
+        try:
+            current_file = pcore.getCurrentFileName()
+            if not current_file or not current_file.endswith('.aep'):
+                return
+
+            base = os.path.splitext(current_file)[0]
+            versioninfo_path = base + "versioninfo.json"
+            archiveinfo_path = base + "_archiveinfo.json"
+
+            if not os.path.exists(versioninfo_path) or not os.path.exists(archiveinfo_path):
+                return
+
+            with open(archiveinfo_path, 'r') as f:
+                archive = json.load(f)
+            with open(versioninfo_path, 'r') as f:
+                vinfo = json.load(f)
+
+            source_paths = archive.get("source_paths", {})
+            dependencies = [
+                p.replace("\\", "/") for p in
+                source_paths.get("3d_renders", []) +
+                source_paths.get("2d_renders", [])
+            ]
+            external_files = [
+                p.replace("\\", "/") for p in
+                source_paths.get("resources", []) +
+                archive.get("external_paths", [])
+            ]
+
+            if dependencies:
+                vinfo["dependencies"] = dependencies
+            if external_files:
+                vinfo["externalFiles"] = external_files
+
+            with open(versioninfo_path, 'w') as f:
+                json.dump(vinfo, f, indent=2)
+
+        except Exception as e:
+            print(f"[HelixAE] Failed to patch versioninfo.json: {e}")
 
 
 commandHandler = CommandHandler()

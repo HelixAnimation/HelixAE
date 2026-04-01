@@ -277,34 +277,22 @@ class HelixAE_Export:
         render.outputModules[1].applyTemplate('{selectedOutputModule}');
         render.outputModules[1].file = resultFile;
 
-        // Get frame range - check if work area is set, otherwise use full comp
+        // Get frame range from render queue item
         var comp = sel;
         var fps = comp.frameRate;
         var frameDuration = comp.frameDuration;
-
-        // Get display start frame (offset for frame numbering)
         var displayStartFrame = Math.round(comp.displayStartTime / frameDuration);
-
-        // Try to get from render item settings first
-        var startTime = render.startTime;
-        var duration = render.timeSpan;
-
-        // If duration is invalid, use composition work area or full duration
-        if (duration <= 0 || isNaN(duration)) {{
-            // Check if work area is set (smaller than comp duration)
-            if (comp.workAreaDuration < comp.duration && comp.workAreaDuration > 0) {{
-                startTime = comp.workAreaStart;
-                duration = comp.workAreaDuration;
-            }} else {{
-                startTime = comp.displayStartTime;
-                duration = comp.duration;
-            }}
-        }}
+        var startTime = render.timeSpanStart;
+        var duration = render.timeSpanDuration;
 
         var startFrame = Math.round(startTime / frameDuration) + displayStartFrame;
         var endFrame = Math.round((startTime + duration) / frameDuration - 1) + displayStartFrame;
 
-        startFrame + "||" + endFrame + "||" + fps;
+        JSON.stringify({{
+            "startFrame": startFrame,
+            "endFrame": endFrame,
+            "fps": fps
+        }});
         """
         frameRangeResult = self.main.ae_core.executeAppleScript(scpt)
 
@@ -320,19 +308,21 @@ class HelixAE_Export:
             del details["extension"]
 
         details["version"] = hVersion
-        details["sourceScene"] = fileName
+        details["sourceScene"] = fileName.replace("\\", "/")
         details["identifier"] = taskName
         details["comment"] = self.le_comment.text()
 
         # Add frame range data from render queue
         if frameRangeResult:
             try:
-                resultStr = str(frameRangeResult).replace("b'", "").replace("'", "")
-                parts = resultStr.split("||")
-                if len(parts) == 3:
-                    details["startframe"] = int(parts[0])
-                    details["endframe"] = int(parts[1])
-                    details["fps"] = float(parts[2])
+                import json as _json
+                frameRangeData = _json.loads(frameRangeResult)
+                if frameRangeData.get("startFrame") is not None:
+                    details["startframe"] = int(frameRangeData["startFrame"])
+                if frameRangeData.get("endFrame") is not None:
+                    details["endframe"] = int(frameRangeData["endFrame"])
+                if frameRangeData.get("fps"):
+                    details["fps"] = float(frameRangeData["fps"])
             except Exception as e:
                 print(f"[HelixAE Export] Error parsing frame range: {e}")
 
@@ -340,6 +330,7 @@ class HelixAE_Export:
             filepath=os.path.dirname(outputPath),
             details=details
         )
+        self._patchRenderVersionInfo(outputPath, fileName)
 
         self.core.popup(f"Render added to queue!\n\nOutput: {outputPath}")
         self.dlg_export.close()
@@ -417,13 +408,14 @@ class HelixAE_Export:
         // Get frame range from render queue item (respects custom start/end)
         var comp = sel;
         var fps = comp.frameRate;
-        var renderStartTime = render.startTime;
-        var renderDuration = render.timeSpan;
         var frameDuration = comp.frameDuration;
+        var displayStartFrame = Math.round(comp.displayStartTime / frameDuration);
+        var renderStartTime = render.timeSpanStart;
+        var renderDuration = render.timeSpanDuration;
 
         // Calculate actual render frame range
-        var startFrame = Math.round(renderStartTime / frameDuration);
-        var endFrame = Math.round((renderStartTime + renderDuration) / frameDuration - 1);
+        var startFrame = Math.round(renderStartTime / frameDuration) + displayStartFrame;
+        var endFrame = Math.round((renderStartTime + renderDuration) / frameDuration - 1) + displayStartFrame;
 
         JSON.stringify({{
             "startFrame": startFrame,
@@ -445,7 +437,7 @@ class HelixAE_Export:
             del details["extension"]
 
         details["version"] = hVersion
-        details["sourceScene"] = fileName
+        details["sourceScene"] = fileName.replace("\\", "/")
         details["identifier"] = taskName
         details["comment"] = self.le_comment.text()
 
@@ -467,10 +459,48 @@ class HelixAE_Export:
             filepath=os.path.dirname(outputPath),
             details=details
         )
+        self._patchRenderVersionInfo(outputPath, fileName)
 
         self.dlg_export.close()
 
         return True
+
+    @err_catcher(name=__name__)
+    def _patchRenderVersionInfo(self, outputPath, sceneFile):
+        """Patch render versioninfo.json with dependencies/externalFiles from scene archiveinfo."""
+        try:
+            import json
+            versioninfo_path = os.path.join(os.path.dirname(outputPath), "versioninfo.json")
+            archiveinfo_path = os.path.splitext(sceneFile)[0] + "_archiveinfo.json"
+
+            if not os.path.exists(versioninfo_path) or not os.path.exists(archiveinfo_path):
+                return
+
+            with open(archiveinfo_path, 'r') as f:
+                archive = json.load(f)
+            with open(versioninfo_path, 'r') as f:
+                vinfo = json.load(f)
+
+            source_paths = archive.get("source_paths", {})
+            dependencies = [
+                p.replace("\\", "/") for p in
+                source_paths.get("3d_renders", []) +
+                source_paths.get("2d_renders", [])
+            ]
+            external_files = [
+                p.replace("\\", "/") for p in
+                source_paths.get("resources", []) +
+                archive.get("external_paths", [])
+            ]
+
+            vinfo["dependencies"] = dependencies
+            vinfo["externalFiles"] = external_files
+
+            with open(versioninfo_path, 'w') as f:
+                json.dump(vinfo, f, indent=2)
+
+        except Exception as e:
+            print(f"[HelixAE Export] Failed to patch render versioninfo.json: {e}")
 
     @err_catcher(name=__name__)
     def getCompositionFrameRange(self):
