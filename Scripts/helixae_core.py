@@ -46,7 +46,9 @@ class HelixAECore:
         while True:
             chunk = self._socket.recv(65536)
             if not chunk:
-                break
+                # Peer closed the connection — treat as an error so the caller
+                # can reconnect, instead of silently returning empty data.
+                raise ConnectionError("Connection to After Effects closed unexpectedly")
             if b'\x00' in chunk:
                 chunks.append(chunk[:chunk.index(b'\x00')])
                 break
