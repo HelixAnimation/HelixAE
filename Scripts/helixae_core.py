@@ -11,9 +11,6 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
-# For socket thread safety
-from qtpy.QtCore import QMutex, QMutexLocker
-
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -22,33 +19,14 @@ class HelixAECore:
         self.main = main
         self.core = main.core
         self.win = platform.system() == "Windows"
-        self._socket = None  # Persistent socket connection
-        self._socket_lock = QMutex()  # Thread safety
 
-        # Try to connect immediately when plugin loads
-        self._tryConnect()
-
-    def _tryConnect(self):
-        """Attempt to establish socket connection to AE"""
-        try:
-            self._socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            self._socket.settimeout(0.5)  # Quick timeout for initial connect
-            self._socket.connect(('127.0.0.1', 9888))
-            self._socket.settimeout(120.0)  # 120s timeout - imports can take a long time
-            return True
-        except Exception as e:
-            self._socket = None
-            return False
-
-    def _recvAll(self):
+    def _recvAll(self, sock):
         """Read from socket until the null-byte sentinel, handling large responses."""
         chunks = []
         while True:
-            chunk = self._socket.recv(65536)
+            chunk = sock.recv(65536)
             if not chunk:
-                # Peer closed the connection — treat as an error so the caller
-                # can reconnect, instead of silently returning empty data.
-                raise ConnectionError("Connection to After Effects closed unexpectedly")
+                break
             if b'\x00' in chunk:
                 chunks.append(chunk[:chunk.index(b'\x00')])
                 break
@@ -124,29 +102,22 @@ throw new SyntaxError('JSON.parse');};}
     @err_catcher(name=__name__)
     def executeAppleScript(self, script):
         """
-        Send ExtendScript to After Effects via persistent socket connection
-        Returns bytes object with script result
+        Send ExtendScript to After Effects via a fresh socket connection per call.
+        Returns bytes object with script result.
         """
-        with QMutexLocker(self._socket_lock):
-            # Ensure we have a connection
-            if self._socket is None:
-                if not self._tryConnect():
-                    raise Exception("Cannot connect to After Effects on 127.0.0.1:9888")
+        # Prepend JSON polyfill if the script uses JSON
+        if 'JSON.' in script:
+            script = self._JSON_POLYFILL + script
 
-            # Prepend JSON polyfill if the script uses JSON
-            if 'JSON.' in script:
-                script = self._JSON_POLYFILL + script
-
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
-                self._socket.sendall(script.encode("utf-8"))
-                return self._recvAll()
-            except (ConnectionError, BrokenPipeError, OSError, socket.timeout) as e:
-                # Connection lost or timed out - reconnect once and retry
-                self._socket = None
-                if self._tryConnect():
-                    self._socket.sendall(script.encode("utf-8"))
-                    return self._recvAll()
-                raise Exception(f"Connection to After Effects lost: {e}")
+                s.connect(('127.0.0.1', 9888))
+            except Exception as e:
+                raise Exception("Cannot connect to After Effects on 127.0.0.1:9888 (%s)" % e)
+
+            s.settimeout(120.0)  # 120s — imports can take a long time
+            s.sendall(script.encode("utf-8"))
+            return self._recvAll(s)
 
     @err_catcher(name=__name__)
     def getCurrentFileName(self, origin, path=True):
