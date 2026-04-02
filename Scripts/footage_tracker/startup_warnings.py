@@ -1094,6 +1094,16 @@ class StartupWarnings(QObject):
 
     def _checkAfterUpdate(self):
         """Re-check for issues after update and show results"""
+        # Guard against the tracker dialog having been closed/destroyed between the
+        # QTimer firing and this callback executing.
+        try:
+            tw = self.tracker.tw_footage
+            if tw is None or not tw.isVisible():
+                return
+            # Accessing any property on a deleted C++ object raises RuntimeError
+            tw.verticalScrollBar()
+        except RuntimeError:
+            return
         # Reload footage data from AE to get updated hierarchy
         self.tracker.loadFootageData()
 

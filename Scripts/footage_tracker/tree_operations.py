@@ -76,6 +76,14 @@ class TreeOperations(QObject):
         print("[FOOTAGE] Loading footage data...")
         load_start = time.perf_counter()
 
+        # Guard: abort if the tree widget has been destroyed (e.g. dialog closed
+        # while a QTimer callback is still pending).
+        try:
+            self.tracker.tw_footage.verticalScrollBar()
+        except RuntimeError:
+            print("[FOOTAGE] tw_footage already deleted, skipping loadFootageData")
+            return
+
         # Save scroll position before clearing the tree
         scroll_position = None
         if preserve_scroll:
