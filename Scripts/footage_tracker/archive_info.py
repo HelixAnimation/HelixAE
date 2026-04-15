@@ -313,6 +313,12 @@ def get_used_footage_from_comps(tracker):
     # Get footage usage via AE operations
     try:
         scpt = """
+        function arrayContains(arr, val) {
+            for (var k = 0; k < arr.length; k++) {
+                if (arr[k] === val) return true;
+            }
+            return false;
+        }
         var usedFootage = {};
         for (var i = 1; i <= app.project.numItems; i++) {
             var item = app.project.item(i);
@@ -324,7 +330,7 @@ def get_used_footage_from_comps(tracker):
                         if (!usedFootage[footageId]) {
                             usedFootage[footageId] = [];
                         }
-                        if (usedFootage[footageId].indexOf(item.name) == -1) {
+                        if (!arrayContains(usedFootage[footageId], item.name)) {
                             usedFootage[footageId].push(item.name);
                         }
                     }
