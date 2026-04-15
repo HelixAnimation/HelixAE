@@ -130,7 +130,8 @@ class CommandHandler(QObject):
                 return
 
             base = os.path.splitext(current_file)[0]
-            versioninfo_path = base + "versioninfo.json"
+            ext = pcore.configs.getProjectExtension()
+            versioninfo_path = base + "versioninfo" + ext
             archiveinfo_path = base + "_archiveinfo.json"
 
             if not os.path.exists(versioninfo_path) or not os.path.exists(archiveinfo_path):
@@ -162,7 +163,7 @@ class CommandHandler(QObject):
                 json.dump(vinfo, f, indent=2)
 
         except Exception as e:
-            print(f"[HelixAE] Failed to patch versioninfo.json: {e}")
+            print(f"[HelixAE] Failed to patch versioninfo: {e}")
 
 
 commandHandler = CommandHandler()

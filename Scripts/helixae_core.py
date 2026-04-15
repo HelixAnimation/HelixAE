@@ -345,7 +345,7 @@ throw new SyntaxError('JSON.parse');};}
                     archive_data = archive_info.generate_archive_info(tracker, filepath, hierarchy)
 
                     if archive_info.write_archive_json(archive_data, archive_path):
-                        pass
+                        self._patchVersionInfo(filepath, archive_data)
                     else:
                         self.core.popup("Failed to save archive info file.")
                 else:
@@ -364,6 +364,42 @@ throw new SyntaxError('JSON.parse');};}
         except Exception:
             self.core.popup("There is no active document in AfterEffects.")
             return False
+
+    def _patchVersionInfo(self, filepath, archive_data):
+        """Patch versioninfo with dependencies and externalFiles from archive data."""
+        try:
+            import json as _json
+            base = os.path.splitext(filepath)[0]
+            ext = self.core.configs.getProjectExtension()
+            versioninfo_path = base + "versioninfo" + ext
+            if not os.path.exists(versioninfo_path):
+                return
+
+            with open(versioninfo_path, 'r') as f:
+                vinfo = _json.load(f)
+
+            source_paths = archive_data.get("source_paths", {})
+            dependencies = [
+                p.replace("\\", "/") for p in
+                source_paths.get("3d_renders", []) +
+                source_paths.get("2d_renders", [])
+            ]
+            external_files = [
+                p.replace("\\", "/") for p in
+                source_paths.get("resources", []) +
+                archive_data.get("external_paths", [])
+            ]
+
+            if dependencies:
+                vinfo["dependencies"] = dependencies
+            if external_files:
+                vinfo["externalFiles"] = external_files
+
+            with open(versioninfo_path, 'w') as f:
+                _json.dump(vinfo, f, indent=2)
+
+        except Exception as e:
+            print(f"[HelixAE] Failed to patch versioninfo: {e}")
 
     @err_catcher(name=__name__)
     def getAppVersion(self, origin):
