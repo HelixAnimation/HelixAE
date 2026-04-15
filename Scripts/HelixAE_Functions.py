@@ -55,6 +55,9 @@ class HelixAE_Functions(object):
         self.core.registerCallback(
             "mediaPlayerContextMenuRequested", self.mediaPlayerContextMenuRequested, plugin=self.plugin
         )
+        self.core.registerCallback(
+            "postSaveScene", self.postSaveScene, plugin=self.plugin
+        )
 
         # Initialize submodules (like old plugin - only when Functions is initialized)
         import helixae_core
@@ -183,6 +186,11 @@ class HelixAE_Functions(object):
     def saveScene(self, origin, filepath, details={}):
         # Use ae_core.saveScene which includes archive info generation
         return self.ae_core.saveScene(origin, filepath, details)
+
+    @err_catcher(name=__name__)
+    def postSaveScene(self, origin, filepath, versionUp, comment, publish, details):
+        # Prism creates versioninfo.json before firing this callback, so it's safe to patch now.
+        self.ae_core._patchVersionInfo(filepath, getattr(self.ae_core, '_last_archive_data', None))
 
     @err_catcher(name=__name__)
     def getImportPaths(self, origin):

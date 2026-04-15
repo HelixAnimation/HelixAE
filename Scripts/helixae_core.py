@@ -343,10 +343,9 @@ throw new SyntaxError('JSON.parse');};}
                 # Generate archive data with fresh hierarchy (only if tracker available)
                 if tracker:
                     archive_data = archive_info.generate_archive_info(tracker, filepath, hierarchy)
+                    self._last_archive_data = archive_data  # stored for postSaveScene callback
 
-                    if archive_info.write_archive_json(archive_data, archive_path):
-                        self._patchVersionInfo(filepath, archive_data)
-                    else:
+                    if not archive_info.write_archive_json(archive_data, archive_path):
                         self.core.popup("Failed to save archive info file.")
                 else:
                     self.core.popup(
@@ -365,7 +364,7 @@ throw new SyntaxError('JSON.parse');};}
             self.core.popup("There is no active document in AfterEffects.")
             return False
 
-    def _patchVersionInfo(self, filepath, archive_data):
+    def _patchVersionInfo(self, filepath, archive_data=None):
         """Patch versioninfo with dependencies and externalFiles from archive data."""
         try:
             import json as _json
@@ -374,6 +373,14 @@ throw new SyntaxError('JSON.parse');};}
             versioninfo_path = base + "versioninfo" + ext
             if not os.path.exists(versioninfo_path):
                 return
+
+            # Fall back to reading the archiveinfo file if no data passed in
+            if archive_data is None:
+                archiveinfo_path = base + "_archiveinfo.json"
+                if not os.path.exists(archiveinfo_path):
+                    return
+                with open(archiveinfo_path, 'r') as f:
+                    archive_data = _json.load(f)
 
             with open(versioninfo_path, 'r') as f:
                 vinfo = _json.load(f)
