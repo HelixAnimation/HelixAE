@@ -14,7 +14,7 @@ class ContextMenuBypass:
     def _buildItemKey(self, item, userData):
         """Build the bypass key for a footage or comp item"""
         if userData.get('type') == 'footage':
-            shot_name = self.tracker.getShotNameFromItem(item)
+            shot_name = self.tracker.getShotNameFromItem(item) or userData.get('shot', '')
             identifier = userData.get('identifier', '')
 
             item_text = item.text(0)

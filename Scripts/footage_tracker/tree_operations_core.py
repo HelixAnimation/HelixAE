@@ -747,8 +747,8 @@ class TreeOperationsCore:
         print(f"[DEBUG BYPASS] userData keys: {list(userData.keys())}")
         print(f"[DEBUG BYPASS] userData: {userData}")
         if item_type == 'footage':
-            # Get shot name from tree hierarchy
-            shot_name = self.tracker.getShotNameFromItem(item)
+            # Get shot name from tree hierarchy, fall back to userData['shot'] for 2D renders
+            shot_name = self.tracker.getShotNameFromItem(item) or userData.get('shot', '')
             print(f"[DEBUG BYPASS] shot_name: {shot_name}")
 
             # Get identifier from userData

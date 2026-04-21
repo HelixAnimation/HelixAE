@@ -431,7 +431,8 @@ class TreeRenderer:
             'footage_type': footage_type,
             'identifier': clean_identifier,  # Clean identifier for bypass key (e.g., "LowRes")
             'id': int(footageData['footageId']),
-            'path': footageData.get('path', '')  # Add path for fallback bypass key
+            'path': footageData.get('path', ''),
+            'shot': shot  # Stored so bypass key can be built without tree traversal
         })
         identifierItem.setForeground(0, QBrush(QColor(150, 150, 255)))
         font = identifierItem.font(0)
@@ -702,11 +703,12 @@ class TreeRenderer:
         userData = {
             'id': int(footageData['footageId']),
             'type': 'footage',
-            'group': '3D Renders',  # Add group for render type detection
+            'group': '3D Renders',
             'currentVersion': footageData['versionInfo']['currentVersion'],
             'latestVersion': footageData['versionInfo']['latestVersion'],
             'path': footageData['path'],
-            'identifier': parent_identifier  # Add parent identifier for bypass key (e.g., "Lighting_Beauty")
+            'identifier': parent_identifier,
+            'shot': shot  # Stored so bypass key can be built without tree traversal
         }
         item.setData(0, Qt.UserRole, userData)
 
@@ -1541,8 +1543,8 @@ class TreeRenderer:
 
         if userData.get('type') == 'footage':
             # Generate item_key based on shot/identifier/aov (not version-specific)
-            # Get shot name from tree hierarchy
-            shot_name = self.tracker.getShotNameFromItem(item)
+            # Get shot name from tree hierarchy, fall back to userData['shot'] for 2D renders
+            shot_name = self.tracker.getShotNameFromItem(item) or userData.get('shot', '')
 
             # Get identifier from userData
             identifier = userData.get('identifier', '')

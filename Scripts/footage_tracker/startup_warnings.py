@@ -621,6 +621,12 @@ class StartupWarnings(QObject):
             fps_btn.clicked.connect(lambda: self._fixAllFPS(dlg))
             button_layout.addWidget(fps_btn)
 
+        if issues['frame_range_mismatch']:
+            frame_range_btn = QPushButton(f"Update {non_ignored_frame_range} Frame Range")
+            frame_range_btn.setStyleSheet(self._buttonStyle("#AB26FF"))
+            frame_range_btn.clicked.connect(lambda: self._syncAllCompsWithKitsu(dlg))
+            button_layout.addWidget(frame_range_btn)
+
         # Resolution button for comps only
         if non_ignored_resolution_comps > 0:
             resolution_btn = QPushButton(f"Update {non_ignored_resolution_comps} Comp Resolution")
