@@ -45,8 +45,9 @@ class HelixAE_Export:
         # Task selection
         lo_task = QHBoxLayout()
         self.le_task = QLineEdit()
-        self.b_task = QPushButton("▼")
-        self.b_task.setMaximumSize(35, 500)
+        self.b_task = QPushButton("...")
+        self.b_task.setFixedSize(24, 24)
+        self.b_task.setStyleSheet("padding: 0px; border: none;")
         lo_task.addWidget(QLabel("Task:"))
         lo_task.addWidget(self.le_task)
         lo_task.addWidget(self.b_task)
