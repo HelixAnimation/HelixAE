@@ -46,12 +46,6 @@ Full artist documentation is available at:
 
 ---
 
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for release history.
-
----
-
 ## License
 
 Licensed under the [GNU Lesser General Public License v3.0](LICENSE).
