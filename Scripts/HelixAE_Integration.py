@@ -126,9 +126,25 @@ class HelixAE_Integration(object):
                 os.path.dirname(os.path.dirname(__file__)), "Integration"
             )
             integrationBase = os.path.realpath(integrationBase)
+            zipPath = os.path.join(integrationBase, "helixae.zip")
+
+            signature = helixae_install.archive_signature_state(zipPath)
+            if signature != "signed":
+                if signature == "unsigned" and os.environ.get("HELIXAE_ALLOW_UNSIGNED") == "1":
+                    helixae_install.enable_cep_debug_mode()
+                elif signature == "unsigned":
+                    raise ValueError(
+                        "The HelixAE panel is unsigned. Run bash release_panel.sh before "
+                        "installing it, or set HELIXAE_ALLOW_UNSIGNED=1 for local development."
+                    )
+                else:
+                    raise ValueError(
+                        "The HelixAE panel signature is %s. Run bash release_panel.sh "
+                        "before installing it." % signature
+                    )
 
             return helixae_install.install(
-                os.path.join(integrationBase, "helixae.zip"),
+                zipPath,
                 os.path.join(integrationBase, "helixae.cmd"),
                 installPath, self.core.prismRoot, self.pluginDirectory,
             )

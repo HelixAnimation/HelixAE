@@ -3,21 +3,25 @@
 set -euo pipefail
 
 ROOT="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
-REMOTE_ROOT='/volume1/Renders/Users/Dimitar/Claude/Projects/AE_Plugin/HelixAE'
+REMOTE_ROOT='/volume1/Renders/Programs/PrismPlugins/HelixAE'
 PYTHON="${PYTHON:-python3}"
 MODE="${1:-}"
-if [[ $# -gt 1 || ( -n "$MODE" && "$MODE" != '--dry-run' && "$MODE" != '--help' ) ]]; then
-    printf 'Usage: bash dev_sync.sh [--dry-run|--help]\n' >&2
+if [[ $# -gt 1 || ( -n "$MODE" && "$MODE" != '--dry-run' && "$MODE" != '--help' && "$MODE" != '--allow-unsigned' ) ]]; then
+    printf 'Usage: bash dev_sync.sh [--dry-run|--allow-unsigned|--help]\n' >&2
     exit 2
 fi
 if [[ "$MODE" == '--help' ]]; then
-    printf 'Usage: bash dev_sync.sh [--dry-run]\nChecks syntax and CEP packaging, then copies to nassk and verifies SHA-256 hashes.\nNAS-only files are retained. Git metadata and caches are not deployed.\n'
+    printf 'Usage: bash dev_sync.sh [--dry-run|--allow-unsigned]\nChecks syntax and CEP packaging, then copies to nassk and verifies SHA-256 hashes.\nNAS-only files are retained. Git metadata and caches are not deployed.\n--allow-unsigned is for deliberate local development builds only.\n'
     exit 0
 fi
 
 "$PYTHON" -m compileall -q "$ROOT/Scripts"
 node --check "$ROOT/Integration/helixae/js/main.js"
-"$PYTHON" "$ROOT/dev_panel.py"
+if [[ "$MODE" == '--allow-unsigned' ]]; then
+    "$PYTHON" "$ROOT/dev_panel.py" --allow-unsigned
+else
+    "$PYTHON" "$ROOT/dev_panel.py"
+fi
 
 # Explicit roots keep local environments, credentials and Git metadata out of deployment.
 files=(Integration Presets Resources Scripts UserInterfaces lib docs
@@ -73,6 +77,7 @@ DIGEST="${DIGEST%% *}"
 ssh nassk "set -eu
 printf '%s  %s\n' '$DIGEST' '$REMOTE_TEMP/payload.tar.gz' | sha256sum -c -
 tar --no-same-owner --no-same-permissions --no-overwrite-dir -xzf '$REMOTE_TEMP/payload.tar.gz' -C '$REMOTE_ROOT'
+rm -f '$REMOTE_ROOT/Integration/helixae/META-INF/signatures.xml'
 cd '$REMOTE_ROOT'
 sha256sum -c '$REMOTE_TEMP/checksums' > '$REMOTE_TEMP/verification.log' 2>&1 || { cat '$REMOTE_TEMP/verification.log'; exit 1; }"
 printf 'Deployed and checksum-verified: nassk:%s\n' "$REMOTE_ROOT"

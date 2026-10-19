@@ -27,6 +27,7 @@
 
 
 from HelixAE_Variables import HelixAE_Variables
+from Prism_HelixAE_Variables import Prism_HelixAE_Variables
 from HelixAE_externalAccess_Functions import HelixAE_externalAccess_Functions
 from HelixAE_Functions import HelixAE_Functions
 from HelixAE_Integration import HelixAE_Integration

@@ -40,9 +40,11 @@ the phase that changes them.
 ## 2. Execution rules
 
 - Working root: `/mnt/storage/OpenCodeProjects/CG/HelixAE`
-- Deploy target: `ssh nassk` → `/volume1/Renders/Users/Dimitar/Claude/Projects/AE_Plugin/HelixAE`
-- Deploy only verified changes with `bash dev_sync.sh`; never auto-sync unfinished saves.
-- Rebuild `Integration/helixae.zip` (`python dev_panel.py --build`) whenever panel sources change.
+- Production checkout: `ssh nassk` → `/volume1/Renders/Programs/PrismPlugins/HelixAE`.
+- Verify locally, then commit/push and pull into the NAS checkout only when explicitly
+  authorized. `dev_sync.sh` is a legacy direct-copy helper, not the production workflow.
+- Sign `Integration/helixae.zip` with `bash release_panel.sh` whenever panel sources change.
+  `python dev_panel.py --build` is unsigned local-development packaging only.
 - Preserve the Prism entry class, compatibility aliases, flat top-level imports, ports
   `9888`/`43210`, null-terminated chunked responses.
 - Local checks: `python -m compileall -q Scripts`, `node --check Integration/helixae/js/main.js`,
@@ -894,6 +896,25 @@ checks passed. Windows confirmation after Prism restart remains pending.
   panel JS syntax, ZIP/source parity and diff checks passed. Deployment uses the existing
   checksum-verified NAS workflow; no panel source/ZIP change was needed.
 
+### Signed CEP panel follow-up (2026-10-19)
+
+- Production `Integration/helixae.zip` is now signed on `ssh helix` with ZXPSignCmd
+  and a self-signed certificate stored under `C:\secure\helixae-signing\`. The release
+  script stages a clean source snapshot, signs and verifies remotely, validates the
+  downloaded ZIP against the live source, and only then atomically replaces the local
+  ZIP. The certificate, password and signing binary are never committed or deployed.
+- Added strict signature checks to `dev_panel.py` and `dev_sync.sh`, a signature-state
+  policy in `helixae_install.py`/`HelixAE_Integration.addIntegration()`, and the
+  `HELIXAE_ALLOW_UNSIGNED=1` development fallback that enables `PlayerDebugMode` for
+  existing `CSXS.*` keys plus `CSXS.12`. Signed archives need no registry changes.
+- Added `Scripts/Prism_HelixAE_Variables.py` as a compatibility alias for Prism's plugin
+  metadata loader. Panel `1.0.2` declares the CEP runtime required by its AE host range.
+- Local verification covers the signature parser, unsigned-development policy, registry
+  helper and staging/parity checks; all 371 tests pass. The user confirmed the panel
+  and plugin work on Windows after manual CEP installation and correction of the local
+  Prism registration. The installed `1.0.2` panel passes Adobe signature verification.
+  NAS rollout and an explicit AE round trip remain separate verification steps.
+
 ### Phase 8 Windows verification
 
 User confirmed that updating the existing CEP integration through Prism works.
@@ -919,9 +940,10 @@ git diff --check
 
 Panel changes additionally: `python dev_panel.py --build`.
 
-After a coherent phase passes local checks: `bash dev_sync.sh --dry-run`, then
-`bash dev_sync.sh`; reinstall the CEP integration through Prism when required and run the
-phase's Windows tests. For each phase record: changed files, fixed findings, test results,
+After a coherent phase passes local checks, obtain authorization to commit/push and
+pull the release into the production NAS checkout; reinstall the CEP integration
+through Prism when required and run the phase's Windows tests. For each phase record:
+changed files, fixed findings, test results,
 deployment result, Windows verification status, remaining blockers.
 
 Recommended first milestone: Phases 0–3 (runtime baseline, correct cleanup, reliable

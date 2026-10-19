@@ -137,5 +137,129 @@ class InstallationTests(unittest.TestCase):
         self.assert_old()
 
 
+class SignatureMetadataTests(unittest.TestCase):
+    def test_signature_states(self):
+        self.assertEqual(installer.signature_state(None), "unsigned")
+        self.assertEqual(installer.signature_state(b""), "empty")
+        self.assertEqual(installer.signature_state(b"<signatures>\n</signatures>"), "empty")
+        self.assertEqual(installer.signature_state(b"<signatures>"), "malformed")
+        self.assertEqual(installer.signature_state(b"<not-signatures/>"), "malformed")
+        self.assertEqual(installer.signature_state(b"<signatures><Signature/></signatures>"), "empty")
+        self.assertEqual(
+            installer.signature_state(
+                b'<signatures xmlns="http://ns.adobe.com/ZXPSignCMD/1.0">'
+                b"<Signature><SignedInfo/></Signature></signatures>"
+            ),
+            "signed",
+        )
+
+    def test_signature_state_from_files(self):
+        self.assertEqual(installer.signature_state_from_files({}), "unsigned")
+        self.assertEqual(
+            installer.signature_state_from_files(
+                {
+                    installer.SIGNATURE_MEMBER: (
+                        b"<signatures><Signature><SignedInfo/></Signature></signatures>"
+                    )
+                }
+            ),
+            "signed",
+        )
+
+    def test_archive_signature_state(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            archive = Path(temporary) / "panel.zip"
+            with zipfile.ZipFile(archive, "w") as package:
+                package.writestr("index.html", b"panel")
+            self.assertEqual(installer.archive_signature_state(archive), "unsigned")
+
+            with zipfile.ZipFile(archive, "a") as package:
+                package.writestr(
+                    installer.SIGNATURE_MEMBER,
+                    b"<signatures><Signature><SignedInfo/></Signature></signatures>",
+                )
+            self.assertEqual(installer.archive_signature_state(archive), "signed")
+
+
+class FakeWinreg(object):
+    HKEY_CURRENT_USER = object()
+    KEY_READ = 1
+    KEY_SET_VALUE = 2
+    REG_SZ = 1
+
+    def __init__(self, existing=()):
+        self.existing = list(existing)
+        self.values = {}
+        self.created = []
+        self.closed = []
+
+    def OpenKey(self, root, path, reserved, access):
+        if path != "Software\\Adobe" or not self.existing:
+            raise FileNotFoundError(path)
+        return "root"
+
+    def EnumKey(self, key, index):
+        names = sorted(self.existing)
+        if index >= len(names):
+            raise OSError("no more keys")
+        return names[index]
+
+    def CloseKey(self, key):
+        self.closed.append(key)
+
+    def CreateKeyEx(self, root, path, reserved, access):
+        self.created.append(path)
+        return path
+
+    def CreateKey(self, root, path):
+        self.created.append(path)
+        return path
+
+    def SetValueEx(self, key, name, reserved, value_type, value):
+        self.values[key] = (name, value_type, value)
+
+
+class LegacyWinreg(FakeWinreg):
+    def CreateKeyEx(self, *args):
+        raise AttributeError("CreateKeyEx unavailable")
+
+
+class CepDebugModeTests(unittest.TestCase):
+    def test_sets_existing_keys_and_csxs_12(self):
+        registry = FakeWinreg(["CSXS.11", "Photoshop"])
+        keys = installer.enable_cep_debug_mode(registry)
+        self.assertEqual(keys, ["CSXS.11", "CSXS.12"])
+        self.assertEqual(
+            registry.values,
+            {
+                "Software\\Adobe\\CSXS.11": ("PlayerDebugMode", registry.REG_SZ, "1"),
+                "Software\\Adobe\\CSXS.12": ("PlayerDebugMode", registry.REG_SZ, "1"),
+            },
+        )
+        self.assertNotIn("Software\\Adobe\\Photoshop", registry.values)
+
+    def test_creates_csxs_12_without_existing_base(self):
+        registry = FakeWinreg([])
+        self.assertEqual(installer.enable_cep_debug_mode(registry), ["CSXS.12"])
+        self.assertEqual(
+            registry.values["Software\\Adobe\\CSXS.12"],
+            ("PlayerDebugMode", registry.REG_SZ, "1"),
+        )
+
+    def test_falls_back_to_create_key(self):
+        registry = LegacyWinreg(["CSXS.12"])
+        self.assertEqual(installer.enable_cep_debug_mode(registry), ["CSXS.12"])
+        self.assertEqual(registry.created, ["Software\\Adobe\\CSXS.12"])
+
+    def test_is_idempotent(self):
+        registry = FakeWinreg(["CSXS.12"])
+        installer.enable_cep_debug_mode(registry)
+        installer.enable_cep_debug_mode(registry)
+        self.assertEqual(
+            registry.values["Software\\Adobe\\CSXS.12"],
+            ("PlayerDebugMode", registry.REG_SZ, "1"),
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

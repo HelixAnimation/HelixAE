@@ -13,6 +13,13 @@ Thumbs.db
 .DS_Store
 desktop.ini
 
+# CEP signing secrets and release outputs
+*.p12
+*.pfx
+*.zxp
+signing/
+Integration/helixae.zip.tmp
+
 # Local development
 .venv/
 .env

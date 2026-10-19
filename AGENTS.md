@@ -2,11 +2,22 @@
 
 ## Local Development and NAS Deployment
 
-- Develop in `/mnt/storage/OpenCodeProjects/CG/HelixAE`. The live NAS copy is `/volume1/Renders/Users/Dimitar/Claude/Projects/AE_Plugin/HelixAE` on `ssh nassk`.
-- After completing and verifying a requested change, run `bash dev_sync.sh` to deploy it and report the result. Do not auto-sync unfinished saves. Run `bash dev_sync.sh --dry-run` to check prerequisites without writing to the NAS.
+- Develop in `/mnt/storage/OpenCodeProjects/CG/HelixAE`. The production NAS checkout is `/volume1/Renders/Programs/PrismPlugins/HelixAE` on `ssh nassk`, exposed as `\\nassk\Renders\Programs\PrismPlugins\HelixAE`.
+- Production delivery is local verification, explicitly authorized commit/push, then a separately authorized pull in the NAS checkout. Do not automatically run `dev_sync.sh`, update the NAS, or commit/push/pull. The user controls when these operations happen.
 - Git history is maintained locally; deployment excludes `.git`. Preserve existing NAS-only files. Source removals/renames require deliberate cleanup of the corresponding old NAS files because deployment does not delete them.
-- For panel changes, run `python dev_panel.py --build` before deployment. The deploy command checks Python/JS syntax and ZIP/source parity, and verifies deployed file hashes.
+- For panel changes, run `bash release_panel.sh` to sign `Integration/helixae.zip` on `ssh helix` before deployment. The deploy command checks Python/JS syntax, the signature, and ZIP/source parity, and verifies deployed file hashes. Never deploy an unsigned panel ZIP.
 - See `docs/development.md` for the workflow and reload requirements.
+
+## CEP Panel Signing
+
+- Production `Integration/helixae.zip` must contain a non-empty `META-INF/signatures.xml` that passes `ZXPSignCmd -verify`. `PlayerDebugMode` is a local-development fallback, not a production fix.
+- Any change under `Integration/helixae/` invalidates the signature. Run `bash release_panel.sh` after the final panel edit and before deployment or commit.
+- Signing runs on `ssh helix` with `C:\secure\helixae-signing\`. Keep the certificate, password, and `ZXPSignCmd` there; never add them to the repository, docs, or NAS deployment.
+- `release_panel.sh` stages a clean snapshot, signs and verifies it remotely, validates the downloaded ZIP against the live source, and only then atomically replaces the local ZIP. If any step fails, preserve the previous ZIP.
+- Python-only changes do not require re-signing. `python dev_panel.py --build` is for unsigned local development only; it refuses to overwrite a signed ZIP without `--allow-unsigned`.
+- `HelixAE_Integration.addIntegration()` installs an unsigned archive only when `HELIXAE_ALLOW_UNSIGNED=1`; that explicit development path enables `PlayerDebugMode`. Signed archives need no registry changes.
+- Bump `ExtensionBundleVersion` and the extension `Version` in `Integration/helixae/CSXS/manifest.xml` when panel files change.
+- Never hand-edit `META-INF/signatures.xml`, and never commit an empty placeholder signature.
 
 ## Durable Implementation Rules
 
@@ -33,6 +44,7 @@
   independent Footage/Kitsu refresh controls.
 
 - This is a Prism 2 application plugin, not a standalone Python package. Prism loads `Scripts/Prism_HelixAE_init.py`; keep its `Prism_HelixAE` class and compatibility aliases intact.
+- Prism discovers registered plugins by directory basename. A Windows-local snapshot must have a root named `HelixAE` (not a timestamp); keep Prism's registered root and the installed launcher's `HELIXAE_PLUGIN` aligned. Verify with Prism's actual `PluginManager.searchPlugins`, not just direct imports.
 - Prism puts `Scripts/` on `sys.path`, so top-level modules intentionally use flat imports such as `from HelixAE_Variables import ...`. Do not convert these to package-relative imports without testing inside Prism.
 - `Scripts/HelixAE_Functions.py` is the Prism-facing facade. It lazily creates the footage tracker through `Scripts/helixae_footage_tracker.py`; the implementation is split under `Scripts/footage_tracker/`.
 - `Integration/helixae/js/main.js` is the CEP/Node bridge. It evaluates ExtendScript in After Effects on TCP `9888`; responses are terminated with a null byte. Preserve the terminator and chunked receive loops because AE responses can exceed one socket read.
@@ -49,6 +61,7 @@
 
 ## Verification
 
-- Python syntax: `python -m compileall -q Scripts`; CEP JavaScript: `node --check Integration/helixae/js/main.js`; regression tests: `python tests/run_tests.py` (stdlib only, no Prism/Qt needed).
+- Python syntax: `python -m compileall -q Scripts`; CEP JavaScript: `node --check Integration/helixae/js/main.js`; regression tests: `python tests/run_tests.py` (stdlib only, no Prism/Qt needed); panel packaging/signature: `python dev_panel.py` (strict signed check) or `python dev_panel.py --allow-unsigned` for local development.
+- Full signature verification happens in `bash release_panel.sh` on `ssh helix`; do not treat a present `META-INF/signatures.xml` as proof by itself.
 - Integrated behavior requires Windows, Prism, After Effects, and the installed CEP extension. After bridge changes, reinstall the integration through Prism so the updated ZIP reaches the Adobe CEP extensions directory, then smoke-test the affected panel command and an AE round trip on port `9888`.
 - Keep artist-facing behavior documented under `docs/`; `mkdocs.yml` is the navigation source of truth when adding or moving pages.
