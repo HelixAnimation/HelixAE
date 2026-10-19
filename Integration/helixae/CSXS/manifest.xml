@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ExtensionManifest Version="7.0" ExtensionBundleId="com.helix.ae" ExtensionBundleVersion="1.0.2" ExtensionBundleName="Helix AE">
+<ExtensionManifest Version="7.0" ExtensionBundleId="com.helix.ae" ExtensionBundleVersion="1.0.3" ExtensionBundleName="Helix AE">
 	<ExtensionList>
-		<Extension Id="com.helix.ae.panel" Version="1.0.2"/>
+		<Extension Id="com.helix.ae.panel" Version="1.0.3"/>
 	</ExtensionList>
 	<ExecutionEnvironment>
 		<HostList>

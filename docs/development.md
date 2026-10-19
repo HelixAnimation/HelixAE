@@ -87,6 +87,8 @@ development and refuses to overwrite a signed ZIP without `--allow-unsigned`.
 `Integration/helixae/META-INF/signatures.xml` must not exist in the source tree; the
 signature is generated into the ZIP. Git delivers removal of the old tracked source
 placeholder when the release is pulled. Do not hand-edit `META-INF/signatures.xml`.
+Panel v1.0.3 preserves CEP source bytes using `.gitattributes` (`Integration/helixae/**
+text eol=lf`), so Windows/Linux checkout settings cannot change source/ZIP parity.
 
 ## Daily workflow
 

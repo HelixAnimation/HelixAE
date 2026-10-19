@@ -2,3 +2,5 @@
 * text=auto
 *.sh text eol=lf
 *.cmd text eol=crlf
+# Preserve exact CEP source bytes across checkouts: the signed ZIP covers them.
+Integration/helixae/** text eol=lf

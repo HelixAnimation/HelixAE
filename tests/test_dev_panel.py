@@ -1,4 +1,5 @@
 import importlib.util
+import subprocess
 from pathlib import Path
 import tempfile
 import unittest
@@ -16,6 +17,20 @@ SIGNATURE = b'<signatures><Signature><SignedInfo/></Signature></signatures>'
 
 
 class DevPanelTests(unittest.TestCase):
+    def test_git_checkout_preserves_signed_source_bytes(self):
+        # Windows/Linux checkout settings must not alter the signed payload source.
+        with tempfile.TemporaryDirectory() as temporary:
+            checkout = Path(temporary)
+            subprocess.run(["git", "init", "-q", str(checkout)], check=True)
+            (checkout / ".gitattributes").write_bytes((ROOT / ".gitattributes").read_bytes())
+            for setting in ("true", "false"):
+                result = subprocess.run(
+                    ["git", "-c", "core.autocrlf=" + setting, "check-attr", "eol", "--",
+                     "Integration/helixae/js/main.js", "Integration/helixae/CSXS/manifest.xml"],
+                    cwd=checkout, capture_output=True, text=True, check=True,
+                )
+                self.assertTrue(all(line.endswith(": lf") for line in result.stdout.splitlines()))
+
     def test_production_manifest_declares_supported_cep_runtime(self):
         manifest = ET.parse(ROOT / "Integration/helixae/CSXS/manifest.xml").getroot()
         runtime = manifest.find("ExecutionEnvironment/RequiredRuntimeList/RequiredRuntime")
