@@ -5,6 +5,7 @@ Bypass/unbypass context menu methods for footage and composition tree items.
 
 from qtpy.QtCore import Qt
 
+from footage_tracker import bypass_keys
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -12,41 +13,24 @@ class ContextMenuBypass:
     """Mixin: bypass/unbypass tree item actions"""
 
     def _buildItemKey(self, item, userData):
-        """Build the bypass key for a footage or comp item"""
-        if userData.get('type') == 'footage':
+        """Build the bypass key for a footage or comp item.
+
+        Implementation lives in footage_tracker/bypass_keys.py so the
+        context menu and the issue checker share one key format.
+        """
+        item_type = userData.get('type')
+        shot_name = ''
+        if item_type == 'footage':
             shot_name = self.tracker.getShotNameFromItem(item) or userData.get('shot', '')
-            identifier = userData.get('identifier', '')
-
-            item_text = item.text(0)
-            is_2d_render = (item_text.startswith('[2D]') or item_text.startswith('[PB]'))
-            is_3d_render = identifier and not is_2d_render and identifier != item_text
-
-            if is_3d_render:
-                aov = item_text
-            else:
-                aov = ''
-                if is_2d_render and identifier:
-                    text_without_prefix = item_text.replace('[2D] ', '').replace('[PB] ', '')
-                    if text_without_prefix != identifier:
-                        suffix = text_without_prefix.replace(identifier, '', 1).strip()
-                        if suffix:
-                            identifier = f"{identifier} {suffix}"
-                if not identifier:
-                    identifier = item_text
-
-            if shot_name and identifier:
-                if aov:
-                    return f"footage_{shot_name}_{identifier}_{aov}"
-                else:
-                    return f"footage_{shot_name}_{identifier}"
-            else:
-                return f"footage_{userData.get('path', '')}"
-
-        elif userData.get('type') == 'comp':
-            comp_name = userData.get('compName', userData.get('name', ''))
-            return f"comp_{userData.get('id')}_{comp_name}"
-
-        return None
+        return bypass_keys.key_from_tree_item(
+            item_type,
+            item.text(0),
+            shot_name,
+            userData.get('identifier', ''),
+            comp_id=userData.get('id'),
+            comp_name=userData.get('compName', userData.get('name', '')),
+            path=userData.get('path', ''),
+        )
 
     def _bypassTreeItem(self, item):
         """Bypass an item in the footage tracker tree"""
@@ -77,10 +61,6 @@ class ContextMenuBypass:
 
         self.tracker.startup_warnings._saveIgnoredItems(ignored_items)
 
-        scroll_position = self.tracker.tw_footage.verticalScrollBar().value()
-        self.tracker.loadFootageData()
-        self.tracker.tw_footage.verticalScrollBar().setValue(scroll_position)
-
         self.tracker.startup_warnings._updateCachedIssueCounts()
         self.tracker.updateCheckIssuesButton()
 
@@ -100,10 +80,6 @@ class ContextMenuBypass:
             issue_type.discard(item_key)
 
         self.tracker.startup_warnings._saveIgnoredItems(ignored_items)
-
-        scroll_position = self.tracker.tw_footage.verticalScrollBar().value()
-        self.tracker.loadFootageData()
-        self.tracker.tw_footage.verticalScrollBar().setValue(scroll_position)
 
         self.tracker.startup_warnings._updateCachedIssueCounts()
         self.tracker.updateCheckIssuesButton()

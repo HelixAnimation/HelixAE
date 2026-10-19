@@ -12,3 +12,10 @@ Integration/helixae/node_modules/
 Thumbs.db
 .DS_Store
 desktop.ini
+
+# Local development
+.venv/
+.env
+.env.*
+site/
+@eaDir/

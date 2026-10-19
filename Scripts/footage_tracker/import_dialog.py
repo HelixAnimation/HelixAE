@@ -5,6 +5,8 @@ Provides a single table dialog for importing 3D and 2D footage
 Uses the same UI pattern as Import Media dialog
 """
 
+import helixae_protocol
+
 import os
 import re
 import copy
@@ -948,6 +950,54 @@ class UnifiedImportDialog(QDialog):
         else:
             self.core.popup("No items were imported (they may already exist).")
 
+    def _importToShotFolder(self, source_data, root_folder, name_prefix, debug_tag):
+        """Shared protocol import into root_folder/<shot>/<name_prefix> identifier."""
+        imported_count = 0
+
+        print(f"[DEBUG {debug_tag}] Processing {len(source_data)} items")
+
+        for item in source_data:
+            file_path = item['filepath']
+            identifier = item['task']
+            shot_name = item['shot']
+
+            if not os.path.exists(file_path):
+                continue
+
+            footage_name = f"{name_prefix} {identifier}"
+
+            try:
+                script = helixae_protocol.build_import_to_shot_folder(
+                    file_path.replace("\\", "/"),
+                    root_folder,
+                    shot_name,
+                    footage_name,
+                    sequence=False,
+                )
+            except (TypeError, ValueError) as e:
+                print(f"Error importing {debug_tag} {identifier}: {e}")
+                continue
+
+            try:
+                response = self.tracker.main.ae_core.executeAppleScript(script)
+            except Exception as e:
+                print(f"Error importing {debug_tag} {identifier}: After Effects bridge error: {e}")
+                continue
+
+            data, error = helixae_protocol.parse_json_response(response)
+            if error or not data.get("result"):
+                reason = error or data.get("reason") or data.get("details") or ""
+                if reason == "file_not_found":
+                    reason = "The file does not exist in After Effects."
+                elif reason == "cannot_import":
+                    reason = "The file cannot be imported as footage."
+                print(f"Error importing {debug_tag} {identifier}: {reason}")
+                continue
+
+            imported_count += 1
+
+        return imported_count
+
     @err_catcher(name=__name__)
     def _import2DSequences(self, source_data):
         """Import 2D sequences into AE with proper Prism folder structure
@@ -956,109 +1006,8 @@ class UnifiedImportDialog(QDialog):
         Shot folder: SQ01-SH010
         Footage name: [2D] {identifier} (e.g., [2D] LowRes)
         """
-        import re
         try:
-            imported_count = 0
-
-            print(f"[DEBUG 2D] Processing {len(source_data)} items")
-
-            for item in source_data:
-                file_path = item['filepath']
-                identifier = item['task']  # For 2D, task is actually the identifier
-                shot_name = item['shot']
-
-                print(f"[DEBUG 2D] Importing: shot={shot_name}, identifier={identifier}")
-                print(f"[DEBUG 2D] File exists: {os.path.exists(file_path)}")
-
-                if not os.path.exists(file_path):
-                    continue
-
-                # Footage name: [2D] {identifier}
-                footage_name = f"[2D] {identifier}"
-
-                full_file_path = file_path.replace("\\", "/")
-                # Escape backslashes for ExtendScript string
-                escaped_path = full_file_path.replace("\\", "\\\\")
-
-                script = f"""
-                var importFile = new File('{escaped_path}');
-                if (importFile.exists) {{
-                    var render2dFolder = null, shotFolder = null;
-
-                    // Find or create "2D Renders" folder
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        if (app.project.item(i) instanceof FolderItem &&
-                            app.project.item(i).name === '2D Renders') {{
-                            render2dFolder = app.project.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!render2dFolder) render2dFolder = app.project.items.addFolder('2D Renders');
-
-                    // Find or create shot folder (e.g., SQ01-SH010)
-                    for (var i = 1; i <= render2dFolder.numItems; i++) {{
-                        if (render2dFolder.item(i) instanceof FolderItem &&
-                            render2dFolder.item(i).name === '{shot_name}') {{
-                            shotFolder = render2dFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!shotFolder) shotFolder = render2dFolder.items.addFolder('{shot_name}');
-
-                    // Check if footage with this name already exists in shot folder
-                    // If it exists, find the next available number for duplicate
-                    var baseFootageName = '{footage_name}';
-                    var existingCount = 0;
-                    var finalFootageName = baseFootageName;
-
-                    for (var i = 1; i <= shotFolder.numItems; i++) {{
-                        var item = shotFolder.item(i);
-                        if (item instanceof FootageItem && item.name === baseFootageName) {{
-                            existingCount++;
-                            break;
-                        }}
-                    }}
-
-                    if (existingCount > 0) {{
-                        // Find all duplicates to determine next number
-                        var dupCount = 0;
-                        for (var i = 1; i <= shotFolder.numItems; i++) {{
-                            var item = shotFolder.item(i);
-                            if (item instanceof FootageItem) {{
-                                var itemName = item.name;
-                                if (itemName === baseFootageName ||
-                                    itemName.indexOf(baseFootageName + ' (') === 0) {{
-                                    dupCount++;
-                                }}
-                            }}
-                        }}
-                        finalFootageName = baseFootageName + ' (' + dupCount + ')';
-                    }}
-
-                    // Import footage (not as sequence for 2D video files)
-                    var importOptions = new ImportOptions(importFile);
-                    if (importOptions.canImportAs(ImportAsType.FOOTAGE)) {{
-                        importOptions.importAs = ImportAsType.FOOTAGE;
-                        var footage = app.project.importFile(importOptions);
-                        footage.parentFolder = shotFolder;
-                        footage.name = finalFootageName;
-                        'SUCCESS';
-                    }} else {{
-                        'ERROR: Cannot import as footage';
-                    }}
-                }} else {{
-                    'FILE_NOT_FOUND';
-                }}
-                """
-
-                result = self.tracker.main.ae_core.executeAppleScript(script)
-                if b'SUCCESS' in result:
-                    imported_count += 1
-                elif b'ERROR' in result or b'FILE_NOT_FOUND' in result:
-                    print(f"Error importing 2D {identifier}: {result}")
-
-            return imported_count
-
+            return self._importToShotFolder(source_data, "2D Renders", "[2D]", "2D")
         except Exception as e:
             import traceback
             self.core.popup(f"Error importing 2D sequences:\n{str(e)}\n\n{traceback.format_exc()}")
@@ -1072,109 +1021,8 @@ class UnifiedImportDialog(QDialog):
         Shot folder: SQ01-SH010
         Footage name: [PB] {identifier} (e.g., [PB] Review)
         """
-        import re
         try:
-            imported_count = 0
-
-            print(f"[DEBUG PB] Processing {len(source_data)} items")
-
-            for item in source_data:
-                file_path = item['filepath']
-                identifier = item['task']  # For playblasts, task is the identifier
-                shot_name = item['shot']
-
-                print(f"[DEBUG PB] Importing: shot={shot_name}, identifier={identifier}")
-                print(f"[DEBUG PB] File exists: {os.path.exists(file_path)}")
-
-                if not os.path.exists(file_path):
-                    continue
-
-                # Footage name: [PB] {identifier}
-                footage_name = f"[PB] {identifier}"
-
-                full_file_path = file_path.replace("\\", "/")
-                # Escape backslashes for ExtendScript string
-                escaped_path = full_file_path.replace("\\", "\\\\")
-
-                script = f"""
-                var importFile = new File('{escaped_path}');
-                if (importFile.exists) {{
-                    var playblastFolder = null, shotFolder = null;
-
-                    // Find or create "Playblasts" folder
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        if (app.project.item(i) instanceof FolderItem &&
-                            app.project.item(i).name === 'Playblasts') {{
-                            playblastFolder = app.project.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!playblastFolder) playblastFolder = app.project.items.addFolder('Playblasts');
-
-                    // Find or create shot folder (e.g., SQ01-SH010)
-                    for (var i = 1; i <= playblastFolder.numItems; i++) {{
-                        if (playblastFolder.item(i) instanceof FolderItem &&
-                            playblastFolder.item(i).name === '{shot_name}') {{
-                            shotFolder = playblastFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!shotFolder) shotFolder = playblastFolder.items.addFolder('{shot_name}');
-
-                    // Check if footage with this name already exists in shot folder
-                    // If it exists, find the next available number for duplicate
-                    var baseFootageName = '{footage_name}';
-                    var existingCount = 0;
-                    var finalFootageName = baseFootageName;
-
-                    for (var i = 1; i <= shotFolder.numItems; i++) {{
-                        var item = shotFolder.item(i);
-                        if (item instanceof FootageItem && item.name === baseFootageName) {{
-                            existingCount++;
-                            break;
-                        }}
-                    }}
-
-                    if (existingCount > 0) {{
-                        // Find all duplicates to determine next number
-                        var dupCount = 0;
-                        for (var i = 1; i <= shotFolder.numItems; i++) {{
-                            var item = shotFolder.item(i);
-                            if (item instanceof FootageItem) {{
-                                var itemName = item.name;
-                                if (itemName === baseFootageName ||
-                                    itemName.indexOf(baseFootageName + ' (') === 0) {{
-                                    dupCount++;
-                                }}
-                            }}
-                        }}
-                        finalFootageName = baseFootageName + ' (' + dupCount + ')';
-                    }}
-
-                    // Import footage (not as sequence for playblast video files)
-                    var importOptions = new ImportOptions(importFile);
-                    if (importOptions.canImportAs(ImportAsType.FOOTAGE)) {{
-                        importOptions.importAs = ImportAsType.FOOTAGE;
-                        var footage = app.project.importFile(importOptions);
-                        footage.parentFolder = shotFolder;
-                        footage.name = finalFootageName;
-                        'SUCCESS';
-                    }} else {{
-                        'ERROR: Cannot import as footage';
-                    }}
-                }} else {{
-                    'FILE_NOT_FOUND';
-                }}
-                """
-
-                result = self.tracker.main.ae_core.executeAppleScript(script)
-                if b'SUCCESS' in result:
-                    imported_count += 1
-                elif b'ERROR' in result or b'FILE_NOT_FOUND' in result:
-                    print(f"Error importing Playblast {identifier}: {result}")
-
-            return imported_count
-
+            return self._importToShotFolder(source_data, "Playblasts", "[PB]", "PB")
         except Exception as e:
             import traceback
             self.core.popup(f"Error importing Playblast sequences:\n{str(e)}\n\n{traceback.format_exc()}")

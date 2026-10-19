@@ -7,6 +7,7 @@ Main module that coordinates all tree operations through specialized sub-modules
 import os
 import platform
 import re
+import helixae_protocol
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
@@ -47,6 +48,7 @@ class TreeOperations(QObject):
 
         # Initialize shot alternatives storage for switching functionality
         self.shot_alternatives = {}
+        self._load_generation = 0
 
         # Expose modules for compatibility
         self.tracker.data_parser = self.data_parser
@@ -71,10 +73,18 @@ class TreeOperations(QObject):
         Args:
             preserve_scroll: If True, save and restore the scroll position
         """
+        preparation = getattr(self.tracker, 'preparation', None)
+        if preparation is not None:
+            preparation.refresh_footage()
+            return
         import time
 
         print("[FOOTAGE] Loading footage data...")
         load_start = time.perf_counter()
+        self._load_generation += 1
+        generation = self._load_generation
+        dialog = getattr(self.tracker, 'dlg_footage', None)
+        committed = False
 
         # Guard: abort if the tree widget was never created (tracker dialog not open)
         # or has been destroyed (dialog closed while a QTimer callback is pending).
@@ -94,11 +104,6 @@ class TreeOperations(QObject):
         expandedState = self.saveTreeExpansionState()
         expand_end = time.perf_counter()
         print(f"[TIMING] Save expansion state: {expand_end - expand_start:.4f}s")
-
-        clear_start = time.perf_counter()
-        self.tracker.tw_footage.clear()
-        clear_end = time.perf_counter()
-        print(f"[TIMING] Clear tree widget: {clear_end - clear_start:.4f}s")
 
         self.tracker.dlg_footage.statusBar.setText("Loading footage data...")
 
@@ -156,6 +161,9 @@ class TreeOperations(QObject):
 
             exec_start = time.perf_counter()
             result = self.main.ae_core.executeAppleScript(scpt)
+            _, query_error = helixae_protocol.parse_footage_records(result)
+            if query_error:
+                raise ValueError("Footage query failed: " + query_error)
             exec_end = time.perf_counter()
             print(f"[TIMING] Execute footage AppleScript: {exec_end - exec_start:.4f}s")
 
@@ -173,6 +181,9 @@ class TreeOperations(QObject):
 
             exec_start = time.perf_counter()
             result_comps = self.main.ae_core.executeAppleScript(scpt_comps)
+            _, query_error = helixae_protocol.parse_comp_records(result_comps)
+            if query_error:
+                raise ValueError("Composition query failed: " + query_error)
             exec_end = time.perf_counter()
             print(f"[TIMING] Execute comp AppleScript: {exec_end - exec_start:.4f}s")
 
@@ -199,11 +210,11 @@ class TreeOperations(QObject):
             # Build shot alternatives index
             print("[FOOTAGE] Building shot alternatives index...")
             alt_start = time.perf_counter()
-            self.shot_alternatives = self.hierarchy_builder.buildShotAlternativesIndex(hierarchy)
+            shot_alternatives = self.hierarchy_builder.buildShotAlternativesIndex(hierarchy)
             alt_end = time.perf_counter()
             print(
                 f"[TIMING] Build shot alternatives: {alt_end - alt_start:.4f}s"
-                f" ({len(self.shot_alternatives)} alternatives)"
+                f" ({len(shot_alternatives)} alternatives)"
             )
 
             # Pivot render hierarchies if identifier-first mode is active per group
@@ -219,9 +230,15 @@ class TreeOperations(QObject):
                     )
 
             # Render tree using tree renderer
+            if generation != self._load_generation or self.tracker.dlg_footage is not dialog:
+                return
+            # Keep the previous tree throughout queries and hierarchy preparation.
+            self.tracker.tw_footage.clear()
             print("[FOOTAGE] Rendering tree widget...")
             render_start = time.perf_counter()
             self.tree_renderer.renderHierarchyTree(hierarchy)
+            self.shot_alternatives = shot_alternatives
+            committed = True
             render_end = time.perf_counter()
             print(f"[TIMING] Render tree widget: {render_end - render_start:.4f}s")
 
@@ -243,19 +260,28 @@ class TreeOperations(QObject):
             if preserve_scroll and scroll_position is not None:
                 from qtpy.QtCore import QTimer
                 # Use singleShot to ensure scroll position is set after UI updates
-                QTimer.singleShot(0, lambda: self.tracker.tw_footage.verticalScrollBar().setValue(scroll_position))
+                def restore_scroll():
+                    if generation != self._load_generation or self.tracker.dlg_footage is not dialog:
+                        return
+                    try:
+                        self.tracker.tw_footage.verticalScrollBar().setValue(scroll_position)
+                    except (AttributeError, RuntimeError):
+                        pass
+                QTimer.singleShot(0, restore_scroll)
                 print(f"[TIMING] Scheduled scroll position restore to: {scroll_position}")
 
         except Exception as e:
             import traceback
             self.core.popup(f"Error loading footage:\n{str(e)}\n\n{traceback.format_exc()}")
-            self.tracker.dlg_footage.statusBar.setText("Error loading footage data")
+            if self.tracker.dlg_footage is dialog and dialog is not None:
+                dialog.statusBar.setText("Refresh failed — previous data retained")
 
         finally:
-            # ALWAYS store hierarchy data for shot switching functionality, even if partial
-            self.tracker._stored_hierarchy = hierarchy
-            self.tracker.main.ae_footage = self.tracker
-            self.tracker.main._footage_hierarchy = hierarchy
+            if committed:
+                self.tracker._stored_hierarchy = hierarchy
+                self.tracker._footage_snapshot_identity = self.tracker._footageSnapshotIdentity()
+                self.tracker.main.ae_footage = self.tracker
+                self.tracker.main._footage_hierarchy = hierarchy
 
             # Update Check Issues button state (after hierarchy is stored)
             button_start = time.perf_counter()

@@ -11,8 +11,22 @@ class FootageUtils:
     """Utility functions for footage path parsing and manipulation"""
     
     @staticmethod
-    def parseFootagePath(path):
-        """Extract version info from footage file path"""
+    def parseFootagePath(path, version_cache=None, verify_versions=True, scan_versions=True):
+        """Extract version info from footage file path.
+
+        ``version_cache`` is an optional dict used to reuse the version
+        directory scan across footage items that share a task folder.
+
+        When ``verify_versions`` is false only the newest version folder(s)
+        are checked for media instead of every version folder.  This keeps
+        the latest-version result correct while avoiding one network
+        round-trip per historical version during scene saves.
+
+        When ``scan_versions`` is false no filesystem access is performed:
+        the current version from the path is also reported as the latest.
+        Render metadata only needs the footage version actually used in the
+        composition, not a latest-version lookup.
+        """
         try:
             pathParts = path.replace('\\', '/').split('/')
 
@@ -43,6 +57,15 @@ class FootageUtils:
             # Get task name (parent of version folder)
             task = pathParts[versionIndex - 1] if versionIndex > 0 else "Unknown"
 
+            if not scan_versions:
+                return {
+                    'currentVersion': currentVersionBase,
+                    'latestVersion': currentVersionBase,
+                    'currentVersionFull': currentVersionFull,
+                    'allVersions': [currentVersionFull],
+                    'task': task
+                }
+
             # Find all versions in the same task folder
             # Normalize path for proper OS compatibility
             versionDir = '/'.join(pathParts[:versionIndex])
@@ -52,58 +75,99 @@ class FootageUtils:
                 if platform.system() == "Windows":
                     # Handle Windows paths including drive letters
                     versionDir = versionDir.replace('/', '\\')
-            allVersions = []  # Full folder names with suffixes for dropdown
-            allVersionsBase = set()  # Base versions for finding latest
+            cache_key = (
+                os.path.normcase(os.path.normpath(versionDir)),
+                bool(verify_versions),
+            )
+            cached = (
+                version_cache.get(cache_key)
+                if version_cache is not None
+                else None
+            )
 
-            if os.path.exists(versionDir):
-                try:
-                    # Custom sort: base version first, then suffixes alphabetically, within each version group
-                    def versionSortKey(versionFolder):
-                        """Sort key for version folders: v0003 < v0003 (mp4) < v0003 (mov) < v0002"""
-                        match = re.match(r'(v\d+)(.*)', versionFolder)
-                        if match:
-                            baseVer = match.group(1)  # e.g., "v0003"
-                            suffix = match.group(2) or ''  # e.g., " (mp4)" or '' for base version
+            if cached is not None:
+                allVersions = list(cached[0])
+                allVersionsBase = set(cached[1])
+                latestVersionBase = cached[2]
+            else:
+                allVersions = []  # Full folder names with suffixes for dropdown
+                allVersionsBase = set()  # Base versions for finding latest
+                latestVersionBase = currentVersionBase
 
-                            # Extract version number for descending order (v0003 > v0002)
-                            verNum = int(baseVer[1:])  # Extract number from "v0003" -> 3
+                if os.path.exists(versionDir):
+                    try:
+                        # Custom sort: base version first, then suffixes alphabetically, within each version group
+                        def versionSortKey(versionFolder):
+                            """Sort key for version folders: v0003 < v0003 (mp4) < v0003 (mov) < v0002"""
+                            match = re.match(r'(v\d+)(.*)', versionFolder)
+                            if match:
+                                baseVer = match.group(1)  # e.g., "v0003"
+                                suffix = match.group(2) or ''  # e.g., " (mp4)" or '' for base version
 
-                            # Base version (no suffix) should come first within each version group
-                            # 0 for base version, 1 for versions with suffix
-                            hasSuffix = 0 if suffix == '' else 1
+                                # Extract version number for descending order (v0003 > v0002)
+                                verNum = int(baseVer[1:])  # Extract number from "v0003" -> 3
 
-                            # Return tuple: (-versionNum for descending, hasSuffix, suffix for alphabetical)
-                            return (-verNum, hasSuffix, suffix)
-                        return (0, 0, versionFolder)  # Fallback for non-matching patterns
+                                # Base version (no suffix) should come first within each version group
+                                # 0 for base version, 1 for versions with suffix
+                                hasSuffix = 0 if suffix == '' else 1
 
-                    versionItems = []
-                    for item in os.listdir(versionDir):
-                        if item.startswith('v') and len(item) >= 5 and item[1:5].isdigit():
-                            # Extract base version (v0003) ignoring suffix like " (mp4)"
+                                # Return tuple: (-versionNum for descending, hasSuffix, suffix for alphabetical)
+                                return (-verNum, hasSuffix, suffix)
+                            return (0, 0, versionFolder)  # Fallback for non-matching patterns
+
+                        versionItems = [
+                            item for item in os.listdir(versionDir)
+                            if item.startswith('v') and len(item) >= 5 and item[1:5].isdigit()
+                            and re.match(r'(v\d+)', item)
+                        ]
+                        versionItems.sort(key=versionSortKey)
+
+                        if verify_versions:
+                            # Preserve the historical behaviour: every version
+                            # folder is checked so the dropdown only lists
+                            # versions that actually contain media.
+                            versionItems = [
+                                item for item in versionItems
+                                if FootageUtils.versionHasFootage(os.path.join(versionDir, item))
+                            ]
+                            verifiedLatest = versionItems[0] if versionItems else None
+                        else:
+                            # Saves only need the newest media version.  Check
+                            # newest folders until one contains media; this
+                            # avoids touching every historical version on the
+                            # network share.
+                            verifiedLatest = next(
+                                (
+                                    item for item in versionItems
+                                    if FootageUtils.versionHasFootage(os.path.join(versionDir, item))
+                                ),
+                                None,
+                            )
+
+                        for item in versionItems:
                             baseVersionMatch = re.match(r'(v\d+)', item)
                             if baseVersionMatch:
                                 baseVersion = baseVersionMatch.group(1)
-                                # Check if this version folder contains actual footage files
-                                if FootageUtils.versionHasFootage(os.path.join(versionDir, item)):
-                                    versionItems.append(item)  # Collect items
+                                allVersions.append(item)  # Keep full name for dropdown
+                                allVersionsBase.add(baseVersion)  # Track base version
 
-                    # Sort using custom key
-                    for item in sorted(versionItems, key=versionSortKey):
-                        baseVersionMatch = re.match(r'(v\d+)', item)
-                        if baseVersionMatch:
-                            baseVersion = baseVersionMatch.group(1)
-                            allVersions.append(item)  # Keep full name for dropdown
-                            allVersionsBase.add(baseVersion)  # Track base version
+                        if verifiedLatest:
+                            latestVersionBase = re.match(r'(v\d+)', verifiedLatest).group(1)
 
-                except Exception as e:
-                    # If listing fails, fall back to current version
-                    import sys
-                    print(f"[DEBUG] Error listing version directory {versionDir}: {e}", file=sys.stderr)
-                    allVersions = [currentVersionFull]
-                    allVersionsBase = {currentVersionBase}
+                    except Exception as e:
+                        # If listing fails, fall back to current version
+                        import sys
+                        print(f"[DEBUG] Error listing version directory {versionDir}: {e}", file=sys.stderr)
+                        allVersions = [currentVersionFull]
+                        allVersionsBase = {currentVersionBase}
+                        latestVersionBase = currentVersionBase
 
-            # Find latest base version (e.g., v0003 > v0002)
-            latestVersionBase = max(allVersionsBase) if allVersionsBase else currentVersionBase
+                if version_cache is not None:
+                    version_cache[cache_key] = (
+                        list(allVersions),
+                        set(allVersionsBase),
+                        latestVersionBase,
+                    )
 
             return {
                 'currentVersion': currentVersionBase,  # Base version for status check

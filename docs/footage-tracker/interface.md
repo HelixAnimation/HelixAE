@@ -2,7 +2,12 @@
 
 ## Opening the Footage Tracker
 
-Click **Footage Tracker...** in the CEP panel. The tracker window opens and loads all footage from the current AE project.
+Click **Footage Tracker...** in the CEP panel. Scene data is prepared in the background
+after opening a project, so reopening the tracker can reuse it. If preparation is
+still running, the AE inventory appears first and NAS/Kitsu checks follow.
+
+The displayed FPS, dimensions and frame range are AE values. Published metadata is
+kept separately and appears in tooltips where available.
 
 ---
 
@@ -22,7 +27,7 @@ Each footage item shows the following columns:
 |---|---|
 | **Shot / Identifier / AOV** | The item name, organised hierarchically |
 | **Version** | The version currently in your AE project |
-| **Status** | Kitsu task status colour |
+| **Status** | Version check result, or composition usage information |
 | **Frame Range** | Footage frame range (highlights red if mismatched) |
 | **FPS** | Footage FPS (highlights red if mismatched) |
 | **Resolution** | Footage resolution |
@@ -36,6 +41,9 @@ At the bottom of the tracker, a bar shows:
 - **Total footage count**
 - **Number of outdated versions**
 - **⚠ Check Issues (N)** button — appears when issues are detected (see [Check Issues](check-issues.md))
+- An animated progress bar while scene preparation/checks run. The status text
+  identifies the current stage; **Checks incomplete** means results are still
+  pending or a check was unavailable.
 
 ---
 
@@ -43,8 +51,19 @@ At the bottom of the tracker, a bar shows:
 
 Click the **⟳ Refresh** dropdown to reload data:
 
-- **Footage** — fast reload using cached Kitsu data
-- **Kitsu** — force a fresh fetch from the Kitsu server
+- **Footage** — refresh the AE inventory and NAS versions in the background,
+  keeping the current Kitsu results.
+- **Kitsu** — fetch fresh Kitsu data in the background, reusing the current
+  inventory and NAS results.
+
+The same actions are available in the middle-click circular menu. Existing rows
+remain usable during a same-scene refresh, and enrichment preserves selection,
+expansion, filters and scroll position. After switching scenes, old rows are
+disabled until the new AE inventory arrives.
+
+**Checking…**, **Cached — NAS unavailable**, and **Not checked** are deliberately
+distinct from **Up to date** and **Outdated**. If Kitsu authentication is unavailable,
+sign in through Prism and use the existing **Kitsu** refresh action.
 
 ---
 

@@ -3,7 +3,7 @@
 Composition-specific context menu methods: multi-comp actions, Kitsu sync, add-to-comp.
 """
 
-import os
+import helixae_protocol
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
@@ -89,355 +89,182 @@ class ContextMenuCompositions:
 
     def revealMultipleComps(self, comp_items):
         """Reveal multiple compositions in project panel"""
-        self.core.popup("Reveal multiple comps functionality not yet implemented")
+        self.tracker.comp_manager.revealMultipleComps(comp_items)
 
     def setMultipleCompFrameRangesFromKitsu(self, comp_items, kitsu_frame_range):
         """Set frame ranges for multiple compositions from Kitsu data"""
-        for comp_item in comp_items:
-            userData = comp_item.data(0, Qt.UserRole)
-            if userData and userData.get('type') == 'comp':
-                compId = userData.get('id')
-                compName = comp_item.text(0)
-                self.tracker.comp_manager.setCompFrameRangeFromKitsu(compId, compName, kitsu_frame_range)
+        self.tracker.comp_manager.setMultipleCompFrameRangesFromKitsu(comp_items, kitsu_frame_range)
 
     def setMultipleCompFPSFromKitsu(self, comp_items, kitsu_fps):
         """Set FPS for multiple compositions from Kitsu data"""
-        for comp_item in comp_items:
-            userData = comp_item.data(0, Qt.UserRole)
-            if userData and userData.get('type') == 'comp':
-                compId = userData.get('id')
-                compName = comp_item.text(0)
-                self.tracker.comp_manager.setCompFPSFromKitsu(compId, compName, kitsu_fps)
+        self.tracker.comp_manager.setMultipleCompFPSFromKitsu(comp_items, kitsu_fps)
 
     def setMultipleCompFromKitsu(self, comp_items, kitsu_frame_range, kitsu_fps):
         """Set both frame range and FPS for multiple compositions from Kitsu data"""
-        for comp_item in comp_items:
-            userData = comp_item.data(0, Qt.UserRole)
-            if userData and userData.get('type') == 'comp':
-                compId = userData.get('id')
-                compName = comp_item.text(0)
-                self.tracker.comp_manager.setCompFromKitsu(compId, compName, kitsu_frame_range, kitsu_fps)
+        self.tracker.comp_manager.setMultipleCompFromKitsu(comp_items, kitsu_frame_range, kitsu_fps)
 
     def _revealCompInProject(self, compId):
         """Reveal composition in After Effects project panel"""
-        self.core.popup("Reveal comp in project functionality not yet implemented")
+        self.tracker.comp_manager.revealCompInProject(compId)
 
-    def _debugSetCompFrameRange(self, compId, compName, kitsu_frame_range):
-        """Debug wrapper for setCompFrameRangeFromKitsu"""
-        print(
-            f"DEBUG: _debugSetCompFrameRange called with compId={compId}, "
-            f"compName={compName}, range={kitsu_frame_range}"
-        )
-        self.tracker.setCompFrameRangeFromKitsu(compId, compName, kitsu_frame_range)
+    def _selectedFootageIds(self):
+        """Collect valid AE footage ids of the current tree selection."""
+        selected_items = self.tracker.tw_footage.selectedItems()
+        footage_ids = []
+        for item in selected_items:
+            userData = item.data(0, Qt.UserRole)
+            if userData and userData.get('type') == 'footage' and userData.get('id'):
+                footage_ids.append(userData['id'])
+        return footage_ids
+
+    def _executeCompScript(self, script):
+        """Run a comp protocol script. Returns (data, error)."""
+        try:
+            response = self.tracker.main.ae_core.executeAppleScript(script)
+        except Exception as e:
+            return None, "After Effects bridge error: %s" % e
+        return helixae_protocol.parse_json_response(response)
 
     @err_catcher(name=__name__)
     def addFootageToActiveComp(self):
         """Add selected footage items to the active composition in After Effects"""
+        footage_ids = self._selectedFootageIds()
+        if not footage_ids:
+            self.core.popup("No footage items selected")
+            return
+
         try:
-            selected_items = self.tracker.tw_footage.selectedItems()
-            footage_items = [item for item in selected_items
-                           if item.data(0, Qt.UserRole) and item.data(0, Qt.UserRole).get('type') == 'footage']
+            script = helixae_protocol.build_add_footage_to_comp(None, footage_ids)
+        except (TypeError, ValueError) as e:
+            self.core.popup("Error adding footage to active composition:\n%s" % e)
+            return
 
-            if not footage_items:
-                self.core.popup("No footage items selected")
-                return
+        data, error = self._executeCompScript(script)
+        if error:
+            self.core.popup("Error adding footage to active composition:\n%s" % error)
+            return
 
-            footage_list = []
-            for item in footage_items:
-                userData = item.data(0, Qt.UserRole)
-                footage_id = userData.get('id')
-                footage_name = item.text(0)
-                if footage_id:
-                    footage_list.append({'id': footage_id, 'name': footage_name})
-
-            if not footage_list:
-                self.core.popup("No valid footage IDs found")
-                return
-
-            footage_ids_json = str([f['id'] for f in footage_list]).replace("'", '"')
-
-            script = f"""
-            var footageIds = {footage_ids_json};
-            var resultStr = '';
-
-            if (!app.project.activeItem || !(app.project.activeItem instanceof CompItem)) {{
-                resultStr = 'NO_ACTIVE_COMP';
-            }} else {{
-                var activeComp = app.project.activeItem;
-                var addedCount = 0;
-                var failedItems = [];
-
-                for (var i = 0; i < footageIds.length; i++) {{
-                    var footageId = footageIds[i];
-                    var footageItem = null;
-
-                    for (var j = 1; j <= app.project.numItems; j++) {{
-                        var item = app.project.item(j);
-                        if (item.id == footageId) {{
-                            footageItem = item;
-                            break;
-                        }}
-                    }}
-
-                    if (footageItem) {{
-                        try {{
-                            var newLayer = activeComp.layers.add(footageItem);
-                            newLayer.label = footageItem.label;
-                            if (footageItem.parentFolder && footageItem.parentFolder.name) {{
-                                newLayer.comment = footageItem.parentFolder.name;
-                            }}
-                            addedCount++;
-                        }} catch (e) {{
-                            failedItems.push(footageId + ': ' + e.toString());
-                        }}
-                    }} else {{
-                        failedItems.push(footageId + ': Footage not found');
-                    }}
-                }}
-
-                resultStr = 'SUCCESS|' + addedCount + '|' + failedItems.length + '|' + failedItems.join('|||');
-            }}
-
-            resultStr;
-            """
-
-            result = self.tracker.main.ae_core.executeAppleScript(script)
-
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if 'NO_ACTIVE_COMP' in result:
-                self.core.popup("No active composition found.\n\nPlease open a composition first, then try again.")
-                return
-            elif result.startswith('SUCCESS|'):
-                parts = result.split('|')
-                if len(parts) >= 3:
-                    added_count = int(parts[1])
-                    failed_count = int(parts[2])
-                    failed_items_str = parts[3] if len(parts) > 3 else ""
-
-                    if added_count > 0:
-                        if failed_count > 0:
-                            failed_items = failed_items_str.split('|||') if failed_items_str else []
-                            message = f"Added {added_count} footage item(s), but {failed_count} failed:"
-                            for item in failed_items[:5]:
-                                message += f"\n- {item}"
-                            if failed_count > 5:
-                                message += f"\n... and {failed_count - 5} more"
-                            self.core.popup(message)
-                    else:
-                        _detail = failed_items_str.replace('|||', '\n') if failed_items_str else "Unknown error"
-                        self.core.popup("Failed to add any footage items.\n\n" + _detail)
-                else:
-                    self.core.popup(f"Unexpected result format:\n{result}")
+        if not data.get("result"):
+            reason = data.get("reason") or data.get("details") or ""
+            if reason == "no_active_comp":
+                self.core.popup(
+                    "No active composition found.\n\nPlease open a composition first, then try again.")
+            elif reason == "not_a_comp":
+                self.core.popup("The active item is not a composition.")
             else:
-                self.core.popup(f"Unexpected result:\n{result}")
+                self.core.popup("Could not add footage to the active composition.\n%s" % reason)
+            return
 
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error adding footage to active composition:\n{str(e)}\n\n{traceback.format_exc()}")
+        self._reportAddResult(data, "active composition")
 
     @err_catcher(name=__name__)
     def addFootageToSelectedComp(self):
         """Add selected footage items to a user-selected composition via dialog"""
-        try:
-            selected_items = self.tracker.tw_footage.selectedItems()
-            footage_items = [item for item in selected_items
-                           if item.data(0, Qt.UserRole) and item.data(0, Qt.UserRole).get('type') == 'footage']
+        footage_ids = self._selectedFootageIds()
+        if not footage_ids:
+            self.core.popup("No footage items selected")
+            return
 
-            if not footage_items:
-                self.core.popup("No footage items selected")
-                return
+        data, error = self._executeCompScript(helixae_protocol.build_list_project_comps())
+        if error:
+            self.core.popup("Could not read the composition list:\n%s" % error)
+            return
+        if not data.get("result"):
+            self.core.popup("Could not read the composition list from After Effects.")
+            return
 
-            footage_ids = []
-            for item in footage_items:
-                userData = item.data(0, Qt.UserRole)
-                footage_id = userData.get('id')
-                if footage_id:
-                    footage_ids.append(footage_id)
+        comp_list = [c for c in (data.get("comps") or []) if isinstance(c, dict)]
+        if not comp_list:
+            self.core.popup("No compositions found in this project.")
+            return
 
-            if not footage_ids:
-                self.core.popup("No valid footage IDs found")
-                return
+        dlg = QDialog(self.tracker.dlg_footage)
+        dlg.setWindowTitle("Select Composition")
+        dlg.resize(400, 500)
 
-            script = """
-            if (!app.project) {
-                'NO_PROJECT';
-            } else {
-                var comps = [];
-                for (var i = 1; i <= app.project.numItems; i++) {
-                    var item = app.project.item(i);
-                    if (item instanceof CompItem) {
-                        comps.push(item.id + '|' + item.name);
-                    }
-                }
-                if (comps.length === 0) {
-                    'NO_COMPS';
-                } else {
-                    comps.join('|||');
-                }
-            }
-            """
+        layout = QVBoxLayout()
 
-            result = self.tracker.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
+        label = QLabel(f"Select composition to add {len(footage_ids)} footage item(s) to:")
+        layout.addWidget(label)
 
-            if 'NO_PROJECT' in result:
-                self.core.popup("No project open.")
-                return
-            if 'NO_COMPS' in result:
-                self.core.popup("No compositions found in this project.")
-                return
+        comp_list_widget = QListWidget()
+        comp_list_widget.setSelectionMode(QAbstractItemView.SingleSelection)
+        for comp in comp_list:
+            item = QListWidgetItem(str(comp.get("name", "")))
+            item.setData(Qt.UserRole, comp.get("id"))
+            comp_list_widget.addItem(item)
 
-            comp_list = result.split('|||')
-            if not comp_list:
-                self.core.popup("No compositions found.")
-                return
+        layout.addWidget(comp_list_widget)
 
-            dlg = QDialog(self.tracker.dlg_footage)
-            dlg.setWindowTitle("Select Composition")
-            dlg.resize(400, 500)
+        if comp_list_widget.count() > 0:
+            comp_list_widget.setCurrentRow(0)
 
-            layout = QVBoxLayout()
+        button_layout = QHBoxLayout()
+        cancel_btn = QPushButton("Cancel")
+        add_btn = QPushButton("Add")
+        add_btn.setStyleSheet("QPushButton { font-weight: bold; }")
 
-            label = QLabel(f"Select composition to add {len(footage_ids)} footage item(s) to:")
-            layout.addWidget(label)
+        cancel_btn.clicked.connect(dlg.reject)
+        add_btn.clicked.connect(lambda: self._addFootageToSelectedCompExecute(
+            dlg, comp_list_widget, footage_ids
+        ))
 
-            comp_list_widget = QListWidget()
-            comp_list_widget.setSelectionMode(QAbstractItemView.SingleSelection)
-            for comp_str in comp_list:
-                parts = comp_str.split('|')
-                if len(parts) == 2:
-                    comp_id, comp_name = parts
-                    item = QListWidgetItem(comp_name)
-                    item.setData(Qt.UserRole, comp_id)
-                    comp_list_widget.addItem(item)
+        button_layout.addWidget(cancel_btn)
+        button_layout.addStretch()
+        button_layout.addWidget(add_btn)
+        layout.addLayout(button_layout)
 
-            layout.addWidget(comp_list_widget)
-
-            if comp_list_widget.count() > 0:
-                comp_list_widget.setCurrentRow(0)
-
-            button_layout = QHBoxLayout()
-            cancel_btn = QPushButton("Cancel")
-            add_btn = QPushButton("Add")
-            add_btn.setStyleSheet("QPushButton { font-weight: bold; }")
-
-            cancel_btn.clicked.connect(dlg.reject)
-            add_btn.clicked.connect(lambda: self._addFootageToSelectedCompExecute(
-                dlg, comp_list_widget, footage_ids
-            ))
-
-            button_layout.addWidget(cancel_btn)
-            button_layout.addStretch()
-            button_layout.addWidget(add_btn)
-            layout.addLayout(button_layout)
-
-            dlg.setLayout(layout)
-            dlg.exec_()
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error showing composition selection dialog:\n{str(e)}\n\n{traceback.format_exc()}")
+        dlg.setLayout(layout)
+        dlg.exec_()
 
     @err_catcher(name=__name__)
     def _addFootageToSelectedCompExecute(self, dialog, comp_list_widget, footage_ids):
         """Execute adding footage to the selected composition"""
+        selected_items = comp_list_widget.selectedItems()
+        if not selected_items:
+            self.core.popup("Please select a composition.")
+            return
+
+        comp_id = selected_items[0].data(Qt.UserRole)
+
         try:
-            selected_items = comp_list_widget.selectedItems()
-            if not selected_items:
-                self.core.popup("Please select a composition.")
-                return
-
-            comp_id = selected_items[0].data(Qt.UserRole)
-            footage_ids_json = str(footage_ids).replace("'", '"')
-
-            script = f"""
-            var compId = {comp_id};
-            var footageIds = {footage_ids_json};
-
-            var targetComp = null;
-            for (var i = 1; i <= app.project.numItems; i++) {{
-                var item = app.project.item(i);
-                if (item.id == compId && item instanceof CompItem) {{
-                    targetComp = item;
-                    break;
-                }}
-            }}
-
-            if (!targetComp) {{
-                'COMP_NOT_FOUND';
-            }} else {{
-                var addedCount = 0;
-                var failedItems = [];
-
-                for (var i = 0; i < footageIds.length; i++) {{
-                    var footageId = footageIds[i];
-                    var footageItem = null;
-
-                    for (var j = 1; j <= app.project.numItems; j++) {{
-                        var item = app.project.item(j);
-                        if (item.id == footageId) {{
-                            footageItem = item;
-                            break;
-                        }}
-                    }}
-
-                    if (footageItem) {{
-                        try {{
-                            var newLayer = targetComp.layers.add(footageItem);
-                            newLayer.label = footageItem.label;
-                            if (footageItem.parentFolder && footageItem.parentFolder.name) {{
-                                newLayer.comment = footageItem.parentFolder.name;
-                            }}
-                            addedCount++;
-                        }} catch (e) {{
-                            failedItems.push(footageId + ': ' + e.toString());
-                        }}
-                    }} else {{
-                        failedItems.push(footageId + ': Footage not found');
-                    }}
-                }}
-
-                'SUCCESS|' + addedCount + '|' + failedItems.length + '|' + failedItems.join('|||');
-            }}
-            """
-
-            result = self.tracker.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
+            script = helixae_protocol.build_add_footage_to_comp(comp_id, footage_ids)
+        except (TypeError, ValueError) as e:
             dialog.close()
+            self.core.popup("Error adding footage to selected composition:\n%s" % e)
+            return
 
-            if 'COMP_NOT_FOUND' in result:
+        data, error = self._executeCompScript(script)
+        dialog.close()
+
+        if error:
+            self.core.popup("Error adding footage to selected composition:\n%s" % error)
+            return
+
+        if not data.get("result"):
+            reason = data.get("reason") or data.get("details") or ""
+            if reason == "not_a_comp":
                 self.core.popup("Selected composition not found.")
-                return
-            elif result.startswith('SUCCESS|'):
-                parts = result.split('|')
-                if len(parts) >= 3:
-                    added_count = int(parts[1])
-                    failed_count = int(parts[2])
-                    failed_items_str = parts[3] if len(parts) > 3 else ""
-
-                    if added_count > 0:
-                        if failed_count > 0:
-                            failed_items = failed_items_str.split('|||') if failed_items_str else []
-                            message = f"Added {added_count} footage item(s), but {failed_count} failed:"
-                            for item in failed_items[:5]:
-                                message += f"\n- {item}"
-                            if failed_count > 5:
-                                message += f"\n... and {failed_count - 5} more"
-                            self.core.popup(message)
-                    else:
-                        _detail = failed_items_str.replace('|||', '\n') if failed_items_str else "Unknown error"
-                        self.core.popup("Failed to add any footage items.\n\n" + _detail)
-                else:
-                    self.core.popup(f"Unexpected result format:\n{result}")
             else:
-                self.core.popup(f"Unexpected result:\n{result}")
+                self.core.popup("Could not add footage to the composition.\n%s" % reason)
+            return
 
-        except Exception as e:
-            import traceback
-            dialog.close()
-            self.core.popup(f"Error adding footage to selected composition:\n{str(e)}\n\n{traceback.format_exc()}")
+        self._reportAddResult(data, "composition")
+
+    def _reportAddResult(self, data, target_label):
+        """Report the {addedCount, failedItems} acknowledgement."""
+        added_count = int(data.get("addedCount") or 0)
+        failed_items = [str(f) for f in (data.get("failedItems") or [])]
+        failed_count = len(failed_items)
+
+        if added_count > 0:
+            if failed_count > 0:
+                message = f"Added {added_count} footage item(s) to {target_label}, but {failed_count} failed:"
+                for item in failed_items[:5]:
+                    message += f"\n- {item}"
+                if failed_count > 5:
+                    message += f"\n... and {failed_count - 5} more"
+                self.core.popup(message)
+        else:
+            detail = "\n".join(failed_items) if failed_items else "Unknown error"
+            self.core.popup("Failed to add any footage items.\n\n" + detail)

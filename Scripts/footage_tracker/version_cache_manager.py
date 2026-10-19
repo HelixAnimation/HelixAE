@@ -2,6 +2,17 @@
 """
 Version Cache Manager
 Maintains a persistent cache of version information per project.
+
+Concurrency contract:
+- ``cache_lock`` guards ``cache_data`` and ``cache_path``.  Only
+  ``_saveCacheLocked`` performs disk writes, and it is only ever called
+  with the lock already held (by ``saveCache``).  No method acquires the
+  lock twice, so the non-reentrant ``threading.Lock`` can never
+  deadlock.
+- Writes are atomic (unique temp file + ``os.replace``) so a crashed or
+  concurrent writer can never leave a truncated cache behind.
+- A failed save keeps the ``dirty`` flag set so the next ``stop()`` or
+  background pass retries (last-known-good on transient NAS failures).
 """
 
 import os
@@ -9,6 +20,7 @@ import json
 import threading
 from datetime import datetime
 
+from footage_tracker import cache_store
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -32,7 +44,7 @@ class VersionCacheManager:
 
     CACHE_VERSION = "1.0"
     CACHE_FILENAME = ".prism_footage_cache.json"
-    CACHE_STALE_SECONDS = 300  # Cache is stale after 5 minutes
+    CACHE_STALE_SECONDS = 300  # individual entries expire after 5 minutes
 
     def __init__(self, tracker):
         super(VersionCacheManager, self).__init__()
@@ -79,54 +91,64 @@ class VersionCacheManager:
 
             try:
                 with open(self.cache_path, 'r', encoding='utf-8') as f:
-                    self.cache_data = json.load(f)
-
-                # Validate cache structure
-                if not self._validateCache():
-                    self.cache_data = self._createEmptyCache()
-                    return False
-
-                # Check if cache is for the correct project
-                cache_project = self.cache_data.get("project_path", "")
-                if cache_project.replace('\\', '/') != self.project_path.replace('\\', '/'):
-                    self.cache_data = self._createEmptyCache()
-                    return False
-
-                # Use stale cache - will be refreshed as needed
-                entry_count = len(self.cache_data.get('versions', {}))
-                if entry_count > 0:
-                    print(f"[CACHE] Loaded {entry_count} cached render folders")
-
-                return True
-
+                    raw_data = json.load(f)
             except Exception as e:
                 print(f"[CACHE] Error loading cache: {e}")
+                # Keep the last-known-good file aside instead of parsing a
+                # corrupt file forever; the next save rewrites cleanly.
+                try:
+                    os.replace(self.cache_path, self.cache_path + ".corrupt")
+                except OSError:
+                    pass
                 self.cache_data = self._createEmptyCache()
                 return False
+
+            # Validate cache structure (drops malformed entries)
+            cache_data, error = cache_store.validate_cache(raw_data)
+            if error:
+                print(f"[CACHE] Invalid cache: {error}")
+                self.cache_data = self._createEmptyCache()
+                return False
+
+            # Check if cache is for the correct project (project-change
+            # invalidation)
+            cache_project = cache_data.get("project_path", "")
+            if cache_store.normalize_path(cache_project) != cache_store.normalize_path(
+                self.project_path
+            ):
+                self.cache_data = self._createEmptyCache()
+                return False
+
+            self.cache_data = cache_data
+            self.cache_data["dirty"] = False
+
+            entry_count = len(self.cache_data.get('versions', {}))
+            if entry_count > 0:
+                print(f"[CACHE] Loaded {entry_count} cached render folders")
+
+            return True
+
+    def _saveCacheLocked(self):
+        """Write the cache; ONLY called with ``cache_lock`` held."""
+        if not self.cache_path:
+            self.cache_path = self.getCachePath()
+
+        self.cache_data["last_updated"] = datetime.now().isoformat()
+
+        ok, error = cache_store.atomic_write_json(self.cache_path, self.cache_data)
+        if not ok:
+            print(f"[CACHE] Error saving cache: {error}")
+            # Keep the dirty flag so a later stop()/save retries.
+            return False
+
+        self.cache_data["dirty"] = False
+        return True
 
     @err_catcher(name=__name__)
     def saveCache(self):
         """Save cache to disk."""
         with self.cache_lock:
-            if not self.cache_path:
-                self.cache_path = self.getCachePath()
-
-            self.cache_data["last_updated"] = datetime.now().isoformat()
-
-            try:
-                # Ensure directory exists
-                cache_dir = os.path.dirname(self.cache_path)
-                if cache_dir and not os.path.exists(cache_dir):
-                    os.makedirs(cache_dir)
-
-                with open(self.cache_path, 'w', encoding='utf-8') as f:
-                    json.dump(self.cache_data, f, indent=2, ensure_ascii=False)
-
-                return True
-
-            except Exception as e:
-                print(f"[CACHE] Error saving cache: {e}")
-                return False
+            return self._saveCacheLocked()
 
     @err_catcher(name=__name__)
     def getVersionInfo(self, path, version_dir=None, force_rescan=False):
@@ -139,24 +161,31 @@ class VersionCacheManager:
             force_rescan: If True, bypass cache and rescan
 
         Returns:
-            Cached version info, or None if not in cache or force_rescan=True
+            Fresh cached version info, or None when not cached, expired,
+            or force_rescan=True
         """
         with self.cache_lock:
             if force_rescan:
                 # Bypass cache completely
                 return None
 
-            # Extract cache key from path
             cache_key = self._getCacheKey(path)
             if not cache_key:
                 return None
 
             versions_data = self.cache_data.get("versions", {})
-            if cache_key in versions_data:
-                # Return cached data - no file system access
-                return versions_data[cache_key]
+            entry = versions_data.get(cache_key)
+            if entry is None:
+                return None
 
-            return None
+            # Entry-level expiry: stale entries are treated as misses so a
+            # later scan refreshes them.
+            if not cache_store.entry_is_fresh(
+                entry, None, self.CACHE_STALE_SECONDS
+            ):
+                return None
+
+            return entry
 
     @err_catcher(name=__name__)
     def scanAndCacheFolder(self, folder_path, force_save=False):
@@ -175,7 +204,6 @@ class VersionCacheManager:
             latestVersion = None
 
             if os.path.exists(folder_path):
-                # Get all version folders
                 versionItems = []
                 for item in os.listdir(folder_path):
                     if item.startswith('v') and len(item) >= 5 and item[1:5].isdigit():
@@ -183,44 +211,34 @@ class VersionCacheManager:
                         if self.utils.versionHasFootage(os.path.join(folder_path, item)):
                             versionItems.append(item)
 
-                # Sort versions
-                def versionSortKey(versionFolder):
-                    match = re.match(r'(v\d+)(.*)', versionFolder)
-                    if match:
-                        baseVer = match.group(1)
-                        suffix = match.group(2) or ''
-                        verNum = int(baseVer[1:])
-                        hasSuffix = 0 if suffix == '' else 1
-                        return (-verNum, hasSuffix, suffix)
-                    return (0, 0, versionFolder)
-
-                for item in sorted(versionItems, key=versionSortKey):
+                for item in sorted(versionItems, key=cache_store.version_sort_key):
                     allVersions.append(item)
-                    # First item is latest
                     if len(allVersions) == 1:
+                        import re
+
                         baseMatch = re.match(r'(v\d+)', item)
                         if baseMatch:
                             latestVersion = baseMatch.group(1)
 
-            # Create version info
             versionInfo = {
                 "allVersions": allVersions,
                 "latestVersion": latestVersion or allVersions[0] if allVersions else "v0000",
                 "last_scanned": datetime.now().isoformat()
             }
 
-            # Update cache
             with self.cache_lock:
                 if "versions" not in self.cache_data:
                     self.cache_data["versions"] = {}
 
                 self.cache_data["versions"][cache_key] = versionInfo
 
-                if force_save:
-                    self.saveCache()
-                else:
-                    # Mark cache as dirty (will be saved on next background update)
+                if not force_save:
+                    # Mark cache as dirty (saved on next background update)
                     self.cache_data["dirty"] = True
+                # NOTE: saving happens after the lock is released below.
+
+            if force_save:
+                self.saveCache()
 
             return versionInfo
 
@@ -232,50 +250,72 @@ class VersionCacheManager:
 
     @err_catcher(name=__name__)
     def stop(self):
-        """Save cache before exiting."""
+        """Save cache before exiting (retries failed persistence)."""
         with self.cache_lock:
-            if self.cache_data.get("dirty", False):
-                self.saveCache()
+            dirty = bool(self.cache_data.get("dirty", False))
+
+        if dirty:
+            self.saveCache()
 
     @err_catcher(name=__name__)
     def _getCacheKey(self, path):
+        """Cache key for a media path (see cache_store.get_cache_key)."""
+        return cache_store.get_cache_key(path)
+
+    @err_catcher(name=__name__)
+    def mergeEntries(self, entries):
+        """Merge externally collected version entries (legacy migration).
+
+        Existing entries win (they come from a fresh scan); returns the
+        number of merged entries.
         """
-        Extract a cache key from a path.
+        if not isinstance(entries, dict):
+            return 0
+        merged = 0
+        with self.cache_lock:
+            versions = self.cache_data.setdefault("versions", {})
+            for key, entry in entries.items():
+                if key in versions:
+                    continue
+                _, error = cache_store.validate_cache(
+                    {"version": "1.0", "project_path": "", "versions": {key: entry}}
+                )
+                if error:
+                    continue
+                versions[key] = entry
+                merged += 1
+            if merged:
+                self.cache_data["dirty"] = True
+        return merged
 
-        For: X:/Project/03_Production/Shots/SQ020/SH030/Renders/3dRender/Lighting_Humans/v0016/beauty/...
-        Returns: "SQ020-SH030/Lighting_Humans"
+    @err_catcher(name=__name__)
+    def storeEntry(self, cache_key, version_info):
+        """Store one externally scanned version entry and mark dirty.
+
+        Used when a caller performs its own (faster) folder scan and wants
+        to share the result through this cache.
         """
-        try:
-            pathParts = path.replace('\\', '/').split('/')
+        if not cache_key or not isinstance(version_info, dict):
+            return False
+        _, error = cache_store.validate_cache(
+            {
+                "version": "1.0",
+                "project_path": "",
+                "versions": {cache_key: version_info},
+            }
+        )
+        if error:
+            return False
+        with self.cache_lock:
+            self.cache_data.setdefault("versions", {})[cache_key] = version_info
+            self.cache_data["dirty"] = True
+        return True
 
-            # Find shot and task
-            shot = None
-            sequence = None
-            task = None
-            versionIndex = -1
-
-            for i, part in enumerate(pathParts):
-                # Find shot folder
-                if re.match(r'sh\d+', part.lower()):
-                    shot = part
-                    if i > 0 and re.match(r'(ch|sq|ep)\d+', pathParts[i-1].lower()):
-                        sequence = pathParts[i-1]
-
-                # Find task (folder before version)
-                if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                    versionIndex = i
-                    if i > 0:
-                        task = pathParts[i - 1]
-                    break
-
-            if shot and task:
-                entity = f"{sequence}-{shot}" if sequence else shot
-                return f"{entity}/{task}"
-
-            return None
-
-        except Exception as e:
-            return None
+    @err_catcher(name=__name__)
+    def isDirty(self):
+        """True when unsaved changes are pending."""
+        with self.cache_lock:
+            return bool(self.cache_data.get("dirty", False))
 
     @err_catcher(name=__name__)
     def _createEmptyCache(self):
@@ -287,15 +327,6 @@ class VersionCacheManager:
             "last_updated": datetime.now().isoformat(),
             "versions": {}
         }
-
-    @err_catcher(name=__name__)
-    def _validateCache(self):
-        """Validate cache structure."""
-        required_keys = ["version", "project_path", "versions"]
-        for key in required_keys:
-            if key not in self.cache_data:
-                return False
-        return True
 
     @err_catcher(name=__name__)
     def _isCacheStale(self):
@@ -332,10 +363,14 @@ class VersionCacheManager:
         """
         with self.cache_lock:
             cache_key = self._getCacheKey(path)
-            if cache_key and "versions" in self.cache_data and cache_key in self.cache_data["versions"]:
-                del self.cache_data["versions"][cache_key]
-                print(f"[CACHE] Invalidated cache for {cache_key}")
-                self.saveCache()
+            if not cache_key or cache_key not in self.cache_data.get("versions", {}):
+                return
+            del self.cache_data["versions"][cache_key]
+            print(f"[CACHE] Invalidated cache for {cache_key}")
+            self.cache_data["dirty"] = True
+
+        # Save outside the lock (saveCache acquires it).
+        self.saveCache()
 
     @err_catcher(name=__name__)
     def clearCache(self):

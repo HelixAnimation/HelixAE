@@ -9,6 +9,7 @@ import shutil
 import re
 import sys
 import json
+from footage_tracker import resize_transaction
 from datetime import datetime
 
 # Add local lib directory to Python path BEFORE importing PIL/numpy
@@ -281,6 +282,8 @@ class ImageResizer(QObject):
         # Fallback to simple keyword matching if no ruleset
         print(f"[DEBUG RULESET] Using fallback keyword matching for AOV '{aov_name}'")
         aov_lower = aov_name.lower()
+        if any(pass_name in aov_lower for pass_name in self.MASK_PASSES):
+            return None, False, "Nearest Neighbor (no interpolation)"
 
         # Check for color passes - use Lanczos3 (high quality)
         if any(pass_name in aov_lower for pass_name in self.COLOR_PASSES):
@@ -359,6 +362,8 @@ class ImageResizer(QObject):
         Returns tuple of (success: bool, error_message: str or None)
         """
         try:
+            if os.path.normcase(os.path.abspath(source_path)) == os.path.normcase(os.path.abspath(target_path)):
+                return False, 'Resize output must be a temporary file, not the original'
             print(f"[DEBUG RESIZE] Attempting to resize: {source_path}")
             print(f"[DEBUG RESIZE] Target: {target_path}")
             print(f"[DEBUG RESIZE] File exists: {os.path.exists(source_path)}")
@@ -385,6 +390,22 @@ class ImageResizer(QObject):
 
             # Get original specs for debugging
             spec = input_buf.spec()
+            if not input_buf.read():
+                return False, 'Failed to read image: %s' % input_buf.geterror()
+            if spec.deep:
+                return False, 'Deep EXR resizing is not supported; original retained'
+            if self.isCryptomatte(spec):
+                interpolate = False
+            probe = oiio_module.ImageInput.open(source_path)
+            if not probe:
+                return False, 'Could not inspect source image'
+            try:
+                if probe.seek_subimage(1, 0):
+                    return False, 'Multipart images are not supported; original retained'
+                if probe.seek_subimage(0, 1):
+                    return False, 'Mipmapped images are not supported; original retained'
+            finally:
+                probe.close()
             print(f"[DEBUG RESIZE] Image loaded: {spec.width}x{spec.height}, "
                   f"channels={input_buf.nchannels}, format={spec.format}")
 
@@ -411,17 +432,39 @@ class ImageResizer(QObject):
             outspec.full_y = 0
             outspec.full_width = target_size[0]
             outspec.full_height = target_size[1]
+            if resized_buf.has_error:
+                return False, 'Resize failed: %s' % resized_buf.geterror()
+            outspec.channelnames = spec.channelnames
+            outspec.channelformats = spec.channelformats
+            for attribute in spec.extra_attribs:
+                outspec.attribute(attribute.name, attribute.type, attribute.value)
             print(f"[DEBUG RESIZE] Forced EXR windows to match")
 
             # Write output
-            write_success = resized_buf.write(target_path)
+            write_success = resized_buf.write(target_path, spec.format)
 
             if not write_success:
                 # Get error with API compatibility - geterror is always a method
                 write_err = resized_buf.geterror()
                 return False, f"Failed to write image: {write_err}"
 
-            print(f"[DEBUG RESIZE] Successfully saved to: {target_path}")
+            verification = oiio_module.ImageBuf(target_path)
+            if not verification.read():
+                return False, 'Output validation failed: %s' % verification.geterror()
+            check = verification.spec()
+            if (check.width, check.height) != tuple(target_size):
+                return False, 'Output dimensions do not match requested size'
+            if tuple(check.channelnames) != tuple(spec.channelnames):
+                return False, 'Output channel names were not preserved'
+            if ext == '.exr' and str(check.format) != str(spec.format):
+                return False, 'EXR pixel type was not preserved'
+            if ext == '.exr' and tuple(map(str, check.channelformats)) != tuple(map(str, spec.channelformats)):
+                return False, 'EXR per-channel pixel types were not preserved'
+            for attribute in spec.extra_attribs:
+                if attribute.name.startswith('cryptomatte/'):
+                    if check.getattribute(attribute.name) != spec.getattribute(attribute.name):
+                        return False, 'Cryptomatte metadata was not preserved: %s' % attribute.name
+            print(f"[DEBUG RESIZE] Validated output: {target_path}")
             return True, None
 
         except Exception as e:
@@ -432,15 +475,12 @@ class ImageResizer(QObject):
 
     @err_catcher(name=__name__)
     def batchResizeAOV(self, files, target_size, interpolation, interpolate,
-                       backup_folder, progress_callback=None):
+                       backup_folder, progress_callback=None, cancel_callback=None):
         """
         Resize all files in an AOV folder.
 
-        Strategy:
-        1. Create backup of each original file
-        2. Read from SOURCE directly (avoid network-sync issues with backup copy)
-        3. Resize and write to source in-place
-        4. If resize fails, restore from backup
+        Originals are replaced only after sibling output validation and a
+        verified backup. Cancellation stops before the next file.
 
         Args:
             files: List of file paths to resize
@@ -452,75 +492,11 @@ class ImageResizer(QObject):
 
         Returns dict with success/failure counts and errors.
         """
-        results = {
-            'total': len(files),
-            'success': 0,
-            'failed': 0,
-            'errors': []
-        }
-
-        # Ensure backup folder exists
-        backup_folder = os.path.normpath(backup_folder)
-        try:
-            os.makedirs(backup_folder, exist_ok=True)
-            print(f"[DEBUG] Backup folder ready: {backup_folder}")
-        except Exception as e:
-            print(f"[DEBUG] Failed to create backup folder: {e}")
-            results['errors'].append(f"Failed to create backup folder: {e}")
-            return results
-
-        for i, source_path in enumerate(files):
-            filename = os.path.basename(source_path)
-            source_path = os.path.normpath(source_path)
-            backup_path = os.path.normpath(os.path.join(backup_folder, filename))
-
-            try:
-                # Step 1: Create backup copy first
-                print(f"[DEBUG] Backing up: {filename}")
-                shutil.copy2(source_path, backup_path)
-
-                # Verify backup was created
-                if not os.path.exists(backup_path):
-                    raise Exception(f"Backup file not created: {backup_path}")
-
-                backup_size = os.path.getsize(backup_path)
-                source_size = os.path.getsize(source_path)
-                print(f"[DEBUG] Backup created: {backup_size} bytes (source: {source_size} bytes)")
-
-                # Step 2: Read from SOURCE directly and resize to source location
-                # This avoids network synchronization issues with reading from backup
-                print(f"[DEBUG] Resizing from source: {source_path}")
-                success, error = self.resizeImage(
-                    source_path, source_path, target_size,
-                    interpolation, interpolate
-                )
-
-                if success:
-                    results['success'] += 1
-                    print(f"[DEBUG] Successfully resized: {filename}")
-                else:
-                    # Step 3: On failure, restore from backup
-                    print(f"[DEBUG] Resize failed, restoring from backup: {error}")
-                    try:
-                        shutil.copy2(backup_path, source_path)
-                        print(f"[DEBUG] Restored: {filename}")
-                    except Exception as restore_err:
-                        print(f"[DEBUG] Failed to restore: {restore_err}")
-                    results['failed'] += 1
-                    results['errors'].append(f"{filename}: {error}")
-
-            except Exception as e:
-                results['failed'] += 1
-                results['errors'].append(f"{filename}: {str(e)}")
-                print(f"[DEBUG] Exception processing {filename}: {e}")
-                import traceback
-                print(f"[DEBUG] Traceback: {traceback.format_exc()}")
-
-            # Progress callback
-            if progress_callback:
-                progress_callback(i + 1, len(files))
-
-        return results
+        return resize_transaction.resize_batch(
+            files, backup_folder,
+            lambda source, target: self.resizeImage(
+                source, target, target_size, interpolation, interpolate),
+            progress_callback, cancel_callback)
 
     @err_catcher(name=__name__)
     def isOIIOAvailable(self):

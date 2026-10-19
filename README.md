@@ -40,6 +40,8 @@ The CEP extension is installed automatically by the plugin on first launch.
 
 ## Documentation
 
+For local development and deployment to the NAS, see [Development workflow](docs/development.md).
+
 Full artist documentation is available at:
 
 **[chorbest.github.io/HelixAE](https://chorbest.github.io/HelixAE/)**

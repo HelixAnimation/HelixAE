@@ -3,6 +3,8 @@
 Lighting import context menu methods: import lighting/AOVs, label colors, custom AOV dialog.
 """
 
+import helixae_protocol
+
 import os
 import re
 
@@ -18,6 +20,14 @@ from PrismUtils.Decorators import err_catcher as err_catcher
 
 class ContextMenuLightingImport:
     """Mixin: lighting import and label color methods"""
+
+    def _executeLightingScript(self, script):
+        """Run a protocol script. Returns (data, error)."""
+        try:
+            response = self.tracker.main.ae_core.executeAppleScript(script)
+        except Exception as e:
+            return None, "After Effects bridge error: %s" % e
+        return helixae_protocol.parse_json_response(response)
 
     @err_catcher(name=__name__)
     def showUnifiedImportDialog(self):
@@ -121,70 +131,36 @@ class ContextMenuLightingImport:
         color_assignments = []
 
         for task_name in unique_tasks:
-            script = f"""
-            var taskName = '{task_name}';
-            var foundColor = 0;
-
-            var render3dFolder = null;
-            for (var i = 1; i <= app.project.numItems; i++) {{
-                if (app.project.item(i) instanceof FolderItem &&
-                    app.project.item(i).name === '3D Renders') {{
-                    render3dFolder = app.project.item(i);
-                    break;
-                }}
-            }}
-
-            if (render3dFolder) {{
-                for (var i = 1; i <= render3dFolder.numItems; i++) {{
-                    var shotFolder = render3dFolder.item(i);
-                    if (shotFolder instanceof FolderItem) {{
-                        for (var j = 1; j <= shotFolder.numItems; j++) {{
-                            var taskFolder = shotFolder.item(j);
-                            if (taskFolder instanceof FolderItem && taskFolder.name === taskName) {{
-                                for (var k = 1; k <= taskFolder.numItems; k++) {{
-                                    var item = taskFolder.item(k);
-                                    if (item instanceof FootageItem && item.label > 0) {{
-                                        foundColor = item.label;
-                                        break;
-                                    }}
-                                }}
-                                break;
-                            }}
-                        }}
-                    }}
-                }}
-            }}
-
-            foundColor;
-            """
-
-            result = self.tracker.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
+            existing_color = 0
 
             try:
-                existing_color = int(result.strip())
-                if existing_color > 0:
-                    task_color_map[task_name] = existing_color
-                    color_assignments.append(f"{task_name}: Existing color {existing_color}")
-                    if existing_color in available_colors:
-                        available_colors.remove(existing_color)
-                else:
-                    if available_colors:
-                        new_color = available_colors.pop(0)
-                        task_color_map[task_name] = new_color
-                        color_assignments.append(f"{task_name}: New color {new_color}")
-                    else:
-                        task_color_map[task_name] = 1
-                        color_assignments.append(f"{task_name}: Default gray (no colors left)")
-            except (ValueError, AttributeError) as e:
+                script = helixae_protocol.build_find_task_folder_label(task_name)
+            except (TypeError, ValueError) as e:
+                print(f"[DEBUG COLOR MAP] Skipping invalid task name {task_name!r}: {e}")
+                continue
+
+            data, error = self._executeLightingScript(script)
+            if error:
+                existing_color = 0
+            elif data.get("result"):
+                try:
+                    existing_color = int(data.get("label") or 0)
+                except (TypeError, ValueError):
+                    existing_color = 0
+
+            if existing_color > 0:
+                task_color_map[task_name] = existing_color
+                color_assignments.append(f"{task_name}: Existing color {existing_color}")
+                if existing_color in available_colors:
+                    available_colors.remove(existing_color)
+            else:
                 if available_colors:
                     new_color = available_colors.pop(0)
                     task_color_map[task_name] = new_color
-                    color_assignments.append(f"{task_name}: New color {new_color} (error: {e})")
+                    color_assignments.append(f"{task_name}: New color {new_color}")
                 else:
                     task_color_map[task_name] = 1
-                    color_assignments.append(f"{task_name}: Default gray (error: {e})")
+                    color_assignments.append(f"{task_name}: Default gray (no colors left)")
 
         print(f"[DEBUG COLOR MAP] Assignments: {color_assignments}")
         print(f"[DEBUG COLOR MAP] Final map: {task_color_map}")
@@ -195,65 +171,19 @@ class ContextMenuLightingImport:
     def applyLabelColorsTo3DRenders(self):
         """Apply label colors to all existing 3D Renders footage based on task folders"""
         try:
-            script = """
-            var render3dFolder = null;
-            var taskFootageMap = {};
-
-            for (var i = 1; i <= app.project.numItems; i++) {
-                if (app.project.item(i) instanceof FolderItem &&
-                    app.project.item(i).name === '3D Renders') {
-                    render3dFolder = app.project.item(i);
-                    break;
-                }
-            }
-
-            if (render3dFolder) {
-                for (var i = 1; i <= render3dFolder.numItems; i++) {
-                    var shotFolder = render3dFolder.item(i);
-                    if (shotFolder instanceof FolderItem) {
-                        for (var j = 1; j <= shotFolder.numItems; j++) {
-                            var taskFolder = shotFolder.item(j);
-                            if (taskFolder instanceof FolderItem) {
-                                var taskName = taskFolder.name;
-                                if (!(taskName in taskFootageMap)) {
-                                    taskFootageMap[taskName] = [];
-                                }
-                                for (var k = 1; k <= taskFolder.numItems; k++) {
-                                    var item = taskFolder.item(k);
-                                    if (item instanceof FootageItem) {
-                                        taskFootageMap[taskName].push(item.id);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            var result = [];
-            for (var task in taskFootageMap) {
-                result.push(task + '|||' + taskFootageMap[task].join(',,,'));
-            }
-            result.join(';;;');
-            """
-
-            result = self.tracker.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if not result or result.strip() == '':
-                self.core.popup("No 3D Renders footage found.")
+            data, error = self._executeLightingScript(
+                helixae_protocol.build_list_task_folder_footage())
+            if error:
+                self.core.popup("Could not read 3D Renders footage:\n%s" % error)
+                return
+            if not data.get("result"):
+                self.core.popup("Could not read 3D Renders footage from After Effects.")
                 return
 
             task_footage_map = {}
-            task_list = result.split(';;;')
-            for task_data in task_list:
-                parts = task_data.split('|||')
-                if len(parts) == 2:
-                    task_name = parts[0]
-                    footage_ids = parts[1].split(',,,') if parts[1] else []
-                    if footage_ids:
-                        task_footage_map[task_name] = footage_ids
+            for task in (data.get("tasks") or []):
+                if isinstance(task, dict) and task.get("name") and task.get("itemIds"):
+                    task_footage_map.setdefault(str(task["name"]), []).extend(task["itemIds"])
 
             if not task_footage_map:
                 self.core.popup("No 3D Renders footage found.")
@@ -263,59 +193,20 @@ class ContextMenuLightingImport:
             task_color_map = {}
 
             for task_name in task_footage_map.keys():
-                check_script = f"""
-                var taskName = '{task_name}';
-                var existingColor = 0;
+                check_data, check_error = self._executeLightingScript(
+                    helixae_protocol.build_find_task_folder_label(task_name))
+                existing_color = 0
+                if not check_error and check_data.get("result"):
+                    try:
+                        existing_color = int(check_data.get("label") or 0)
+                    except (TypeError, ValueError):
+                        existing_color = 0
 
-                var render3dFolder = null;
-                for (var i = 1; i <= app.project.numItems; i++) {{
-                    if (app.project.item(i) instanceof FolderItem &&
-                        app.project.item(i).name === '3D Renders') {{
-                        render3dFolder = app.project.item(i);
-                        break;
-                    }}
-                }}
-
-                if (render3dFolder) {{
-                    for (var i = 1; i <= render3dFolder.numItems; i++) {{
-                        var shotFolder = render3dFolder.item(i);
-                        if (shotFolder instanceof FolderItem) {{
-                            for (var j = 1; j <= shotFolder.numItems; j++) {{
-                                var taskFolder = shotFolder.item(j);
-                                if (taskFolder instanceof FolderItem && taskFolder.name === taskName) {{
-                                    for (var k = 1; k <= taskFolder.numItems; k++) {{
-                                        var item = taskFolder.item(k);
-                                        if (item instanceof FootageItem && item.label > 0) {{
-                                            existingColor = item.label;
-                                            break;
-                                        }}
-                                    }}
-                                    break;
-                                }}
-                            }}
-                        }}
-                    }}
-                }}
-
-                existingColor;
-                """
-
-                check_result = self.tracker.main.ae_core.executeAppleScript(check_script)
-                if isinstance(check_result, bytes):
-                    check_result = check_result.decode('utf-8')
-
-                try:
-                    existing_color = int(check_result.strip())
-                    if existing_color > 0:
-                        task_color_map[task_name] = existing_color
-                        if existing_color in available_colors:
-                            available_colors.remove(existing_color)
-                    else:
-                        if available_colors:
-                            task_color_map[task_name] = available_colors.pop(0)
-                        else:
-                            task_color_map[task_name] = 1
-                except (ValueError, AttributeError):
+                if existing_color > 0:
+                    task_color_map[task_name] = existing_color
+                    if existing_color in available_colors:
+                        available_colors.remove(existing_color)
+                else:
                     if available_colors:
                         task_color_map[task_name] = available_colors.pop(0)
                     else:
@@ -324,36 +215,19 @@ class ContextMenuLightingImport:
             total_updated = 0
             for task_name, footage_ids in task_footage_map.items():
                 label_color = task_color_map.get(task_name, 1)
-                footage_ids_json = str(footage_ids).replace("'", '"')
-
-                apply_script = f"""
-                var footageIds = {footage_ids_json};
-                var labelColor = {label_color};
-                var updatedCount = 0;
-
-                for (var i = 0; i < footageIds.length; i++) {{
-                    var footageId = footageIds[i];
-                    for (var j = 1; j <= app.project.numItems; j++) {{
-                        var item = app.project.item(j);
-                        if (item.id == footageId) {{
-                            item.label = labelColor;
-                            updatedCount++;
-                            break;
-                        }}
-                    }}
-                }}
-
-                updatedCount;
-                """
-
-                apply_result = self.tracker.main.ae_core.executeAppleScript(apply_script)
-                if isinstance(apply_result, bytes):
-                    apply_result = apply_result.decode('utf-8')
 
                 try:
-                    total_updated += int(apply_result.strip())
-                except ValueError:
-                    pass
+                    apply_script = helixae_protocol.build_set_item_labels(footage_ids, label_color)
+                except (TypeError, ValueError) as e:
+                    print(f"[LABEL COLORS] Invalid ids for task {task_name!r}: {e}")
+                    continue
+
+                apply_data, apply_error = self._executeLightingScript(apply_script)
+                if apply_error or not apply_data.get("result"):
+                    print(f"[LABEL COLORS] Could not apply colors for task {task_name!r}: "
+                          f"{apply_error or apply_data.get('details')}")
+                    continue
+                total_updated += int(apply_data.get("updatedCount") or 0)
 
             self.core.popup(
                 f"Applied label colors to {total_updated} footage item(s) "
@@ -369,67 +243,25 @@ class ContextMenuLightingImport:
     def applyLabelColorsToAllCompLayers(self):
         """Update label colors on layers in all compositions to match their source footage"""
         try:
-            script = """
-            var totalComps = 0;
-            var totalLayers = 0;
-            var updatedLayers = 0;
+            data, error = self._executeLightingScript(
+                helixae_protocol.build_update_layers_from_source())
+            if error:
+                self.core.popup("Error updating layer colors:\n%s" % error)
+                return
+            if not data.get("result"):
+                reason = data.get("reason") or data.get("details") or ""
+                self.core.popup("Could not update layer colors.\n%s" % reason)
+                return
 
-            for (var i = 1; i <= app.project.numItems; i++) {
-                var item = app.project.item(i);
-                if (item instanceof CompItem) {
-                    totalComps++;
+            total_comps = int(data.get("totalComps") or 0)
+            total_layers = int(data.get("totalLayers") or 0)
+            updated_layers = int(data.get("updatedLayers") or 0)
 
-                    for (var j = 1; j <= item.numLayers; j++) {
-                        totalLayers++;
-                        var layer = item.layer(j);
-                        var sourceFootage = layer.source;
-
-                        if (sourceFootage instanceof FootageItem && sourceFootage.label > 0) {
-                            var isFrom3DRender = false;
-                            var parentFolder = sourceFootage.parentFolder;
-
-                            while (parentFolder) {
-                                if (parentFolder.name === '3D Renders') {
-                                    isFrom3DRender = true;
-                                    break;
-                                }
-                                parentFolder = parentFolder.parentFolder;
-                            }
-
-                            if (isFrom3DRender) {
-                                layer.label = sourceFootage.label;
-
-                                if (sourceFootage.parentFolder && sourceFootage.parentFolder.name) {
-                                    layer.comment = sourceFootage.parentFolder.name;
-                                }
-
-                                updatedLayers++;
-                            }
-                        }
-                    }
-                }
-            }
-
-            totalComps + '|' + totalLayers + '|' + updatedLayers;
-            """
-
-            result = self.tracker.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if '|' in result:
-                parts = result.split('|')
-                total_comps = int(parts[0]) if parts[0].strip() else 0
-                total_layers = int(parts[1]) if parts[1].strip() else 0
-                updated_layers = int(parts[2]) if parts[2].strip() else 0
-
-                self.core.popup(
-                    f"Updated {updated_layers} layer(s) across {total_comps} composition(s).\n\n"
-                    f"Total layers scanned: {total_layers}\n"
-                    f"Layers updated: {updated_layers}"
-                )
-            else:
-                self.core.popup(f"Completed. Result: {result}")
+            self.core.popup(
+                f"Updated {updated_layers} layer(s) across {total_comps} composition(s).\n\n"
+                f"Total layers scanned: {total_layers}\n"
+                f"Layers updated: {updated_layers}"
+            )
 
         except Exception as e:
             import traceback
@@ -463,90 +295,36 @@ class ContextMenuLightingImport:
                 label_color = task_color_map.get(task_name, 1)
 
                 full_file_path = file_path.replace("\\", "/")
-                script = f"""
-                var importFile = new File('{full_file_path}');
-                if (importFile.exists) {{
-                    var render3dFolder = null, shotFolder = null, taskFolder = null;
 
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        if (app.project.item(i) instanceof FolderItem &&
-                            app.project.item(i).name === '3D Renders') {{
-                            render3dFolder = app.project.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!render3dFolder) render3dFolder = app.project.items.addFolder('3D Renders');
+                try:
+                    script = helixae_protocol.build_import_to_shot_folder(
+                        full_file_path,
+                        "3D Renders",
+                        seq_shot,
+                        footage_name,
+                        sequence=True,
+                        task_folder=task_name,
+                        label_color=label_color,
+                        comment=task_name,
+                    )
+                except (TypeError, ValueError) as e:
+                    self.core.popup(f"Error importing {task_name}/{aov_name}:\n{e}")
+                    continue
 
-                    for (var i = 1; i <= render3dFolder.numItems; i++) {{
-                        if (render3dFolder.item(i) instanceof FolderItem &&
-                            render3dFolder.item(i).name === '{seq_shot}') {{
-                            shotFolder = render3dFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!shotFolder) shotFolder = render3dFolder.items.addFolder('{seq_shot}');
+                data, error = self._executeLightingScript(script)
+                if error:
+                    self.core.popup(f"Error importing {task_name}/{aov_name}:\n{error}")
+                    continue
+                if not data.get("result"):
+                    reason = data.get("reason") or data.get("details") or ""
+                    if reason == "file_not_found":
+                        reason = "The file does not exist in After Effects."
+                    elif reason == "cannot_import":
+                        reason = "The file cannot be imported as footage."
+                    self.core.popup(f"Error importing {task_name}/{aov_name}:\n{reason}")
+                    continue
 
-                    var taskName = '{task_name}';
-                    for (var i = 1; i <= shotFolder.numItems; i++) {{
-                        if (shotFolder.item(i) instanceof FolderItem &&
-                            shotFolder.item(i).name === taskName) {{
-                            taskFolder = shotFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!taskFolder) taskFolder = shotFolder.items.addFolder(taskName);
-
-                    var footageName = '{footage_name}';
-                    var existingCount = 0;
-                    var finalFootageName = footageName;
-
-                    for (var i = 1; i <= taskFolder.numItems; i++) {{
-                        var item = taskFolder.item(i);
-                        if (item instanceof FootageItem && item.name === footageName) {{
-                            existingCount++;
-                            break;
-                        }}
-                    }}
-
-                    if (existingCount > 0) {{
-                        var dupCount = 0;
-                        for (var i = 1; i <= taskFolder.numItems; i++) {{
-                            var item = taskFolder.item(i);
-                            if (item instanceof FootageItem) {{
-                                var itemName = item.name;
-                                if (itemName === footageName ||
-                                    itemName.indexOf(footageName + ' (') === 0) {{
-                                    dupCount++;
-                                }}
-                            }}
-                        }}
-                        finalFootageName = footageName + ' (' + dupCount + ')';
-                    }}
-
-                    var importOptions = new ImportOptions(importFile);
-                    if (importOptions.canImportAs(ImportAsType.FOOTAGE)) {{
-                        importOptions.importAs = ImportAsType.FOOTAGE;
-                        importOptions.sequence = true;
-                        var footage = app.project.importFile(importOptions);
-                        var labelColor = {label_color};
-                        footage.label = labelColor;
-                        footage.comment = '{task_name}';
-                        footage.parentFolder = taskFolder;
-                        footage.name = finalFootageName;
-                        'SUCCESS';
-                    }} else {{
-                        'ERROR: Cannot import as footage';
-                    }}
-                }} else {{
-                    'FILE_NOT_FOUND';
-                }}
-                """
-
-                result = self.tracker.main.ae_core.executeAppleScript(script)
-                if b'SUCCESS' in result:
-                    imported_count += 1
-                if b'ERROR' in result or b'FILE_NOT_FOUND' in result:
-                    self.core.popup(f"Error importing {task_name}/{aov_name}:\n{result}")
+                imported_count += 1
 
             msg = f"Imported {imported_count} lighting pass(es)"
             self.core.popup(msg)

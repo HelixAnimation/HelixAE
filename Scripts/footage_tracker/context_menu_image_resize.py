@@ -4,6 +4,8 @@ Image resize context menu methods: resize menus, confirm dialogs, batch resize, 
 """
 
 import os
+import threading
+from footage_tracker.resize_transaction import exclusive_resize_action, run_background
 
 from qtpy.QtCore import Qt
 from qtpy.QtWidgets import (
@@ -239,6 +241,7 @@ class ContextMenuImageResize:
         return aovs
 
     @err_catcher(name=__name__)
+    @exclusive_resize_action
     def _executeResize(self, file_path, width, height, position):
         """Execute the resize operation with confirmation"""
         from .image_resizer import ImageResizer
@@ -262,7 +265,7 @@ class ContextMenuImageResize:
             return
 
         from datetime import datetime
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
         backup_folder = os.path.join(aov_folder, f"originals_backup_{timestamp}")
         os.makedirs(backup_folder, exist_ok=True)
 
@@ -275,24 +278,31 @@ class ContextMenuImageResize:
         )
         progress.setWindowTitle("Resizing Images")
         progress.setWindowModality(Qt.WindowModal)
+        progress.setAutoReset(False)
+        progress.setAutoClose(False)
+        cancellation = threading.Event()
+        progress.canceled.connect(cancellation.set)
         progress.show()
 
         def progress_callback(current, total):
             progress.setValue(current)
             QApplication.processEvents()
 
-        results = resizer.batchResizeAOV(
-            files, (width, height), interpolation, should_interpolate,
-            backup_folder, progress_callback
-        )
-
-        progress.close()
+        try:
+            results = run_background(
+                lambda report: resizer.batchResizeAOV(
+                    files, (width, height), interpolation, should_interpolate,
+                    backup_folder, report, cancellation.is_set),
+                progress_callback, QApplication.processEvents)
+        finally:
+            progress.close()
 
         self._showResizeResults(results, backup_folder)
 
         self.tracker.loadFootageData(preserve_scroll=True)
 
     @err_catcher(name=__name__)
+    @exclusive_resize_action
     def _executeBatchResize(self, selected_aovs, width, height, position):
         """Execute batch resize operation for multiple AOVs with confirmation"""
         from .image_resizer import ImageResizer
@@ -304,16 +314,23 @@ class ContextMenuImageResize:
 
         aov_details = []
         for aov in selected_aovs:
+            files, _ = resizer.collectAOVFiles(aov['sample_file'])
             interpolation, should_interpolate, interp_name = resizer.getInterpolationMethod(aov['name'])
             aov_details.append({
                 'name': aov['name'],
                 'folder': aov['folder'],
-                'file_count': aov['file_count'],
+                'sample_file': aov['sample_file'],
+                'file_count': len(files),
+                'files': files,
                 'interpolation': interpolation,
                 'should_interpolate': should_interpolate,
                 'interp_name': interp_name
             })
 
+        total_files = sum(len(aov['files']) for aov in aov_details)
+        if not total_files:
+            self.core.popup('No image files found in selected AOV folders.')
+            return
         dlg = self._createBatchResizeConfirmDialog(
             aov_details, total_files, total_aovs, (width, height)
         )
@@ -322,7 +339,7 @@ class ContextMenuImageResize:
             return
 
         from datetime import datetime
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
 
         progress = QProgressDialog(
             f"Resizing {total_files} images in {total_aovs} AOVs...",
@@ -333,12 +350,18 @@ class ContextMenuImageResize:
         )
         progress.setWindowTitle("Batch Resizing Images")
         progress.setWindowModality(Qt.WindowModal)
+        progress.setAutoReset(False)
+        progress.setAutoClose(False)
+        cancellation = threading.Event()
+        progress.canceled.connect(cancellation.set)
         progress.show()
 
         aggregate_results = {
             'total': total_files,
             'success': 0,
             'failed': 0,
+            'skipped': 0,
+            'canceled': False,
             'errors': [],
             'aov_results': [],
             'backup_folders': []
@@ -347,6 +370,9 @@ class ContextMenuImageResize:
         current_file_index = 0
 
         for aov_info in aov_details:
+            if cancellation.is_set():
+                aggregate_results['canceled'] = True
+                break
             aov_name = aov_info['name']
             aov_folder = aov_info['folder']
             interpolation = aov_info['interpolation']
@@ -359,29 +385,22 @@ class ContextMenuImageResize:
             backup_folder = os.path.join(aov_folder, f"originals_backup_{timestamp}")
             os.makedirs(backup_folder, exist_ok=True)
 
-            _fallback = (os.path.join(aov_folder, os.listdir(aov_folder)[0])
-                         if os.path.exists(aov_folder) else '')
-            files, _ = resizer.collectAOVFiles(aov_info.get('sample_file', _fallback))
-
-            if not files:
-                files = []
-                for item in os.listdir(aov_folder):
-                    item_path = os.path.join(aov_folder, item)
-                    if os.path.isfile(item_path):
-                        ext = os.path.splitext(item)[1].lower()
-                        if ext in resizer.SUPPORTED_FORMATS:
-                            files.append(item_path)
-                files = sorted(files)
+            files = aov_info['files']
 
             def progress_callback(current, total):
                 nonlocal current_file_index
                 progress.setValue(current_file_index + current)
                 QApplication.processEvents()
 
-            results = resizer.batchResizeAOV(
-                files, (width, height), interpolation, aov_info['should_interpolate'],
-                backup_folder, progress_callback
-            )
+            try:
+                results = run_background(
+                    lambda report: resizer.batchResizeAOV(
+                        files, (width, height), interpolation, aov_info['should_interpolate'],
+                        backup_folder, report, cancellation.is_set),
+                    progress_callback, QApplication.processEvents)
+            except Exception:
+                progress.close()
+                raise
 
             aggregate_results['aov_results'].append({
                 'aov_name': aov_name,
@@ -395,7 +414,12 @@ class ContextMenuImageResize:
             aggregate_results['backup_folders'].append(backup_folder)
 
             current_file_index += len(files)
+            if results['canceled']:
+                aggregate_results['canceled'] = True
+                break
 
+        aggregate_results['skipped'] = max(
+            0, total_files - aggregate_results['success'] - aggregate_results['failed'])
         progress.close()
 
         self._showBatchResizeResults(aggregate_results)
@@ -457,6 +481,8 @@ class ContextMenuImageResize:
             f"<p>Total files: <b>{results['total']}</b></p>"
             f"<p>Success: <b style='color: green;'>{results['success']}</b></p>"
             f"<p>Failed: <b style='color: red;'>{results['failed']}</b></p>"
+            f"<p>Skipped: <b>{results.get('skipped', 0)}</b></p>"
+            f"<p>Canceled: <b>{results.get('canceled', False)}</b></p>"
         )
         layout.addWidget(summary)
 
@@ -560,6 +586,8 @@ class ContextMenuImageResize:
             f"<p>Total files: <b>{aggregate_results['total']}</b></p>"
             f"<p>Success: <b style='color: green;'>{aggregate_results['success']}</b></p>"
             f"<p>Failed: <b style='color: red;'>{aggregate_results['failed']}</b></p>"
+            f"<p>Skipped: <b>{aggregate_results.get('skipped', 0)}</b></p>"
+            f"<p>Canceled: <b>{aggregate_results.get('canceled', False)}</b></p>"
         )
         layout.addWidget(summary)
 

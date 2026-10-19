@@ -1,0 +1,4 @@
+# Normalize Windows working copies when comparing/staging in Git.
+* text=auto
+*.sh text eol=lf
+*.cmd text eol=crlf

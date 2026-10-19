@@ -43,6 +43,10 @@ class TreeRenderer:
         import time
 
         render_start = time.perf_counter()
+        ignored_items = getattr(self.tracker, '_prepared_ignored_items', None)
+        if ignored_items is None:
+            ignored_items = self.tracker.startup_warnings._getIgnoredItems()
+        self._render_bypass_cache = ignored_items
 
         # TEMPORARY: Always clear the tree to force rebuild with new styling
         self.tracker.tw_footage.clear()
@@ -83,7 +87,6 @@ class TreeRenderer:
 
         cache_start = time.perf_counter()
         # Get ignored items for counting (but don't filter from cache)
-        ignored_items = self.tracker.startup_warnings._getIgnoredItems()
 
         # Cache ALL items (including ignored ones) - Check Issues dialog will show them grayed out
         all_cached_items = {
@@ -155,6 +158,95 @@ class TreeRenderer:
 
         render_end = time.perf_counter()
         print(f"[TIMING] Total renderHierarchyTree: {render_end - render_start:.4f}s")
+
+    def updatePreparedCells(self, hierarchy):
+        """Enrich stable existing leaf items; do not rebuild groups or the tree."""
+        records = {}
+        def collect(value):
+            if isinstance(value, dict):
+                if 'footageId' in value:
+                    records[('footage', str(value['footageId']))] = value
+                elif 'compId' in value:
+                    records[('comp', str(value['compId']))] = value
+                else:
+                    for child in value.values():
+                        collect(child)
+            elif isinstance(value, list):
+                for child in value:
+                    collect(child)
+        collect(hierarchy)
+        self._render_bypass_cache = self.tracker._prepared_ignored_items
+        self.issue_counts = {key: 0 for key in ('outdated', 'fps_mismatch', 'frame_range_mismatch',
+                                               'resolution_mismatch', 'total_footage', 'total_comps')}
+        self.issue_items = {key: [] for key in ('outdated', 'fps_mismatch', 'frame_range_mismatch', 'resolution_mismatch')}
+        tree = self.tracker.tw_footage
+        stack = [tree.topLevelItem(i) for i in range(tree.topLevelItemCount())]
+        current_shot = self.tracker.data_parser.extractCurrentShotFromProject()
+        while stack:
+            item = stack.pop()
+            stack.extend(item.child(i) for i in range(item.childCount()))
+            data = item.data(0, Qt.UserRole) or {}
+            record = records.get((data.get('type'), str(data.get('id'))))
+            if record is None:
+                continue
+            for column in (2, 3, 4, 5):
+                item.setBackground(column, QBrush())
+                item.setForeground(column, QBrush())
+            if data.get('type') == 'comp':
+                self.issue_counts['total_comps'] += 1
+                kitsu = self.tracker.getKitsuDataForShot(current_shot)
+                fps = float(record['frameRate'])
+                start = int(round(float(record['displayStartTime']) * fps))
+                end = start + int(round(float(record['duration']) * fps)) - 1
+                self._createCompFPSWidget(item, record, 4)
+                self._createCompFrameRangeWidget(item, record, 3, kitsu)
+                self._createCompResolutionWidget(item, record, 5, kitsu)
+                if kitsu:
+                    self._compareCompWithKitsu(item, record, kitsu, start, end, fps)
+            else:
+                shot = record.get('shotName', data.get('shot', ''))
+                identifier = data.get('identifier', '')
+                kitsu = self.tracker.getKitsuDataForShot(shot)
+                previous_versions = getattr(item, '_prepared_versions', None)
+                if previous_versions != record['versionInfo']:
+                    self._createVersionWidget(item, record, 1)
+                    item._prepared_versions = dict(record['versionInfo'])
+                data.update(currentVersion=record['versionInfo']['currentVersion'],
+                            latestVersion=record['versionInfo']['latestVersion'],
+                            currentVersionFull=record['versionInfo']['currentVersionFull'])
+                item.setData(0, Qt.UserRole, data)
+                self._setFootageStatus(item, record, 2, identifier, shot)
+                self._createFPSWidget(item, record, 4, kitsu, identifier, shot)
+                actual_range = item.text(3)
+                actual_resolution = '%sx%s' % (record.get('width', 'N/A'), record.get('height', 'N/A'))
+                item.setToolTip(3, 'AE frame range: ' + actual_range)
+                item.setToolTip(5, 'AE resolution: ' + actual_resolution)
+                base = {'shot': shot, 'group': record['group'], 'original_name': record['name'],
+                        'identifier': identifier, 'aov': item.text(0) if record['group'] == '3D Renders' else '',
+                        'tree_text': item.text(0) if record['group'] == '2D Renders' else '',
+                        'name': '' if record['group'] == '2D Renders' else record['name']}
+                checks = [
+                    ('frame_range_mismatch', 3, actual_range, (kitsu or {}).get('frameRange'),
+                     {'comp_range': actual_range, 'kitsu_range': (kitsu or {}).get('frameRange')}),
+                    ('resolution_mismatch', 5, actual_resolution,
+                     '%sx%s' % (kitsu['width'], kitsu['height']) if kitsu and kitsu.get('width') and kitsu.get('height') else None,
+                     {'current': actual_resolution, 'expected': (kitsu or {}).get('resolution')})]
+                for issue_type, column, actual, expected, details in checks:
+                    if expected and 'N/A' not in actual and actual != expected:
+                        item.setBackground(column, QBrush(QColor(129, 84, 32)))
+                        item.setForeground(column, QBrush(QColor(255, 255, 255)))
+                        item.setToolTip(column, 'Mismatch: %s\nKitsu: %s' % (actual, expected))
+                        self.issue_counts[issue_type] += 1
+                        self.issue_items[issue_type].append(dict(base, **details))
+            self._checkAndApplyBypassStyling(item, data)
+        ignored = self._render_bypass_cache
+        counts = {}
+        for key, entries in self.issue_items.items():
+            counts[key] = sum(1 for entry in entries if self.tracker.startup_warnings._generateItemKey(entry, key)
+                              not in ignored.get(key, set()))
+        counts.update(total_footage=self.issue_counts['total_footage'], total_comps=self.issue_counts['total_comps'])
+        self.tracker._cached_issue_counts = counts
+        self.tracker._cached_issue_items = {key: list(entries) for key, entries in self.issue_items.items()}
 
     @err_catcher(name=__name__)
     def _buildRenderTree(self, group, render_data):
@@ -455,7 +547,7 @@ class TreeRenderer:
                     display_frame_range = f"{startFrame}-{endFrame}"
             else:
                 # Last resort: scan file system folder
-                display_frame_range = self.utils.getFrameRangeFromFolder(footageData['path'])
+                display_frame_range = "N/A"
 
             identifierItem.setText(3, display_frame_range or "N/A")
             frame_end = time.perf_counter()
@@ -623,7 +715,7 @@ class TreeRenderer:
                 frameRange = f"{startFrame}-{endFrame}"
         else:
             # Last resort: scan file system folder (SLOW - only if AE has no data)
-            frameRange = self.utils.getFrameRangeFromFolder(footageData['path'])
+            frameRange = "N/A"
         item.setText(3, frameRange)
 
         kitsuData = self.tracker.getKitsuDataForShot(shot)
@@ -1031,6 +1123,9 @@ class TreeRenderer:
         versionLayout = QHBoxLayout(versionWidget)
         versionLayout.setContentsMargins(2, 2, 2, 2)
         versionCombo = QComboBox()
+        if versionInfo.get('checkState', 'checked') not in ('checked', 'stale', 'cached'):
+            versionCombo.setEnabled(False)
+            versionCombo.setToolTip("Available versions have not been checked yet")
         # Disable mouse wheel to prevent accidental version changes
         versionCombo.setFocusPolicy(Qt.ClickFocus)
 
@@ -1202,6 +1297,16 @@ class TreeRenderer:
         Args:
             identifier: Optional AOV name for 2D/3D renders (e.g., "LowRes", "beauty")
             shot: The shot name this footage belongs to (for 2D renders)"""
+        check_state = footageData.get('versionInfo', {}).get('checkState', 'checked')
+        if check_state != 'checked':
+            labels = {'unchecked': 'Checking…', 'cached': 'Cached — checking…',
+                      'stale': 'Cached — NAS unavailable', 'failed': 'Not checked — NAS unavailable',
+                      'not_applicable': 'Not versioned'}
+            item.setText(column, labels.get(check_state, 'Not checked'))
+            item.setForeground(column, QBrush(QColor(160, 160, 160)))
+            item.setData(column, Qt.UserRole + 1, 'unchecked')
+            self.issue_counts['total_footage'] += 1
+            return
         if footageData.get('isLatest', False):
             item.setText(column, "✓ Up to date")
             item.setForeground(column, QBrush(QColor(100, 200, 100)))
@@ -1481,7 +1586,7 @@ class TreeRenderer:
                         frameRange = f"{startFrame}-{endFrame}"
                 else:
                     # Last resort: scan file system folder (SLOW - only if AE has no data)
-                    frameRange = self.utils.getFrameRangeFromFolder(footageData['path'])
+                    frameRange = "N/A"
                 item.setText(3, frameRange)
 
                 resolution = f"{footageData.get('width', 'N/A')}x{footageData.get('height', 'N/A')}"
@@ -1498,7 +1603,10 @@ class TreeRenderer:
                 item.setData(0, Qt.UserRole, userData)
 
                 # Status for preserved items
-                if footageData.get('isLatest', False):
+                if footageData.get('versionInfo', {}).get('checkState', 'checked') != 'checked':
+                    item.setText(2, "Not checked")
+                    item.setData(2, Qt.UserRole + 1, "unchecked")
+                elif footageData.get('isLatest', False):
                     item.setText(2, "✓ Current")
                     item.setForeground(2, QBrush(QColor(100, 200, 100)))
                     item.setData(2, Qt.UserRole + 1, "current")
@@ -1667,62 +1775,7 @@ class TreeRenderer:
 
     def _getBypassedItemsFromXMP(self):
         """Get bypassed items from .aep file XMP metadata"""
-        import json
-
-        try:
-            # Read XMP metadata from the project
-            scpt = """
-            if (app.project && app.project.xmpPacket) {
-                app.project.xmpPacket;
-            } else {
-                '';
-            }
-            """
-            result = self.tracker.main.ae_core.executeAppleScript(scpt)
-            if result and isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result and 'PrismFootageTracker:BypassedItems' in result:
-                # Extract the JSON data between the tags
-                start_marker = 'PrismFootageTracker:BypassedItems">'
-                end_marker = '</rdf:li'
-
-                start_idx = result.find(start_marker)
-                if start_idx > 0:
-                    start_idx += len(start_marker)
-                    end_idx = result.find(end_marker, start_idx)
-                    if end_idx > start_idx:
-                        json_str = result[start_idx:end_idx].strip()
-                        bypassed = json.loads(json_str)
-                        print(f"[DEBUG XMP STYLING] Loaded bypassed items from .aep XMP")
-                        return bypassed
-        except Exception as e:
-            print(f"[DEBUG XMP STYLING] Error reading XMP: {e}")
-
-        # Fallback: Try sidecar file (migration)
-        import os
-        current_file = None
-        try:
-            current_file = self.core.getCurrentFileName()
-            if current_file and isinstance(current_file, bytes):
-                current_file = current_file.decode('utf-8')
-        except Exception:
-            pass
-
-        if current_file and current_file.endswith('.aep'):
-            bypassed_file = os.path.splitext(current_file)[0] + '_bypassed.json'
-            if os.path.exists(bypassed_file):
-                try:
-                    with open(bypassed_file, 'r') as f:
-                        bypassed = json.load(f)
-                    print(f"[DEBUG XMP STYLING] Loaded from sidecar (migration)")
-                    return bypassed
-                except Exception:
-                    pass
-
-        # Fallback: Project config
-        bypassed = self.core.getConfig("footage_tracker", "bypassed_items", config="project")
-        if bypassed:
-            return bypassed
-
-        return {}
+        cached = getattr(self, '_render_bypass_cache', None)
+        if cached is not None:
+            return cached
+        return self.tracker.startup_warnings._getIgnoredItems()

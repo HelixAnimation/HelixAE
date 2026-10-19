@@ -54,6 +54,7 @@ class AEFootageTracker(QObject):
         self.ui_setup = UISetup(self)
         self.import_shots = ImportShots(self)
         self.startup_warnings = StartupWarnings(self)
+        self.preparation = main._getFootagePreparation()
 
         self.group_by_mode_3d = 'shot'  # 'shot' or 'identifier'
         self.group_by_mode_2d = 'shot'  # 'shot' or 'identifier'
@@ -141,16 +142,23 @@ class AEFootageTracker(QObject):
         set_dialog("footage", self.dlg_footage)
 
         # Clean up when dialog is closed - restore stdout if debug console was active
+        dialog = self.dlg_footage
         def cleanupOnClose():
             # Save window geometry for next time
-            settings.setValue(TRACKER_SETTINGS_KEY, self.dlg_footage.saveGeometry())
+            settings.setValue(TRACKER_SETTINGS_KEY, dialog.saveGeometry())
             print(f"[TRACKER] Saved window geometry")
             setattr(self, 'dlg_footage', None)
+            self.tree_ops._load_generation += 1
+            cache_manager = getattr(self.import_shots, 'cache_manager', None)
+            if cache_manager:
+                cache_manager.stopBackgroundUpdate()
             # Restore stdout in case debug console was left open
             import sys
-            if hasattr(sys, '__stdout__'):
-                sys.stdout = sys.__stdout__
-                sys.stderr = sys.__stderr__
+            handler = getattr(self.ui_setup, 'debug_console_handler', None)
+            if sys.stdout is handler:
+                sys.stdout = getattr(self, '_pre_debug_stdout', sys.__stdout__)
+            if sys.stderr is handler:
+                sys.stderr = getattr(self, '_pre_debug_stderr', sys.__stderr__)
 
         self.dlg_footage.finished.connect(cleanupOnClose)
 
@@ -159,14 +167,20 @@ class AEFootageTracker(QObject):
         ui_end = time.perf_counter()
         print(f"[TIMING] UI setup took: {ui_end - ui_start:.4f} seconds")
 
+        # Paint the dialog before querying AE / Kitsu.
+        dialog.show()
+        QApplication.processEvents()
+        if self.dlg_footage is not dialog:
+            return False
         # Time data loading
         data_start = time.perf_counter()
-        self.loadFootageData()
+        self.preparation.attach(self)
         data_end = time.perf_counter()
         print(f"[TIMING] Data loading took: {data_end - data_start:.4f} seconds")
 
         show_start = time.perf_counter()
-        self.dlg_footage.show()
+        if self.dlg_footage is dialog:
+            dialog.show()
         show_end = time.perf_counter()
         print(f"[TIMING] Show dialog took: {show_end - show_start:.4f} seconds")
 
@@ -174,6 +188,33 @@ class AEFootageTracker(QObject):
         print(f"[TIMING] TOTAL TIME to open footage tracker: {total_end - total_start:.4f} seconds")
         print(f"{'='*80}")
         return True
+
+    def _footageSnapshotIdentity(self):
+        """A cheap scene query prevents reusing a different project's snapshot."""
+        path = self.core.getCurrentFileName()
+        if not path or str(path).lower() == 'null':
+            return None
+        return (str(getattr(self.core, 'projectPath', '')).replace('\\', '/'),
+                str(path).replace('\\', '/'))
+
+    def _restoreCachedFootageData(self):
+        """Reopening displays the last successful scan; Refresh updates it."""
+        identity = self._footageSnapshotIdentity()
+        if identity is None or identity != getattr(self, '_footage_snapshot_identity', None):
+            return False
+        hierarchy = getattr(self, '_stored_hierarchy', None)
+        if hierarchy is None:
+            return False
+        try:
+            self.tree_ops.tree_renderer.renderHierarchyTree(hierarchy)
+            self.tree_ops.updateStatistics()
+            self.updateCheckIssuesButton()
+            self.dlg_footage.statusBar.setText(
+                'Showing last scan — use Refresh to check for changes')
+            return True
+        except Exception:
+            self.tw_footage.clear()
+            return False
 
     @err_catcher(name=__name__)
     def loadFootageData(self, preserve_scroll=True):
@@ -183,7 +224,8 @@ class AEFootageTracker(QObject):
             preserve_scroll: If True, save and restore the scroll position after reloading
         """
         # Delegate to tree operations
-        self.tree_ops.loadFootageData(preserve_scroll=preserve_scroll)
+        self.preparation.tracker = self
+        self.preparation.refresh_footage()
 
     def getShotNameFromItem(self, item):
         """Get the shot name by traversing up the tree hierarchy"""
@@ -243,29 +285,8 @@ class AEFootageTracker(QObject):
 
     @err_catcher(name=__name__)
     def forceRefreshKitsuData(self):
-        """Force refresh Kitsu data from server (bypasses cache) and reload footage"""
-        import time
-
-        if hasattr(self, 'dlg_footage') and self.dlg_footage:
-            self.dlg_footage.statusBar.setText("Force refreshing Kitsu data from server...")
-
-        start_time = time.perf_counter()
-
-        # Force refresh Kitsu data (bypasses cache)
-        self.loadKitsuShotData(force_refresh=True)
-
-        refresh_time = time.perf_counter() - start_time
-
-        # Update button tooltip with new shot count
-        if hasattr(self, 'btn_listAllShots') and self.kitsuShotData:
-            self.btn_listAllShots.setToolTip(f"Open Kitsu shot list ({len(self.kitsuShotData)} shots loaded)")
-            print(f"[REFRESH] Kitsu data refreshed: {len(self.kitsuShotData)} shots in {refresh_time:.2f}s")
-
-        # Reload footage data to reflect any Kitsu changes
-        self.loadFootageData()
-
-        if hasattr(self, 'dlg_footage') and self.dlg_footage:
-            self.dlg_footage.statusBar.setText(f"Kitsu data refreshed ({len(self.kitsuShotData)} shots)")
+        """Refresh only Kitsu; reuse the current inventory and NAS checks."""
+        self.preparation.refresh_kitsu()
 
     @err_catcher(name=__name__)
     def openImportDialog(self):
@@ -397,7 +418,10 @@ class AEFootageTracker(QObject):
             else:
                 # Keep button enabled so user can access "Reset Ignored" option
                 self.btn_checkIssues.setEnabled(True)
-                self.btn_checkIssues.setText("✓ No Issues")
+                if getattr(self, '_checks_incomplete', False):
+                    self.btn_checkIssues.setText("… Checks incomplete")
+                else:
+                    self.btn_checkIssues.setText("✓ No Issues")
 
         update_end = time.perf_counter()
         print(

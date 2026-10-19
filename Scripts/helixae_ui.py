@@ -9,6 +9,7 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
+import helixae_protocol
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -83,61 +84,29 @@ class RenderDlg(QDialog):
             self.core.popup("Please select a valid render template.")
             return
 
-        # Render command for After Effects
-        cmd = f'''
-if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {{
-    var comp = app.project.activeItem;
-    var renderQueueItem = app.project.renderQueue.items.add(comp);
-
-    // Find the requested template
-    var outputModule = renderQueueItem.outputModule(1);
-    var templates = outputModule.templates;
-    var templateFound = false;
-
-    for (var i = 0; i < templates.length; i++) {{
-        if (templates[i] == "{template}") {{
-            outputModule.template = templates[i];
-            templateFound = true;
-            break;
-        }}
-    }}
-
-    if (templateFound) {{
-        // Start rendering
-        app.project.renderQueue.render();
-        "{{\\"result\\": True, \\"template\\": \\"{template}\\"}}";
-    }} else {{
-        renderQueueItem.remove();
-        "{{\\"result\\": False, \\"details\\": \\"Template not found: {template}\\"}}";
-    }}
-}} else {{
-    "{{\\"result\\": False, \\"details\\": \\"No active composition found.\\"}}";
-}}
-'''
-
-        result = self.main.sendCmd(cmd)
+        # renderQueue.render() blocks until rendering finishes, so this
+        # needs a long round-trip timeout, not the short command default.
+        result = self.main.sendCmd(
+            helixae_protocol.build_render_with_template(template),
+            timeout=3600.0,
+        )
         if not result:
             self.core.popup("Failed to send render command to After Effects.")
             return
 
-        try:
-            result_str = result.decode("utf-8").strip()
-            if result_str == "null":
-                self.core.popup("After Effects returned no response.")
-                return
-
-            result_data = eval(result_str)
-            if result_data.get("result") is True:
-                self.core.popup(
-                    f"Rendering started with template: {template}"
-                    "\n\nCheck After Effects Render Queue for progress."
-                )
-                self.close()
-            else:
-                details = result_data.get("details", "Unknown error")
-                self.core.popup(f"Render failed:\n{details}")
-        except Exception as e:
-            self.core.popup(f"Error parsing render result:\n{str(e)}")
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            self.core.popup(f"Error parsing render result:\n{error}")
+            return
+        if data.get("result") is True:
+            self.core.popup(
+                f"Rendering started with template: {template}"
+                "\n\nCheck After Effects Render Queue for progress."
+            )
+            self.close()
+        else:
+            details = data.get("details", "Unknown error")
+            self.core.popup(f"Render failed:\n{details}")
 
     @err_catcher(name=__name__)
     def renderAndSave(self):
@@ -152,7 +121,11 @@ if (app.project && app.project.activeItem && app.project.activeItem instanceof C
             current_file = self.core.getCurrentFileName()
             if current_file:
                 # Save using ae_core.saveScene which includes archive info generation
-                result = self.main.ae_core.saveScene(origin="renderAndSave", filepath=current_file)
+                self.main.ae_core._skip_version_scan_next = True
+                try:
+                    result = self.main.ae_core.saveScene(origin="renderAndSave", filepath=current_file)
+                finally:
+                    self.main.ae_core._skip_version_scan_next = False
                 if not result:
                     self.core.popup("Save failed. Render cancelled.")
                     return

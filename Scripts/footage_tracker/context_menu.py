@@ -103,6 +103,22 @@ class ContextMenu(
 
             menu = QMenu(self.tracker.tw_footage)
 
+            preparation = getattr(self.tracker, 'preparation', None)
+            if preparation:
+                paths = []
+                for selected in selected_items or [item]:
+                    data = selected.data(0, Qt.UserRole) or {}
+                    if data.get('type') == 'footage' and data.get('path'):
+                        paths.append(data['path'])
+                validate = QAction('Validate sequence files…', menu)
+                validate.triggered.connect(lambda checked=False, paths=tuple(paths): preparation.validate_sequences(paths))
+                menu.addAction(validate)
+                if 'integrity' in preparation.status:
+                    cancel = QAction('Cancel sequence validation', menu)
+                    cancel.triggered.connect(preparation.cancel_sequence_validation)
+                    menu.addAction(cancel)
+                menu.addSeparator()
+
             if footageId:
                 revealAction = QAction("Reveal in Project", menu)
                 revealAction.triggered.connect(lambda: self.tracker.revealInProject(footageId))

@@ -13,354 +13,157 @@ from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher as err_catcher
 
+import helixae_protocol
+from footage_tracker import version_paths
+
 
 class AEOperations:
     """Handles all After Effects script execution and operations"""
-    
+
     def __init__(self, tracker):
         self.tracker = tracker
         self.core = tracker.core
         self.main = tracker.main
+
+    def _resolveNewVersionPath(self, oldPath, newVersion):
+        """Deterministically rebuild ``oldPath`` for ``newVersion``.
+
+        Uses footage_tracker.version_paths (single implementation for the
+        3D/2D layouts), then matches the actual file inside the new
+        version directory.  Returns the forward-slash path to the
+        sequence/still target, or None when the version folder or file
+        does not exist.
+        """
+        try:
+            newPath = version_paths.build_new_version_path(oldPath, newVersion)
+        except ValueError:
+            return None
+
+        # Match the real file in the new version's directory (the parent
+        # of the reconstructed file path: AOV folder for 3D renders,
+        # version folder for 2D renders).
+        parent = newPath.rsplit("/", 1)[0]
+        if not os.path.isdir(parent):
+            return None
+        chosen = version_paths.match_footage_file(
+            version_paths.sorted_listing(parent), os.path.basename(oldPath.replace("\\", "/"))
+        )
+        if chosen:
+            newPath = parent + "/" + chosen
+
+        if self.tracker.utils.isSequence(newPath):
+            newPath = self.tracker.utils.ensureSequencePath(newPath)
+        else:
+            newPath = self.tracker.utils.ensureStillPath(newPath)
+
+        if not os.path.isfile(newPath) or os.path.getsize(newPath) == 0:
+            return None
+        return newPath
+
+    def _replaceFootageInAE(self, footageId, newPath, isSequence, conformFps):
+        """Replace a footage item by id via the JSON protocol.
+
+        Returns (True, None) on confirmed success, (False, reason).
+        """
+        try:
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_replace_footage_by_id(
+                    footageId, newPath, isSequence, conform_fps=conformFps
+                )
+            )
+        except Exception as e:
+            return False, str(e)
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            return False, error
+        if not data.get("result"):
+            return False, data.get("details", "unknown After Effects error")
+        if data.get('warnings'):
+            self.tracker.showSelectableMessage(
+                'Footage replaced — interpretation needs attention',
+                newPath + '\n\n' + '\n'.join(data['warnings']))
+        return True, None
+
+    def _getFootageProperties(self, footageId):
+        """Returns (props dict, None) or (None, reason)."""
+        try:
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_get_footage_properties(footageId)
+            )
+        except Exception as e:
+            return None, str(e)
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            return None, error
+        if not data.get("result"):
+            return None, data.get("details", "footage item not found")
+        return data, None
 
     @err_catcher(name=__name__)
     def updateFootageVersion(self, item, newVersion, userData):
         """Update footage to use a different version"""
         try:
             oldPath = userData['path']
-
-            # Add debug info to tracker's debug log
             self.tracker.debugLog.append(f"updateFootageVersion: oldPath = {oldPath}")
 
-            # Check if this is a 3D render path by looking for EXR files with AOV pattern
-            # Check if this is a 3D render path
-            # 3D render paths have: 3dRender folder + version folder + AOV subfolder + .exr file
-            is_3d_render = False
-
-            path_lower = oldPath.lower()
-            if '.exr' in oldPath and '3drender' in path_lower:
-                # This looks like a 3D render - verify by checking path structure
-                # 3D render paths: .../3dRender/.../v####/<aov_subfolder>/<file>.exr
-                # Any subfolder between version folder and the filename counts as an AOV folder.
-                path_parts = oldPath.replace('\\', '/').split('/')
-
-                # Find version folder index
-                version_idx = -1
-                for i, part in enumerate(path_parts):
-                    if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                        version_idx = i
-                        break
-
-                # If there is at least one path component between version folder and filename,
-                # treat it as an AOV subfolder (structure is the signal, not the name).
-                if version_idx >= 0 and version_idx + 2 <= len(path_parts) - 1:
-                    next_folder = path_parts[version_idx + 1]
-                    is_aov = True  # any subfolder after version = AOV folder in 3dRender context
-                    if is_aov:
-                        is_3d_render = True
-                        self.tracker.debugLog.append(
-                            f"updateFootageVersion: Detected 3D render via path structure - AOV folder: {next_folder}"
-                        )
-
-            if is_3d_render:
-                # Handle 3D render paths by reconstructing properly
-                # Extract parts from the original path
-                path_parts = oldPath.replace('\\', '/').split('/')
-                self.tracker.debugLog.append(f"updateFootageVersion: path_parts = {path_parts}")
-
-                # Find the version folder index
-                version_idx = -1
-                for i, part in enumerate(path_parts):
-                    if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                        version_idx = i
-                        break
-
-                self.tracker.debugLog.append(f"updateFootageVersion: version_idx = {version_idx}")
-                if version_idx >= 0 and version_idx + 1 < len(path_parts):
-                    # Check if the next part is an AOV folder (single letter or common multi-letter AOV names)
-                    aov_folder = path_parts[version_idx + 1]
-                    self.tracker.debugLog.append(
-                        f"updateFootageVersion: aov_folder = '{aov_folder}' (len={len(aov_folder)})"
-                    )
-
-                    # Any subfolder between version folder and the filename is treated as an AOV folder.
-                    # We already confirmed is_3d_render=True by reaching this branch.
-                    is_aov_folder = version_idx + 2 <= len(path_parts) - 1
-
-                    if is_aov_folder:
-                        # This is a 3D render with AOV folder structure
-                        filename = path_parts[-1]  # Last part is filename
-                        self.tracker.debugLog.append(f"updateFootageVersion: filename = '{filename}'")
-
-                        # Update version folder
-                        path_parts[version_idx] = newVersion
-                        self.tracker.debugLog.append(
-                            f"updateFootageVersion: After version update: path_parts = {path_parts}"
-                        )
-
-                        # Update version in filename
-                        new_filename = re.sub(r'_v\d+_', f'_v{newVersion}_', filename)
-                        path_parts[-1] = new_filename
-                        self.tracker.debugLog.append(f"updateFootageVersion: new_filename = '{new_filename}'")
-
-                        # Reconstruct path with forward slashes (for proper ExtendScript escaping)
-                        newPath = '/'.join(path_parts)
-                        self.tracker.debugLog.append(f"updateFootageVersion: Final newPath (3D) = {newPath}")
-                    else:
-                        # Fallback: treat as standard path
-                        self.tracker.debugLog.append(
-                            "updateFootageVersion: AOV folder not recognized, falling back to 2D logic"
-                        )
-                        is_3d_render = False
-                else:
-                    self.tracker.debugLog.append(f"updateFootageVersion: version_idx invalid, falling back to 2D logic")
-                    is_3d_render = False
-
-            if not is_3d_render:
-                self.tracker.debugLog.append(f"updateFootageVersion: Using 2D render logic")
-                # Handle 2D renders and standard paths
-                pathParts = oldPath.replace('\\', '/').split('/')
-
-                versionIndex = -1
-                oldVersionFolder = None
-                for i, part in enumerate(pathParts):
-                    if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                        oldVersionFolder = part
-                        pathParts[i] = newVersion
-                        versionIndex = i
-                        break
-
-                if versionIndex == -1:
-                    self.core.popup("Could not find version folder in path")
-                    return False
-
-                # Get the new version directory path
-                newVersionDir = '/'.join(pathParts[:versionIndex + 1])
-
-                # Check if the new version directory exists
-                if not os.path.exists(newVersionDir):
-                    self.tracker.showSelectableMessage(
-                        "Version Folder Does Not Exist",
-                        f"Version folder does not exist:\n{newVersionDir}\n\n"
-                        f"Old path was: {oldPath}"
-                    )
-                    return False
-
-                # Get the old filename to match pattern
-                oldFilename = os.path.basename(oldPath)
-
-                # Search for actual files in the new version directory
-                if os.path.isdir(newVersionDir):
-                    try:
-                        files = sorted(os.listdir(newVersionDir))
-
-                        # Define footage file extensions to filter out non-footage files (json, txt, etc.)
-                        footage_extensions = {
-                            '.exr', '.jpg', '.jpeg', '.png', '.tif', '.tiff', '.tga', '.bmp', '.psd',
-                            '.mp4', '.mov', '.avi', '.mkv', '.wmv', '.flv', '.webm'
-                        }
-
-                        # Extract base pattern from old filename (shot, identifier, etc.)
-                        # Match: SQ02-SH010_HighRes_v0002.mov -> SQ02-SH010_HighRes
-                        baseMatch = re.match(r'^(.+?)(?:_v\d+)?(?:\[\w+\])?(?:_\(\d+\))?', oldFilename)
-                        if baseMatch:
-                            basePattern = baseMatch.group(1)
-                        elif '_v' in oldFilename:
-                            basePattern = oldFilename.split('_v')[0]
-                        else:
-                            basePattern = oldFilename.rsplit('.', 1)[0]
-
-                        self.tracker.debugLog.append(
-                            f"updateFootageVersion: Searching for files matching pattern: {basePattern}"
-                        )
-
-                        # Look for files that match the base pattern AND are footage files
-                        matchingFiles = []
-                        for f in files:
-                            # Skip non-footage files (json, txt, etc.)
-                            if not any(f.lower().endswith(ext) for ext in footage_extensions):
-                                continue
-
-                            # Check if file matches our base pattern
-                            fileBase = re.match(r'^(.+?)(?:_v\d+)?(?:\[\w+\])?(?:_\(\d+\))?(?:\.\w+)?', f)
-                            if fileBase and fileBase.group(1) == basePattern:
-                                matchingFiles.append(f)
-
-                        self.tracker.debugLog.append(
-                            f"updateFootageVersion: Found {len(matchingFiles)} matching files: {matchingFiles[:5]}"
-                        )
-
-                        if matchingFiles:
-                            # Prefer video files first (.mp4, .mov)
-                            videoFiles = [
-                                f for f in matchingFiles if f.lower().endswith(('.mp4', '.mov', '.avi', '.mkv'))
-                            ]
-                            if videoFiles:
-                                newPath = os.path.join(newVersionDir, videoFiles[0]).replace('\\', '/')
-                                self.tracker.debugLog.append(f"updateFootageVersion: Using video file: {newPath}")
-                            else:
-                                # Use first sequence file found (prefer files with frame numbers)
-                                seqFiles = [f for f in matchingFiles if re.search(r'[._]\d{4,5}[._]', f)]
-                                if seqFiles:
-                                    newPath = os.path.join(newVersionDir, seqFiles[0]).replace('\\', '/')
-                                    self.tracker.debugLog.append(
-                                        f"updateFootageVersion: Using sequence file: {newPath}"
-                                    )
-                                else:
-                                    # Fallback to first matching file
-                                    newPath = os.path.join(newVersionDir, matchingFiles[0]).replace('\\', '/')
-                                    self.tracker.debugLog.append(
-                                        f"updateFootageVersion: Using fallback file: {newPath}"
-                                    )
-                        else:
-                            # No matching files found - try to construct filename
-                            newFilename = (
-                                oldFilename.replace(oldVersionFolder, newVersion) if oldVersionFolder else oldFilename
-                            )
-                            newPath = os.path.join(newVersionDir, newFilename).replace('\\', '/')
-                            self.tracker.debugLog.append(
-                                f"updateFootageVersion: No matches, constructed path: {newPath}"
-                            )
-                    except Exception as e:
-                        self.tracker.debugLog.append(f"updateFootageVersion: Error searching directory: {e}")
-                        # Fallback to simple path construction
-                        newFilename = (
-                            oldFilename.replace(oldVersionFolder, newVersion) if oldVersionFolder else oldFilename
-                        )
-                        newPath = os.path.join(newVersionDir, newFilename).replace('\\', '/')
-                else:
-                    # Directory doesn't exist - construct path anyway and let error handling catch it
-                    newFilename = (
-                        oldFilename.replace(oldVersionFolder, newVersion) if oldVersionFolder else oldFilename
-                    )
-                    newPath = os.path.join(newVersionDir, newFilename).replace('\\', '/')
+            newPath = self._resolveNewVersionPath(oldPath, newVersion)
+            if newPath is None:
+                self.tracker.showSelectableMessage(
+                    "Version Not Found",
+                    f"Could not find the target version on disk:\n"
+                    f"Old path: {oldPath}\n"
+                    f"Requested version: {newVersion}\n\n"
+                    f"Please check that the version folder and its media exist."
+                )
+                return False
 
             newIsSequence = self.tracker.utils.isSequence(newPath)
+            self.tracker.debugLog.append(f"updateFootageVersion: newPath = {newPath}, sequence = {newIsSequence}")
 
-            if newIsSequence:
-                newPath = self.tracker.utils.ensureSequencePath(newPath)
-            else:
-                newPath = self.tracker.utils.ensureStillPath(newPath)
-
-            if not os.path.exists(newPath):
-                self.tracker.showSelectableMessage(
-                    "Path Does Not Exist",
-                    f"Path does not exist:\n{newPath}\n\n"
-                    f"Old path was: {oldPath}\n"
-                    f"New is sequence: {newIsSequence}\n\n"
-                    f"Please check if the version folder exists."
-                )
-                return False
-
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({userData['id']});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    'ERROR: Invalid item';
-                }} else {{
-                    var isSequence = item.mainSource.isStill ? 'STILL' : 'SEQUENCE';
-                    var fps = item.mainSource.conformFrameRate;
-                    isSequence + '|||' + fps;
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-
-            propsResult = self.main.ae_core.executeAppleScript(scpt)
-            propsStr = str(propsResult).replace("b'", "").replace("'", "").strip()
-
-            if 'ERROR' in propsStr:
+            props, propError = self._getFootageProperties(userData['id'])
+            if props is None:
                 self.tracker.showSelectableMessage(
                     "Failed to Get Footage Properties",
-                    f"Failed to get footage properties:\n{propsStr}"
+                    f"Failed to get footage properties:\n{propError}"
                 )
                 return False
+            originalFPS = props.get("conformFrameRate") or None
 
-            props = propsStr.split('|||')
-            originalFPS = float(props[1]) if len(props) > 1 else 25.0
-
-            # The type is determined by what files exist in the new version folder
-            # newIsSequence was already determined above by checking actual files
-            # Now use that type to decide which AE method to use
-            self.tracker.debugLog.append(f"updateFootageVersion: newIsSequence={newIsSequence}, newPath={newPath}")
-
-            # Normalize path separators and escape for ExtendScript
-            # First ensure all separators are forward slashes, then escape for Windows
-            normalizedPath = newPath.replace('\\', '/')
-            if platform.system() == "Windows":
-                aePath = normalizedPath.replace('/', '\\\\')
-            else:
-                aePath = normalizedPath
-
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({userData['id']});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    'ERROR: Invalid item';
-                }} else {{
-                    var file = new File('{aePath}');
-                    if (!file.exists) {{
-                        'ERROR: File not found by After Effects - ' + file.fsName;
-                    }} else {{
-                        var originalFPS = {originalFPS};
-
-                        // Use the NEW version's actual type (detected from files)
-                        // If new version is a sequence: use replaceWithSequence
-                        // If new version is a still: use replace
-                        {'item.replaceWithSequence(file, false);' if newIsSequence else 'item.replace(file);'}
-
-                        // Explicitly disable alphabetical ordering for sequences
-                        {'item.mainSource.alphabeticOrder = false;' if newIsSequence else ''}
-
-                        try {{
-                            item.mainSource.conformFrameRate = originalFPS;
-                        }} catch(e) {{}}
-
-                        'SUCCESS';
-                    }}
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-
-            if 'SUCCESS' in resultStr:
-                userData['path'] = newPath
-
-                # Extract base version (v0003) from full version (v0003 (mp4)) for status comparison
-                baseVersionMatch = re.match(r'(v\d+)', newVersion)
-                newVersionBase = baseVersionMatch.group(1) if baseVersionMatch else newVersion
-
-                # Update userData with both base and full versions
-                userData['currentVersion'] = newVersionBase  # Base version for status check
-                userData['currentVersionFull'] = newVersion  # Full version for dropdown
-                item.setText(6, newPath)
-
-                # Compare base versions for status (ignore suffixes like "(mp4)")
-                if newVersionBase == userData['latestVersion']:
-                    item.setText(2, "✓ Up to date")
-                    item.setForeground(2, QBrush(QColor(100, 200, 100)))
-                    item.setData(2, Qt.UserRole + 1, "current")
-                else:
-                    item.setText(2, "⚠ Outdated")
-                    item.setForeground(2, QBrush(QColor(255, 150, 50)))
-                    item.setData(2, Qt.UserRole + 1, "outdated")
-
-                self.tracker.updateStatistics()
-                self.tracker.dlg_footage.statusBar.setText(f"Updated to {newVersion}")
-                QTimer.singleShot(3000, lambda: self.tracker.updateStatistics())
-                # Reload footage data to refresh compositions that use this footage
-                self.tracker.loadFootageData()
-                return True
-            else:
+            ok, reason = self._replaceFootageInAE(userData['id'], newPath, newIsSequence, originalFPS)
+            if not ok:
                 self.tracker.showSelectableMessage(
                     "Failed to Update Footage",
-                    f"Failed to update footage in After Effects\n\nDetails: {resultStr}"
+                    f"Failed to update footage in After Effects\n\nDetails: {reason}"
                 )
                 return False
+
+            userData['path'] = newPath
+
+            # Extract base version (v0003) from full version (v0003 (mp4)) for status comparison
+            baseVersionMatch = re.match(r'(v\d+)', newVersion)
+            newVersionBase = baseVersionMatch.group(1) if baseVersionMatch else newVersion
+
+            # Update userData with both base and full versions
+            userData['currentVersion'] = newVersionBase  # Base version for status check
+            userData['currentVersionFull'] = newVersion  # Full version for dropdown
+            item.setText(6, newPath)
+
+            # Compare base versions for status (ignore suffixes like "(mp4)")
+            if newVersionBase == userData['latestVersion']:
+                item.setText(2, "\u2713 Up to date")
+                item.setForeground(2, QBrush(QColor(100, 200, 100)))
+                item.setData(2, Qt.UserRole + 1, "current")
+            else:
+                item.setText(2, "\u26a0 Outdated")
+                item.setForeground(2, QBrush(QColor(255, 150, 50)))
+                item.setData(2, Qt.UserRole + 1, "outdated")
+
+            self.tracker.updateStatistics()
+            self.tracker.dlg_footage.statusBar.setText(f"Updated to {newVersion}")
+            QTimer.singleShot(3000, lambda: self.tracker.updateStatistics())
+            # Reload footage data to refresh compositions that use this footage
+            self.tracker.loadFootageData()
+            return True
 
         except Exception as e:
             import traceback
@@ -380,150 +183,29 @@ class AEOperations:
         try:
             oldPath = userData['path']
 
-            # Check if this is a 3D render path by looking for EXR files with AOV pattern
-            is_3d_render = False
-
-            if '.exr' in oldPath:
-                filename_pattern = r'([A-Z0-9\-_]+)[_-]v(\d+)_([A-Za-z])\.(\d+)\.exr'
-                filename_match = re.search(filename_pattern, oldPath)
-                if filename_match:
-                    is_3d_render = True
-
-            if is_3d_render:
-                # Handle 3D render paths
-                path_parts = oldPath.replace('\\', '/').split('/')
-                version_idx = -1
-                for i, part in enumerate(path_parts):
-                    if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                        version_idx = i
-                        break
-
-                if version_idx >= 0 and version_idx + 1 < len(path_parts):
-                    aov_folder = path_parts[version_idx + 1]
-                    if len(aov_folder) == 1 and aov_folder.isalpha():
-                        filename = path_parts[-1]
-                        path_parts[version_idx] = newVersion
-                        new_filename = re.sub(r'_v\d+_', f'_v{newVersion}_', filename)
-                        path_parts[-1] = new_filename
-                        newPath = '/'.join(path_parts)
-                        if '\\' in oldPath:
-                            newPath = newPath.replace('/', '\\')
-                    else:
-                        is_3d_render = False
-                else:
-                    is_3d_render = False
-
-            if not is_3d_render:
-                # Handle 2D renders and standard paths
-                pathParts = oldPath.replace('\\', '/').split('/')
-                versionIndex = -1
-                oldVersionFolder = None
-                for i, part in enumerate(pathParts):
-                    if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                        oldVersionFolder = part
-                        pathParts[i] = newVersion
-                        versionIndex = i
-                        break
-
-                if versionIndex == -1:
-                    return False
-
-                newPath = '/'.join(pathParts)
-
-                if oldVersionFolder:
-                    filename = os.path.basename(newPath)
-                    if oldVersionFolder in filename:
-                        newFilename = filename.replace(oldVersionFolder, newVersion)
-                        newPath = os.path.join(os.path.dirname(newPath), newFilename).replace('\\', '/')
+            newPath = self._resolveNewVersionPath(oldPath, newVersion)
+            if newPath is None:
+                return False
 
             newIsSequence = self.tracker.utils.isSequence(newPath)
 
-            if newIsSequence:
-                newPath = self.tracker.utils.ensureSequencePath(newPath)
-            else:
-                newPath = self.tracker.utils.ensureStillPath(newPath)
+            props, _propError = self._getFootageProperties(userData['id'])
+            if props is None:
+                return False
+            originalFPS = props.get("conformFrameRate") or None
 
-            if not os.path.exists(newPath):
+            ok, _reason = self._replaceFootageInAE(userData['id'], newPath, newIsSequence, originalFPS)
+            if not ok:
                 return False
 
-            # Get original FPS
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({userData['id']});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    'ERROR: Invalid item';
-                }} else {{
-                    var fps = item.mainSource.conformFrameRate;
-                    fps.toString();
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-
-            propsResult = self.main.ae_core.executeAppleScript(scpt)
-            propsStr = str(propsResult).replace("b'", "").replace("'", "").strip()
-
-            if 'ERROR' in propsStr:
-                return False
-
-            originalFPS = float(propsStr) if propsStr and propsStr != 'ERROR' else 25.0
-
-            if not os.path.exists(newPath):
-                return False
-
-            # Normalize path separators and escape for ExtendScript
-            normalizedPath = newPath.replace('\\', '/')
-            if platform.system() == "Windows":
-                aePath = normalizedPath.replace('/', '\\\\')
-            else:
-                aePath = normalizedPath
-
-            # Update footage in After Effects
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({userData['id']});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    'ERROR: Invalid item';
-                }} else {{
-                    var file = new File('{aePath}');
-                    if (!file.exists) {{
-                        'ERROR: File not found';
-                    }} else {{
-                        var originalFPS = {originalFPS};
-                        // Use the NEW version's actual type (detected from files)
-                        {'item.replaceWithSequence(file, false);' if newIsSequence else 'item.replace(file);'}
-
-                        // Explicitly disable alphabetical ordering for sequences
-                        {'item.mainSource.alphabeticOrder = false;' if newIsSequence else ''}
-
-                        try {{
-                            item.mainSource.conformFrameRate = originalFPS;
-                        }} catch(e) {{}}
-                        'SUCCESS';
-                    }}
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-
-            if 'SUCCESS' in resultStr:
-                # Update userData but don't refresh
-                userData['path'] = newPath
-                userData['currentVersion'] = newVersion
-                item.setText(6, newPath)
-                return True
-            else:
-                return False
+            # Update userData but don't refresh
+            userData['path'] = newPath
+            userData['currentVersion'] = newVersion
+            item.setText(6, newPath)
+            return True
 
         except Exception:
             return False
-
-        return False
 
     @err_catcher(name=__name__)
     def updateMultipleFootageVersions(self, compatibleItems, newVersion):
@@ -583,293 +265,147 @@ class AEOperations:
         try:
             oldPath = userData['path']
 
-            # Check if this is a 3D render path (contains single-letter AOV folder)
-            # Pattern: .../v0007/Z/SQ01-SH010_Lighting_v0007_Z.1001.exr
-            oldPath_normalized = oldPath.replace('\\', '/')
-            aov_match = re.search(r'/(v\d+)/([A-Za-z])/([^/]+\.exr)$', oldPath_normalized)
-            if aov_match:
-                # This is a 3D render path with AOV folder
-                version_folder, aov_folder, filename = aov_match.groups()
-
-                # Update the version folder
-                new_path = oldPath.replace('/' + version_folder + '/', '/' + newVersion + '/')
-
-                # Update the version in the filename
-                new_filename = filename.replace('_' + version_folder + '_', '_' + newVersion + '_')
-                new_path = new_path.replace(filename, new_filename)
-
-                newPath = new_path.replace('\\', '/')
-            else:
-                # Handle 2D renders and standard paths
-                pathParts = oldPath.replace('\\', '/').split('/')
-
-                versionIndex = -1
-                oldVersionFolder = None
-                for i, part in enumerate(pathParts):
-                    if part.startswith('v') and len(part) >= 5 and part[1:5].isdigit():
-                        oldVersionFolder = part
-                        pathParts[i] = newVersion
-                        versionIndex = i
-                        break
-
-                if versionIndex == -1:
-                    return False
-
-                newPath = '/'.join(pathParts)
-
-                if oldVersionFolder:
-                    filename = os.path.basename(newPath)
-                    if oldVersionFolder in filename:
-                        newFilename = filename.replace(oldVersionFolder, newVersion)
-                        newPath = os.path.join(os.path.dirname(newPath), newFilename).replace('\\', '/')
+            newPath = self._resolveNewVersionPath(oldPath, newVersion)
+            if newPath is None:
+                return False
 
             newIsSequence = self.tracker.utils.isSequence(newPath)
 
-            if newIsSequence:
-                newPath = self.tracker.utils.ensureSequencePath(newPath)
-            else:
-                newPath = self.tracker.utils.ensureStillPath(newPath)
+            props, _propError = self._getFootageProperties(userData['id'])
+            if props is None:
+                return False
+            originalFPS = props.get("conformFrameRate") or 25.0
 
-            if not os.path.exists(newPath):
+            ok, _reason = self._replaceFootageInAE(userData['id'], newPath, newIsSequence, originalFPS)
+            if not ok:
                 return False
 
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({userData['id']});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    'ERROR: Invalid item';
-                }} else {{
-                    var fps = item.mainSource.conformFrameRate;
-                    fps.toString();
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
+            userData['path'] = newPath
+            userData['currentVersion'] = newVersion
+            item.setText(6, newPath)
 
-            propsResult = self.main.ae_core.executeAppleScript(scpt)
-            propsStr = str(propsResult).replace("b'", "").replace("'", "").strip()
-
-            if 'ERROR' in propsStr:
-                return False
-
-            originalFPS = float(propsStr) if propsStr and propsStr != 'ERROR' else 25.0
-
-            # Normalize path separators and escape for ExtendScript
-            normalizedPath = newPath.replace('\\', '/')
-            if platform.system() == "Windows":
-                aePath = normalizedPath.replace('/', '\\\\')
+            if newVersion == userData['latestVersion']:
+                item.setText(2, "\u2713 Up to date")
+                item.setForeground(2, QBrush(QColor(100, 200, 100)))
+                item.setData(2, Qt.UserRole + 1, "current")
             else:
-                aePath = normalizedPath
+                item.setText(2, "\u26a0 Outdated")
+                item.setForeground(2, QBrush(QColor(255, 150, 50)))
+                item.setData(2, Qt.UserRole + 1, "outdated")
 
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({userData['id']});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    'ERROR: Invalid item';
-                }} else {{
-                    var file = new File('{aePath}');
-                    if (!file.exists) {{
-                        'ERROR: File not found';
-                    }} else {{
-                        var originalFPS = {originalFPS};
+            # Update the combo box to reflect the change
+            versionWidget = self.tracker.tw_footage.itemWidget(item, 1)
+            if versionWidget and versionWidget.layout().count() > 0:
+                combo = versionWidget.layout().itemAt(0).widget()
+                if isinstance(combo, QComboBox):
+                    combo.blockSignals(True)
+                    combo.setCurrentText(newVersion)
+                    combo.blockSignals(False)
 
-                        {'item.replaceWithSequence(file, false);' if newIsSequence else 'item.replace(file);'}
-
-                        // Explicitly disable alphabetical ordering for sequences
-                        {'item.mainSource.alphabeticOrder = false;' if newIsSequence else ''}
-
-                        try {{
-                            item.mainSource.conformFrameRate = originalFPS;
-                        }} catch(e) {{}}
-
-                        'SUCCESS';
-                    }}
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-
-            if 'SUCCESS' in resultStr:
-                userData['path'] = newPath
-                userData['currentVersion'] = newVersion
-                item.setText(6, newPath)
-
-                if newVersion == userData['latestVersion']:
-                    item.setText(2, "✓ Up to date")
-                    item.setForeground(2, QBrush(QColor(100, 200, 100)))
-                    item.setData(2, Qt.UserRole + 1, "current")
-                else:
-                    item.setText(2, "⚠ Outdated")
-                    item.setForeground(2, QBrush(QColor(255, 150, 50)))
-                    item.setData(2, Qt.UserRole + 1, "outdated")
-
-                # Update the combo box to reflect the change
-                versionWidget = self.tracker.tw_footage.itemWidget(item, 1)
-                if versionWidget and versionWidget.layout().count() > 0:
-                    combo = versionWidget.layout().itemAt(0).widget()
-                    if isinstance(combo, QComboBox):
-                        combo.blockSignals(True)
-                        combo.setCurrentText(newVersion)
-                        combo.blockSignals(False)
-
-                return True
+            return True
 
         except Exception:
             return False
-
-        return False
 
     @err_catcher(name=__name__)
     def updateFootageFPS(self, item, fps, userData):
         """Update footage FPS in After Effects"""
         try:
-            footageId = userData['id']
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({footageId});
-                if (!item) {{
-                    'ERROR: Item not found';
-                }} else if (!item.mainSource) {{
-                    'ERROR: No main source';
-                }} else {{
-                    item.mainSource.conformFrameRate = {fps};
-                    'SUCCESS';
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-            
-            if 'SUCCESS' in resultStr:
-                self.tracker.dlg_footage.statusBar.setText(f"Updated FPS to {fps}")
-                QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
-                # Reload footage data to refresh compositions that use this footage
-                self.tracker.loadFootageData()
-            else:
-                errorMsg = f"Failed to update FPS in After Effects\n\nDetails: {resultStr}"
-                self.core.popup(errorMsg)
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_set_footage_fps(userData['id'], fps)
+                )
+            except Exception as e:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                reason = error or data.get("details", "unknown After Effects error")
+                self.core.popup(f"Failed to update FPS in After Effects\n\nDetails: {reason}")
+                return False
+            self.tracker.dlg_footage.statusBar.setText(f"Updated FPS to {fps}")
+            QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
+            # Reload footage data to refresh compositions that use this footage
+            self.tracker.loadFootageData()
+            return True
         except Exception as e:
             import traceback
             self.core.popup(f"Error updating FPS:\n{str(e)}\n\n{traceback.format_exc()}")
+            return False
 
     @err_catcher(name=__name__)
     def updateCompFPS(self, item, fps, compInfo):
         """Update composition FPS in After Effects"""
         try:
-            compId = compInfo['compId']
-            scpt = f"""
-            try {{
-                var comp = app.project.itemByID({compId});
-                if (!comp) {{
-                    'ERROR: Composition not found';
-                }} else {{
-                    comp.frameRate = {fps};
-                    'SUCCESS';
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-
-            if 'SUCCESS' in resultStr:
-                self.tracker.dlg_footage.statusBar.setText(f"Updated comp FPS to {fps}")
-                QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
-                # Reload footage data to update the tree
-                self.tracker.loadFootageData()
-            else:
-                errorMsg = f"Failed to update comp FPS in After Effects\n\nDetails: {resultStr}"
-                self.core.popup(errorMsg)
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_set_comp_fps(compInfo['compId'], fps)
+                )
+            except Exception:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                reason = error or data.get("details", "unknown After Effects error")
+                self.core.popup(f"Failed to update comp FPS in After Effects\n\nDetails: {reason}")
+                return False
+            self.tracker.dlg_footage.statusBar.setText(f"Updated comp FPS to {fps}")
+            QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
+            self.tracker.loadFootageData()
+            return True
         except Exception as e:
             import traceback
             self.core.popup(f"Error updating comp FPS:\n{str(e)}\n\n{traceback.format_exc()}")
+            return False
 
     @err_catcher(name=__name__)
     def updateCompFrameRange(self, item, startFrame, endFrame, compInfo):
         """Update composition frame range in After Effects"""
         try:
-            compId = compInfo['compId']
-            compFps = float(compInfo['frameRate'])
-
-            # Reverse the formula to calculate displayStartTime and duration
-            # actual_start_frame = round(displayStartTime * comp_fps)
-            # actual_end_frame = round((displayStartTime + duration) * comp_fps - 1)
-            # displayStartTime = actual_start_frame / comp_fps
-            # duration = (actual_end_frame + 1) / comp_fps - displayStartTime
-
-            new_display_start_time = startFrame / compFps
-            new_duration = (endFrame + 1) / compFps - new_display_start_time
-
-            scpt = f"""
-            try {{
-                var comp = app.project.itemByID({compId});
-                if (!comp) {{
-                    'ERROR: Composition not found';
-                }} else {{
-                    comp.displayStartTime = {new_display_start_time};
-                    comp.duration = {new_duration};
-                    'SUCCESS';
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-
-            if 'SUCCESS' in resultStr:
-                self.tracker.dlg_footage.statusBar.setText(f"Updated comp frame range to {startFrame}-{endFrame}")
-                QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
-                # Reload footage data to update the tree
-                self.tracker.loadFootageData()
-            else:
-                errorMsg = f"Failed to update comp frame range in After Effects\n\nDetails: {resultStr}"
-                self.core.popup(errorMsg)
+            # displayStartTime = startFrame / fps; duration covers start..end
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_set_comp_frame_range(
+                        compInfo['compId'], startFrame, endFrame, compInfo['frameRate']
+                    )
+                )
+            except Exception:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                reason = error or data.get("details", "unknown After Effects error")
+                self.core.popup(f"Failed to update comp frame range in After Effects\n\nDetails: {reason}")
+                return False
+            self.tracker.dlg_footage.statusBar.setText(f"Updated comp frame range to {startFrame}-{endFrame}")
+            QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
+            self.tracker.loadFootageData()
+            return True
         except Exception as e:
             import traceback
             self.core.popup(f"Error updating comp frame range:\n{str(e)}\n\n{traceback.format_exc()}")
+            return False
 
     @err_catcher(name=__name__)
     def updateCompResolution(self, item, width, height, compInfo):
         """Update composition resolution in After Effects"""
         try:
-            compId = compInfo['compId']
-            scpt = f"""
-            try {{
-                var comp = app.project.itemByID({compId});
-                if (!comp) {{
-                    'ERROR: Composition not found';
-                }} else {{
-                    comp.width = {width};
-                    comp.height = {height};
-                    'SUCCESS';
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            resultStr = str(result).replace("b'", "").replace("'", "").strip()
-
-            if 'SUCCESS' in resultStr:
-                self.tracker.dlg_footage.statusBar.setText(f"Updated comp resolution to {width}x{height}")
-                QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
-                # Reload footage data to update the tree
-                self.tracker.loadFootageData()
-            else:
-                errorMsg = f"Failed to update comp resolution in After Effects\n\nDetails: {resultStr}"
-                self.core.popup(errorMsg)
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_set_comp_resolution(compInfo['compId'], width, height)
+                )
+            except Exception:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                reason = error or data.get("details", "unknown After Effects error")
+                self.core.popup(f"Failed to update comp resolution in After Effects\n\nDetails: {reason}")
+                return False
+            self.tracker.dlg_footage.statusBar.setText(f"Updated comp resolution to {width}x{height}")
+            QTimer.singleShot(2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
+            self.tracker.loadFootageData()
+            return True
         except Exception as e:
             import traceback
             self.core.popup(f"Error updating comp resolution:\n{str(e)}\n\n{traceback.format_exc()}")
+            return False
 
     @err_catcher(name=__name__)
     def updateAllOutdated(self):
@@ -1361,25 +897,16 @@ class AEOperations:
                     userData = item.data(0, Qt.UserRole)
                     footageId = userData['id']
 
-                    scpt = f"""
-                    try {{
-                        var item = app.project.itemByID({footageId});
-                        if (!item) {{
-                            'ERROR: Item not found';
-                        }} else if (!item.mainSource) {{
-                            'ERROR: No main source';
-                        }} else {{
-                            item.mainSource.conformFrameRate = {targetFps};
-                            'SUCCESS';
-                        }}
-                    }} catch(e) {{
-                        'ERROR: ' + e.toString();
-                    }}
-                    """
-                    result = self.main.ae_core.executeAppleScript(scpt)
-                    resultStr = str(result).replace("b'", "").replace("'", "").strip()
+                    try:
+                        result = self.main.ae_core.executeAppleScript(
+                            helixae_protocol.build_set_footage_fps(footageId, targetFps)
+                        )
+                    except Exception:
+                        result = None
+                    data, error = helixae_protocol.parse_json_response(result)
+                    fpsUpdated = bool(data) and data.get("result") and not error
 
-                    if 'SUCCESS' in resultStr:
+                    if fpsUpdated:
                         # Update UI - handle both QDoubleSpinBox and QLabel cases
                         if spinBox:
                             spinBox.blockSignals(True)
@@ -1413,7 +940,7 @@ class AEOperations:
                         compId, compName, targetFps, silent=True
                     )
 
-                    if result and 'Success' in str(result):
+                    if result:
                         # Update the UI
                         item.setText(4, f"{targetFps:.2f}")
                         compSuccessCount += 1
@@ -1485,22 +1012,14 @@ class AEOperations:
         for item in selectedItems:
             userData = item.data(0, Qt.UserRole)
             try:
-                scpt = f"""
-                try {{
-                    var item = app.project.itemByID({userData['id']});
-                    if (item && item.mainSource) {{
-                        item.mainSource.conformFrameRate = {fps};
-                        'SUCCESS';
-                    }} else {{
-                        'ERROR: Item or source not found';
-                    }}
-                }} catch(e) {{
-                    'ERROR: ' + e.toString();
-                }}
-                """
-                result = self.main.ae_core.executeAppleScript(scpt)
-                resultStr = str(result).replace("b'", "").replace("'", "").strip()
-                if 'SUCCESS' in resultStr:
+                try:
+                    result = self.main.ae_core.executeAppleScript(
+                        helixae_protocol.build_set_footage_fps(userData['id'], fps)
+                    )
+                except Exception:
+                    result = None
+                data, error = helixae_protocol.parse_json_response(result)
+                if data and not error and data.get("result"):
                     fpsWidget = self.tracker.tw_footage.itemWidget(item, 4)
                     if fpsWidget and fpsWidget.layout().count() > 0:
                         spinBox = fpsWidget.layout().itemAt(0).widget()
@@ -1525,37 +1044,28 @@ class AEOperations:
     def revealInProject(self, footageId):
         """Reveal and select footage in After Effects Project panel"""
         try:
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({footageId});
-                if (!item) {{
-                    'ERROR: Item not found';
-                }} else {{
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        app.project.item(i).selected = false;
-                    }}
-                    item.selected = true;
-                    
-                    try {{
-                        app.executeCommand(2523);
-                    }} catch(e) {{}}
-                    
-                    'SUCCESS';
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            
-            if b'ERROR' in result:
-                self.core.popup("Could not find footage in After Effects project.")
-            else:
+            try:
+                footage_id = helixae_protocol._as_id(footageId, "footage id")
+            except (TypeError, ValueError) as e:
+                self.core.popup(f"Could not reveal footage:\n{e}")
+                return
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_reveal_item_in_project(footage_id)
+                )
+            except Exception:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
                 self.tracker.dlg_footage.statusBar.setText(
                     f"Footage revealed in Project panel - Press Ctrl+Alt+G to open Interpret Footage"
                 )
                 QTimer.singleShot(5000, lambda: self.tracker.updateStatistics())
-                
+            else:
+                reason = (data or {}).get("reason") or (data or {}).get("details") or error or "no response"
+                self.core.popup(
+                    f"Could not find footage in After Effects project.\n\n{reason}"
+                )
         except Exception as e:
             self.core.popup(f"Error:\n{str(e)}")
 
@@ -1563,125 +1073,95 @@ class AEOperations:
     def revealInCompositions(self, footageId):
         """Show all compositions that use this footage"""
         try:
-            scpt = f"""
-            try {{
-                var item = app.project.itemByID({footageId});
-                if (!item) {{
-                    'ERROR: Item not found';
-                }} else {{
-                    var comps = [];
-                    
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        var comp = app.project.item(i);
-                        if (comp instanceof CompItem) {{
-                            for (var j = 1; j <= comp.numLayers; j++) {{
-                                var layer = comp.layer(j);
-                                if (layer.source && layer.source.id == item.id) {{
-                                    comps.push(comp.id + '::' + comp.name);
-                                    break;
-                                }}
-                            }}
-                        }}
-                    }}
-                    
-                    if (comps.length > 0) {{
-                        'COMPS:' + comps.join('|||');
-                    }} else {{
-                        'NO_COMPS';
-                    }}
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            
-            if b'ERROR' in result:
-                self.core.popup("Could not search compositions in After Effects.")
-            elif b'NO_COMPS' in result:
+            try:
+                footage_id = helixae_protocol._as_id(footageId, "footage id")
+            except (TypeError, ValueError) as e:
+                self.core.popup(f"Could not search compositions:\n{e}")
+                return
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_find_comps_using_item(footage_id)
+                )
+            except Exception:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if not data or error or not data.get("result"):
+                reason = (data or {}).get("reason") or (data or {}).get("details") or error or "no response"
+                self.core.popup(f"Could not search compositions in After Effects.\n\n{reason}")
+                return
+            comps = data.get("comps") or []
+            if not comps:
                 self.core.popup("This footage is not used in any compositions.")
-            else:
-                self._showCompositionList(result)
-                
+                return
+            self._showCompositionList(
+                [(str(c.get("id", "")), str(c.get("name", ""))) for c in comps]
+            )
         except Exception as e:
             import traceback
             self.core.popup(f"Error:\n{str(e)}\n\n{traceback.format_exc()}")
 
-    def _showCompositionList(self, result):
+    def _showCompositionList(self, compsList):
         """Display list of compositions using the footage"""
-        compsStr = str(result).split('COMPS:')[-1].replace("'", "").replace("b", "").strip()
-        compsData = compsStr.split('|||')
-        compsList = []
-        for comp in compsData:
-            if '::' in comp:
-                compId, compName = comp.split('::', 1)
-                compsList.append((compId, compName))
-        
         dlg = QDialog(self.tracker.dlg_footage)
         dlg.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
         dlg.setWindowTitle("Footage Used In Compositions")
         dlg.resize(400, 300)
-        
+
         layout = QVBoxLayout()
         dlg.setLayout(layout)
-        
+
         label = QLabel(
             f"This footage is used in {len(compsList)} composition(s):\n\n"
             "Click a composition to open it:"
         )
         layout.addWidget(label)
-        
+
         scroll = QScrollArea()
         scroll.setWidgetResizable(True)
         scroll_widget = QWidget()
         scroll_layout = QVBoxLayout()
         scroll_widget.setLayout(scroll_layout)
-        
+
         for compId, compName in compsList:
             btn = QPushButton(compName)
             btn.clicked.connect(
                 lambda checked, cid=compId, cname=compName: self.openComposition(cid, cname, dlg)
             )
             scroll_layout.addWidget(btn)
-        
+
         scroll_layout.addStretch()
         scroll.setWidget(scroll_widget)
         layout.addWidget(scroll)
-        
+
         close_btn = QPushButton("Close")
         close_btn.clicked.connect(dlg.close)
         layout.addWidget(close_btn)
-        
+
         dlg.exec_()
 
     @err_catcher(name=__name__)
     def openComposition(self, compId, compName, parentDialog):
         """Open a composition in After Effects"""
         try:
-            scpt = f"""
-            try {{
-                var comp = app.project.itemByID({compId});
-                if (!comp) {{
-                    'ERROR: Composition not found';
-                }} else if (!(comp instanceof CompItem)) {{
-                    'ERROR: Not a composition';
-                }} else {{
-                    comp.openInViewer();
-                    'SUCCESS';
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            
-            if b'ERROR' in result:
-                self.core.popup(f"Could not open composition '{compName}'")
-            else:
+            try:
+                comp_id = helixae_protocol._as_id(compId, "comp id")
+            except (TypeError, ValueError) as e:
+                self.core.popup(f"Could not open composition '{compName}':\n{e}")
+                return
+            try:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_open_comp_in_viewer(comp_id)
+                )
+            except Exception:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
                 self.tracker.dlg_footage.statusBar.setText(f"Opened composition: {compName}")
                 QTimer.singleShot(3000, lambda: self.tracker.updateStatistics())
                 parentDialog.close()
-                
+            else:
+                reason = (data or {}).get("reason") or (data or {}).get("details") or error or "no response"
+                self.core.popup(f"Could not open composition '{compName}'\n\n{reason}")
         except Exception as e:
             self.core.popup(f"Error:\n{str(e)}")
 
@@ -1692,552 +1172,107 @@ class AEOperations:
     def createFolderStructure(self, parent_folder_id, folder_path):
         """Create folder structure in AE project using ExtendScript"""
         try:
-            script = f"""
-            function createFolderStructure(parentFolderId, folderPath) {{
-                try {{
-                    var parentFolder;
-                    if (parentFolderId) {{
-                        parentFolder = app.project.itemByID(parentFolderId);
-                    }} else {{
-                        parentFolder = app.project.rootFolder;
-                    }}
-
-                    if (!parentFolder) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Parent folder not found (ID: ' + parentFolderId + ')'
-                        }});
-                    }}
-
-                    var folders = folderPath.split('/');
-                    var currentFolder = parentFolder;
-
-                    for (var i = 0; i < folders.length; i++) {{
-                        var folderName = folders[i];
-                        if (!folderName) continue;
-
-                        var folderExists = false;
-
-                        // Check if folder already exists
-                        for (var j = 1; j <= currentFolder.numItems; j++) {{
-                            if (currentFolder.item(j) instanceof FolderItem &&
-                                currentFolder.item(j).name === folderName) {{
-                                folderExists = true;
-                                currentFolder = currentFolder.item(j);
-                                break;
-                            }}
-                        }}
-
-                        if (!folderExists) {{
-                            currentFolder = currentFolder.items.addFolder(folderName);
-                        }}
-                    }}
-
-                    return JSON.stringify({{
-                        success: true,
-                        folderId: currentFolder.id,
-                        folderName: currentFolder.name
-                    }});
-
-                }} catch(e) {{
-                    return JSON.stringify({{
-                        success: false,
-                        error: e.toString()
-                    }});
-                }}
-            }}
-
-            var result = createFolderStructure({parent_folder_id}, '{folder_path}');
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            return result
-
-        except Exception as e:
-            return f"ERROR: {str(e)}"
-
-    # ========== AE Organization Methods ==========
-
-    @err_catcher(name=__name__)
-    def createFolderStructure(self, parent_folder_id, folder_path):
-        """Create folder structure in AE project using ExtendScript"""
-        try:
-            script = f"""
-            function createFolderStructure(parentFolderId, folderPath) {{
-                try {{
-                    var parentFolder;
-                    if (parentFolderId) {{
-                        parentFolder = app.project.itemByID(parentFolderId);
-                    }} else {{
-                        parentFolder = app.project.rootFolder;
-                    }}
-
-                    if (!parentFolder) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Parent folder not found (ID: ' + parentFolderId + ')'
-                        }});
-                    }}
-
-                    var folders = folderPath.split('/');
-                    var currentFolder = parentFolder;
-
-                    for (var i = 0; i < folders.length; i++) {{
-                        var folderName = folders[i];
-                        if (!folderName) continue;
-
-                        var folderExists = false;
-
-                        // Check if folder already exists
-                        for (var j = 1; j <= currentFolder.numItems; j++) {{
-                            if (currentFolder.item(j) instanceof FolderItem &&
-                                currentFolder.item(j).name === folderName) {{
-                                folderExists = true;
-                                currentFolder = currentFolder.item(j);
-                                break;
-                            }}
-                        }}
-
-                        if (!folderExists) {{
-                            currentFolder = currentFolder.items.addFolder(folderName);
-                        }}
-                    }}
-
-                    return JSON.stringify({{
-                        success: true,
-                        folderId: currentFolder.id,
-                        folderName: currentFolder.name
-                    }});
-
-                }} catch(e) {{
-                    return JSON.stringify({{
-                        success: false,
-                        error: e.toString()
-                    }});
-                }}
-            }}
-
-            var result = createFolderStructure({parent_folder_id}, '{folder_path}');
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            print(f"DEBUG: createFolderStructure raw socket result: {repr(result)}")
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            # Parse the JSON result
             try:
-                import json
-                parsed = json.loads(result)
-                if parsed is None:
-                    return {'success': False, 'error': f'AE returned null for folder: {folder_path}'}
-                return parsed
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result and result.startswith('ERROR:'):
-                    return {'success': False, 'error': result}
-                else:
-                    return {'success': True, 'folder_id': 0, 'folder_name': folder_path, 'raw_result': result}
-
+                script = helixae_protocol.build_create_folder_structure(parent_folder_id, folder_path)
+            except (TypeError, ValueError) as e:
+                return {'success': False, 'error': str(e)}
+            try:
+                result = self.main.ae_core.executeAppleScript(script)
+            except Exception as e:
+                return {'success': False, 'error': str(e)}
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
+                return {
+                    'success': True,
+                    'folder_id': data.get('folderId'),
+                    'folder_name': data.get('folderName'),
+                }
+            reason = (data or {}).get('reason') or (data or {}).get('details') or error or 'no response'
+            return {'success': False, 'error': str(reason)}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
     @err_catcher(name=__name__)
     def duplicateFootageItem(self, footage_id, new_name, target_folder_id):
-        """Duplicate a footage item with new name and parent folder"""
+        """Rename a footage item and move it to a parent folder (preserves comp links)"""
+        return self._renameMoveItem(footage_id, new_name, target_folder_id, "footage")
+
+    def _renameMoveItem(self, item_id, new_name, target_folder_id, expected_type):
         try:
-            script = f"""
-            function duplicateFootageItem(footageId, newName, targetFolderId) {{
-                try {{
-                    var originalItem = app.project.itemByID(footageId);
-                    var targetFolder = app.project.itemByID(targetFolderId);
-
-                    if (!originalItem) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Original footage item not found (ID: ' + footageId + ')'
-                        }});
-                    }}
-
-                    if (!targetFolder) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Target folder not found (ID: ' + targetFolderId + ')'
-                        }});
-                    }}
-
-                    if (!(originalItem instanceof FootageItem)) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Item is not a footage item'
-                        }});
-                    }}
-
-                    // Move footage item and rename it (preserves comp links)
-                    try {{
-                        app.beginUndoGroup("Organize Footage");
-
-                        // Rename the item
-                        originalItem.name = newName;
-
-                        // Move to target folder
-                        originalItem.parentFolder = targetFolder;
-
-                        app.endUndoGroup();
-
-                        var result = {{
-                            success: true,
-                            newId: originalItem.id,
-                            newName: originalItem.name
-                        }};
-
-                    }} catch(e) {{
-                        var result = {{
-                            success: false,
-                            error: e.toString()
-                        }};
-                    }}
-
-                    return JSON.stringify(result);
-
-                }} catch(e) {{
-                    return JSON.stringify({{
-                        success: false,
-                        error: e.toString()
-                    }});
-                }}
-            }}
-
-            var result = duplicateFootageItem({footage_id}, '{new_name}', {target_folder_id});
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            print(f"DEBUG: duplicateFootageItem raw socket result: {repr(result)}")
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            # Parse the JSON result
             try:
-                import json
-                return json.loads(result)
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:'):
-                    return {'success': False, 'error': result}
-                else:
-                    return {'success': True, 'new_id': 0, 'new_name': new_name, 'raw_result': result}
-
+                script = helixae_protocol.build_rename_move_item(
+                    item_id, new_name, target_folder_id, expected_type
+                )
+            except (TypeError, ValueError) as e:
+                return {'success': False, 'error': str(e)}
+            try:
+                result = self.main.ae_core.executeAppleScript(script)
+            except Exception as e:
+                return {'success': False, 'error': str(e)}
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
+                return {
+                    'success': True,
+                    'new_id': data.get('newId'),
+                    'new_name': data.get('newName'),
+                }
+            reason = (data or {}).get('reason') or (data or {}).get('details') or error or 'no response'
+            return {'success': False, 'error': str(reason)}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
     @err_catcher(name=__name__)
     def duplicateCompItem(self, comp_id, new_name, target_folder_id):
-        """Duplicate a composition item with new name and parent folder"""
-        try:
-            script = f"""
-            function duplicateCompItem(compId, newName, targetFolderId) {{
-                try {{
-                    var originalComp = app.project.itemByID(compId);
-                    var targetFolder = app.project.itemByID(targetFolderId);
-
-                    if (!originalComp) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Original composition not found (ID: ' + compId + ')'
-                        }});
-                    }}
-
-                    if (!targetFolder) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Target folder not found (ID: ' + targetFolderId + ')'
-                        }});
-                    }}
-
-                    if (!(originalComp instanceof CompItem)) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Item is not a composition'
-                        }});
-                    }}
-
-                    // Move composition item and rename it (preserves all links)
-                    try {{
-                        app.beginUndoGroup("Organize Comp");
-
-                        // Rename the composition
-                        originalComp.name = newName;
-
-                        // Move to target folder
-                        originalComp.parentFolder = targetFolder;
-
-                        app.endUndoGroup();
-
-                        var result = {{
-                            success: true,
-                            newId: originalComp.id,
-                            newName: originalComp.name
-                        }};
-
-                    }} catch(e) {{
-                        var result = {{
-                            success: false,
-                            error: e.toString()
-                        }};
-                    }}
-
-                    return JSON.stringify(result);
-
-                }} catch(e) {{
-                    return JSON.stringify({{
-                        success: false,
-                        error: e.toString()
-                    }});
-                }}
-            }}
-
-            var result = duplicateCompItem({comp_id}, '{new_name}', {target_folder_id});
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            # Parse the JSON result
-            try:
-                import json
-                return json.loads(result)
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:'):
-                    return {'success': False, 'error': result}
-                else:
-                    return {'success': True, 'new_id': 0, 'new_name': new_name, 'raw_result': result}
-
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
+        """Rename a composition item and move it to a parent folder (preserves all links)"""
+        return self._renameMoveItem(comp_id, new_name, target_folder_id, "comp")
 
     @err_catcher(name=__name__)
     def deleteFootageItem(self, footage_id):
         """Delete a footage item from the After Effects project"""
+        return self._deleteProjectItem(footage_id, "footage")
+
+    def _deleteProjectItem(self, item_id, expected_type):
         try:
-            script = f"""
-            function deleteFootageItem(footageId) {{
-                try {{
-                    var item = app.project.itemByID(footageId);
-
-                    if (!item) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Footage item not found (ID: ' + footageId + ')'
-                        }});
-                    }}
-
-                    if (!(item instanceof FootageItem)) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Item is not a footage item'
-                        }});
-                    }}
-
-                    // Get the item name for confirmation
-                    var itemName = item.name;
-
-                    // Delete the item
-                    app.beginUndoGroup("Delete Footage");
-                    item.remove();
-                    app.endUndoGroup();
-
-                    return JSON.stringify({{
-                        success: true,
-                        deletedId: footageId,
-                        deletedName: itemName
-                    }});
-
-                }} catch(e) {{
-                    return JSON.stringify({{
-                        success: false,
-                        error: e.toString()
-                    }});
-                }}
-            }}
-
-            var result = deleteFootageItem({footage_id});
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            # Parse the JSON result
             try:
-                import json
-                return json.loads(result)
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:'):
-                    return {'success': False, 'error': result}
-                else:
-                    return {'success': True, 'deleted_id': footage_id, 'raw_result': result}
-
+                script = helixae_protocol.build_delete_project_item(item_id, expected_type)
+            except (TypeError, ValueError) as e:
+                return {'success': False, 'error': str(e)}
+            try:
+                result = self.main.ae_core.executeAppleScript(script)
+            except Exception as e:
+                return {'success': False, 'error': str(e)}
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
+                return {
+                    'success': True,
+                    'deleted_id': item_id,
+                    'deleted_name': data.get('deletedName'),
+                }
+            reason = (data or {}).get('reason') or (data or {}).get('details') or error or 'no response'
+            return {'success': False, 'error': str(reason)}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
     @err_catcher(name=__name__)
     def deleteCompItem(self, comp_id):
         """Delete a composition item from the After Effects project"""
-        try:
-            script = f"""
-            function deleteCompItem(compId) {{
-                try {{
-                    var item = app.project.itemByID(compId);
-
-                    if (!item) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Composition not found (ID: ' + compId + ')'
-                        }});
-                    }}
-
-                    if (!(item instanceof CompItem)) {{
-                        return JSON.stringify({{
-                            success: false,
-                            error: 'Item is not a composition'
-                        }});
-                    }}
-
-                    // Get the item name for confirmation
-                    var itemName = item.name;
-
-                    // Delete the item
-                    app.beginUndoGroup("Delete Comp");
-                    item.remove();
-                    app.endUndoGroup();
-
-                    return JSON.stringify({{
-                        success: true,
-                        deletedId: compId,
-                        deletedName: itemName
-                    }});
-
-                }} catch(e) {{
-                    return JSON.stringify({{
-                        success: false,
-                        error: e.toString()
-                    }});
-                }}
-            }}
-
-            var result = deleteCompItem({comp_id});
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            # Parse the JSON result
-            try:
-                import json
-                return json.loads(result)
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:'):
-                    return {'success': False, 'error': result}
-                else:
-                    return {'success': True, 'deleted_id': comp_id, 'raw_result': result}
-
-        except Exception as e:
-            return {'success': False, 'error': str(e)}
+        return self._deleteProjectItem(comp_id, "comp")
 
     @err_catcher(name=__name__)
     def removeAllEmptyFolders(self):
         """Remove all empty folders from the After Effects project"""
         try:
-            script = """
-            function removeAllEmptyFolders() {
-                try {
-                    var deletedCount = 0;
-
-                    // Keep deleting empty folders until no more are found
-                    var deletedThisPass = -1;
-                    var maxPasses = 100;  // Safety limit
-                    var passCount = 0;
-
-                    app.beginUndoGroup("Remove Empty Folders");
-
-                    while (deletedThisPass !== 0 && passCount < maxPasses) {
-                        deletedThisPass = 0;
-
-                        // Function to check and delete empty folders recursively
-                        function processFolder(folder) {
-                            var foldersToDelete = [];
-
-                            // First, recursively process all subfolders
-                            for (var i = folder.numItems; i >= 1; i--) {
-                                var item = folder.item(i);
-                                if (item instanceof FolderItem) {
-                                    processFolder(item);
-                                }
-                            }
-
-                            // Then check if this folder is now empty
-                            if (folder !== app.project.rootFolder) {
-                                if (folder.numItems === 0) {
-                                    // Folder is empty, delete it
-                                    folder.remove();
-                                    deletedCount++;
-                                    deletedThisPass++;
-                                }
-                            }
-                        }
-
-                        processFolder(app.project.rootFolder);
-                        passCount++;
-                    }
-
-                    app.endUndoGroup();
-
-                    return JSON.stringify({
-                        success: true,
-                        deletedCount: deletedCount
-                    });
-
-                } catch(e) {
-                    return JSON.stringify({
-                        success: false,
-                        error: e.toString()
-                    });
-                }
-            }
-
-            var result = removeAllEmptyFolders();
-            result;
-            """
-
-            result = self.main.ae_core.executeAppleScript(script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            # Parse the JSON result
             try:
-                import json
-                return json.loads(result)
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:'):
-                    return {'success': False, 'error': result}
-                else:
-                    return {'success': True, 'raw_result': result}
-
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_remove_empty_folders()
+                )
+            except Exception as e:
+                return {'success': False, 'error': str(e)}
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
+                return {'success': True, 'deleted_count': data.get('deletedCount', 0)}
+            reason = (data or {}).get('reason') or (data or {}).get('details') or error or 'no response'
+            return {'success': False, 'error': str(reason)}
         except Exception as e:
             return {'success': False, 'error': str(e)}
 
@@ -2246,127 +1281,36 @@ class AEOperations:
         """Replace a footage item's source with a new file path"""
         try:
             import os
-            print(f"[DEBUG REPLACE] Starting replaceFootage for ID: {footage_id}")
-            print(f"[DEBUG REPLACE] New path: {new_path[:100]}")
-
-            # Check if the new path exists
             if not os.path.exists(new_path):
-                print(f"[DEBUG REPLACE] ERROR: Path does not exist!")
                 return {'success': False, 'error': f'File does not exist: {new_path}'}
 
-            # Determine if it's a sequence
+            # Determine if it's a sequence and normalise the path for AE
             new_is_sequence = self.tracker.utils.isSequence(new_path)
-            print(f"[DEBUG REPLACE] Is sequence: {new_is_sequence}")
-
             if new_is_sequence:
                 new_path = self.tracker.utils.ensureSequencePath(new_path)
             else:
                 new_path = self.tracker.utils.ensureStillPath(new_path)
-
-            print(f"[DEBUG REPLACE] Adjusted path: {new_path[:100]}")
-
-            # Convert path for AE - normalize and escape for ExtendScript
-            normalized_path = new_path.replace('\\', '/')
-            if platform.system() == "Windows":
-                ae_path = normalized_path.replace('/', '\\\\')
-            else:
-                ae_path = normalized_path
-
-            print(f"[DEBUG REPLACE] AE path: {ae_path[:100]}")
-
-            # Get current properties first
-            get_props_script = f"""
-            try {{
-                var item = app.project.itemByID({footage_id});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    JSON.stringify({{'success': false, 'error': 'Invalid item or not a file source'}});
-                }} else {{
-                    var fps = item.mainSource.conformFrameRate;
-                    var isSequence = item.mainSource.isStill ? false : true;
-                    JSON.stringify({{
-                        'success': true,
-                        'fps': fps,
-                        'isSequence': isSequence
-                    }});
-                }}
-            }} catch(e) {{
-                JSON.stringify({{'success': false, 'error': e.toString()}});
-            }}
-            """
-
-            props_result = self.main.ae_core.executeAppleScript(get_props_script)
-            if isinstance(props_result, bytes):
-                props_result = props_result.decode('utf-8')
-
-            print(f"[DEBUG REPLACE] Props result: {props_result}")
+            ae_path = new_path.replace('\\', '/')
 
             try:
-                import json
-                props = json.loads(props_result)
-            except Exception:
-                print(f"[DEBUG REPLACE] ERROR: Failed to parse props: {props_result}")
-                return {'success': False, 'error': f'Failed to parse footage properties: {props_result}'}
-
-            if not props.get('success'):
-                print(f"[DEBUG REPLACE] ERROR: Props not successful: {props}")
-                return props
-
-            original_fps = props.get('fps', 25.0)
-            print(f"[DEBUG REPLACE] Original FPS: {original_fps}")
-
-            # Replace the footage
-            replace_script = f"""
-            try {{
-                var item = app.project.itemByID({footage_id});
-                if (!item || !(item.mainSource instanceof FileSource)) {{
-                    JSON.stringify({{'success': false, 'error': 'Invalid item or not a file source'}});
-                }} else {{
-                    var file = new File('{ae_path}');
-                    if (!file.exists) {{
-                        JSON.stringify({{'success': false, 'error': 'File not found: ' + file.fsName}});
-                    }} else {{
-                        // Replace the footage
-                        {'item.replaceWithSequence(file, false);' if new_is_sequence else 'item.replace(file);'}
-
-                        // Explicitly disable alphabetical ordering for sequences
-                        {'item.mainSource.alphabeticOrder = false;' if new_is_sequence else ''}
-
-                        // Try to preserve original FPS
-                        try {{
-                            item.mainSource.conformFrameRate = {original_fps};
-                        }} catch(e) {{}}
-
-                        JSON.stringify({{'success': true, 'newPath': '{ae_path}'}});
-                    }}
-                }}
-            }} catch(e) {{
-                JSON.stringify({{'success': false, 'error': e.toString()}});
-            }}
-            """
-
-            print(f"[DEBUG REPLACE] Executing replace script...")
-            result = self.main.ae_core.executeAppleScript(replace_script)
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            print(f"[DEBUG REPLACE] Replace result: {result}")
-
+                script = helixae_protocol.build_replace_footage_by_id(
+                    footage_id, ae_path, sequence=new_is_sequence
+                )
+            except (TypeError, ValueError) as e:
+                return {'success': False, 'error': str(e)}
             try:
-                import json
-                parsed = json.loads(result)
-                print(f"[DEBUG REPLACE] Parsed result: {parsed}")
-                return parsed
-            except Exception:
-                # If parsing fails, check if it's an error message
-                if result.startswith('ERROR:') or 'error' in result.lower():
-                    print(f"[DEBUG REPLACE] ERROR in result: {result}")
-                    return {'success': False, 'error': result}
-                else:
-                    print(f"[DEBUG REPLACE] Success (raw result)")
-                    return {'success': True, 'raw_result': result}
-
+                result = self.main.ae_core.executeAppleScript(script)
+            except Exception as e:
+                return {'success': False, 'error': str(e)}
+            data, error = helixae_protocol.parse_json_response(result)
+            if data and not error and data.get("result"):
+                response = {'success': True, 'newPath': data.get('fileName')}
+                warnings = data.get('warnings') or []
+                if warnings:
+                    response['warnings'] = warnings
+                return response
+            reason = (data or {}).get('reason') or (data or {}).get('details') or error or 'no response'
+            return {'success': False, 'error': str(reason)}
         except Exception as e:
             import traceback
-            print(f"[DEBUG REPLACE] Exception: {str(e)}")
-            print(f"[DEBUG REPLACE] Traceback: {traceback.format_exc()}")
-            return {'success': False, 'error': str(e)}
+            return {'success': False, 'error': str(e), 'traceback': traceback.format_exc()}

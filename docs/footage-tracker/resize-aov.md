@@ -2,7 +2,8 @@
 
 ## What is Resize AOV Images?
 
-This tool batch-resizes an EXR image sequence to a smaller resolution. It's used to create **proxy versions** of heavy 3D render passes so After Effects can play them back faster during compositing.
+This tool batch-resizes an EXR image sequence to a smaller resolution, replacing its
+source frames after preserving backups. Smaller frames can play back faster in After Effects.
 
 Only appears on **3D render footage** (EXR sequences).
 
@@ -11,7 +12,7 @@ Only appears on **3D render footage** (EXR sequences).
 ## When Would You Use This?
 
 - Your EXR sequences are **4K or larger** and AE is slow to preview
-- You want to work on comp layout and timing before switching to full-res renders
+- You want to reduce the resolution of an existing image sequence
 - You need a **lightweight version** of AOV passes to share or review without transferring full-res files
 
 ---
@@ -28,7 +29,13 @@ Only appears on **3D render footage** (EXR sequences).
 ## Notes
 
 !!! info
-    The resize runs using **OpenImageIO**, a professional image processing library. It handles EXR correctly, preserving colour space and channel data.
+    The resize runs using **OpenImageIO**. Output dimensions and channels are checked
+    before replacement. Deep, multipart and mipmapped images are rejected. Validate
+    ID/Cryptomatte results on your installed OpenImageIO version before production use.
 
 !!! warning
-    Resized images are saved alongside the originals, not overwriting them. This is a one-time batch operation — it does not create a live link. If new frames are rendered, you'll need to resize again.
+    Resized images **replace the source frames**. Originals remain in the backup folder
+    reported by the tool. A failed file leaves its source intact. **Cancel** lets the
+    current file finish safely, then skips remaining files; the summary reports completed,
+    failed and skipped counts. This is a one-time operation; newly rendered frames are
+    not resized automatically.

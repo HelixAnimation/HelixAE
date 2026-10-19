@@ -8,6 +8,8 @@ from PrismUtils.Decorators import err_catcher as err_catcher
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 
+from footage_tracker import kitsu_keys
+
 
 class KitsuIntegration:
     """Handles all Kitsu-related functionality"""
@@ -25,6 +27,10 @@ class KitsuIntegration:
         # Cache tracking
         self._kitsu_cache_time = None
         self._kitsu_cache_duration = self.CACHE_TIMEOUT
+        # Cache is only valid while the same Prism project is active
+        self._kitsu_cache_project = None
+        # Lazily fetched per-shot task lists (see getTasksForShot)
+        self._kitsu_task_cache = {}
 
         # Try to import ae_kitsu module
         try:
@@ -39,6 +45,8 @@ class KitsuIntegration:
     def _isCacheValid(self):
         """Check if cached Kitsu data is still valid"""
         if self._kitsu_cache_time is None:
+            return False
+        if getattr(self.core, "projectPath", None) != self._kitsu_cache_project:
             return False
         cache_age = time.time() - self._kitsu_cache_time
         return cache_age < self._kitsu_cache_duration
@@ -75,6 +83,11 @@ class KitsuIntegration:
             else:
                 print(f"[KITSU] ⚠ No cached data, fetching from Kitsu...")
         errorMessages = []
+        if getattr(self.core, "projectPath", None) != self._kitsu_cache_project:
+            # A failed load in the new project must not expose old-project data.
+            self.kitsuShotData = {}
+            self._kitsu_task_cache = {}
+            self._kitsu_cache_time = None
         
         if not self.kitsu:
             errorMessages.append("Kitsu module not loaded")
@@ -171,7 +184,7 @@ class KitsuIntegration:
                     currentFile = self.core.getCurrentFileName()
                     errorMessages.append(f"Current file: {currentFile}")
                     if currentFile:
-                        currentFile = str(currentFile).replace("'", "").replace('"', '').strip()
+                        currentFile = str(currentFile).strip()
                         if os.path.exists(currentFile):
                             parts = currentFile.replace("\\", "/").split("/")
                             prodIndex = -1
@@ -283,24 +296,10 @@ class KitsuIntegration:
                 custom_count = sum(1 for r in shot_resolutions.values() if r is not None)
                 print(f"[KITSU] Loaded {len(shot_resolutions)} shots, {custom_count} with custom resolution")
 
-            self.kitsuShotData = {}
+            prepared_shots = []
             shot_list_summary = []  # Store summary for printing at the end
 
-            # Fetch tasks for all shots in one batch (cache them for context menu)
-            print(f"[KITSU] Fetching tasks for all shots...")
-            all_tasks = {}
-            try:
-                for shot in shots:
-                    shot_id = shot.get("id")
-                    if shot_id:
-                        try:
-                            shot_tasks = kitsuMgr.getTasksFromEntity(shot, quiet=True) or []
-                            all_tasks[shot_id] = shot_tasks
-                        except Exception:
-                            all_tasks[shot_id] = []
-                print(f"[KITSU] ✓ Fetched tasks for {len(all_tasks)} shots")
-            except Exception as e:
-                print(f"[KITSU] ⚠ Could not fetch tasks: {e}")
+            # Tasks are fetched lazily when a shot's context menu is opened.
 
             for shot in shots:
                 shotName = shot.get("shot", "")
@@ -334,7 +333,9 @@ class KitsuIntegration:
                     end = shot.get("end")
                     frameRange = f"{start}-{end}" if start is not None and end is not None else None
 
-                    self.kitsuShotData[shotName] = {
+                    prepared_shots.append({
+                        'shot': shotName,
+                        'sequence': sequence,
                         'frameRange': frameRange,
                         'fps': projectFps,
                         'start': start,
@@ -342,36 +343,26 @@ class KitsuIntegration:
                         'width': shot_width,
                         'height': shot_height,
                         'resolution': f"{shot_width}x{shot_height}",
-                        'tasks': all_tasks.get(shot_id, []),
                         'id': shot_id
-                    }
+                    })
 
                     # Add to summary list for printing all shots
                     display_name = f"{sequence}-{shotName}" if sequence and "-" not in shotName else shotName
                     shot_list_summary.append(f"  {display_name}: {shot_width}x{shot_height} ({resolution_source})")
 
-                    if sequence and "-" not in shotName:
-                        combinedName = f"{sequence}-{shotName}"
-                        self.kitsuShotData[combinedName] = {
-                            'frameRange': frameRange,
-                            'fps': projectFps,
-                            'start': start,
-                            'end': end,
-                            'width': shot_width,
-                            'height': shot_height,
-                            'resolution': f"{shot_width}x{shot_height}",
-                            'tasks': all_tasks.get(shot_id, []),
-                            'id': shot_id
-                        }
-                        errorMessages.append(f"  Stored as: {shotName} and {combinedName}")
-                    else:
-                        errorMessages.append(f"  Stored as: {shotName} only")
+            self.kitsuShotData, ambiguous = kitsu_keys.build_shot_key_map(
+                prepared_shots, lambda shot: shot
+            )
+            if ambiguous:
+                errorMessages.append("Ambiguous bare shot names omitted: " + ", ".join(ambiguous))
             
             errorMessages.append(f"\nTotal entries in kitsuShotData: {len(self.kitsuShotData)}")
             self.kitsuLoadError = "\n".join(errorMessages)
 
             # Update cache timestamp after successful load
             self._kitsu_cache_time = time.time()
+            self._kitsu_cache_project = getattr(self.core, "projectPath", None)
+            self._kitsu_task_cache = {}
             print(f"[KITSU] ✓ Data loaded and cached ({len(self.kitsuShotData)} shots)")
 
             # Print summary of custom resolution shots
@@ -407,18 +398,33 @@ class KitsuIntegration:
             kitsuMgr = prjMng.curManager
             shots = kitsuMgr.getShots() or []
             
-            for shot in shots:
-                if shot.get('shot') == shotName:
-                    return shot
-                
-                sequence = shot.get('sequence', '')
-                fullName = f"{sequence}-{shot.get('shot', '')}"
-                if fullName == shotName:
-                    return shot
-            
-            return None
+            entities, _ = kitsu_keys.build_shot_key_map(shots, lambda shot: shot)
+            return entities.get(shotName)
         except Exception as e:
             return None
+
+    def getTasksForShot(self, shotName):
+        """Fetch tasks on demand; cache by project and stable shot identity."""
+        project = getattr(self.core, "projectPath", None)
+        if project != self._kitsu_cache_project:
+            self._kitsu_task_cache = {}
+        entity = self.getKitsuShotEntity(shotName)
+        if not entity:
+            return []
+        key = (project, entity.get('id') or shotName)
+        if key in self._kitsu_task_cache:
+            return self._kitsu_task_cache[key]
+        try:
+            plugin = self.core.getPlugin("ProjectManagement")
+            manager = getattr(plugin, 'curManager', None)
+            if not manager or getattr(manager, 'name', None) != 'Kitsu':
+                return []
+            tasks = manager.getTasksFromEntity(entity, quiet=True) or []
+            self._kitsu_task_cache[key] = tasks
+            return tasks
+        except Exception as e:
+            print(f"[KITSU] Could not fetch tasks for {shotName}: {e}")
+            return []
     
     def getStatusColor(self, statusShortName, kitsuMgr):
         """Get status color from Kitsu or use default colors"""

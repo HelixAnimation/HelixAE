@@ -30,8 +30,7 @@ import os
 import sys
 import platform
 import shutil
-import zipfile
-import time
+import helixae_install
 
 if platform.system() == "Windows":
     import winreg as _winreg
@@ -50,14 +49,8 @@ class HelixAE_Integration(object):
 
         if platform.system() == "Windows":
             self.examplePath = os.environ["APPDATA"].replace("\\", "/") + "/Adobe/CEP/extensions"
-        elif platform.system() == "Darwin":
-            self.examplePath = os.path.expanduser("~/Library/Application Support/Adobe/CEP/extensions")
-
-        if not os.path.exists(self.examplePath):
-            try:
-                os.makedirs(self.examplePath)
-            except Exception:
-                pass
+        else:
+            self.examplePath = None
 
     @err_catcher(name=__name__)
     def getExecutable(self):
@@ -104,7 +97,7 @@ class HelixAE_Integration(object):
                 pass
 
             paths = []
-            for version in reversed(versions):
+            for version in sorted(versions, key=float, reverse=True):
                 key = _winreg.OpenKey(
                     _winreg.HKEY_LOCAL_MACHINE,
                     "SOFTWARE\\Adobe\\After Effects\\%s" % version,
@@ -117,7 +110,8 @@ class HelixAE_Integration(object):
                 except Exception:
                     continue
 
-                paths.append(installDir)
+                if os.path.isfile(os.path.join(installDir, "AfterFX.exe")):
+                    paths.append(installDir)
 
             return paths
         except Exception:
@@ -126,81 +120,41 @@ class HelixAE_Integration(object):
     @err_catcher(name=__name__)
     def addIntegration(self, installPath):
         try:
+            if platform.system() != "Windows":
+                raise ValueError("HelixAE integration currently supports Windows only")
             integrationBase = os.path.join(
                 os.path.dirname(os.path.dirname(__file__)), "Integration"
             )
             integrationBase = os.path.realpath(integrationBase)
 
-            cmds = []
-            origAepZip = os.path.join(integrationBase, "helixae.zip")
-            targetFolder = os.path.join(installPath, "helixae")
-            if os.path.exists(targetFolder):
-                cmd = {
-                    "type": "removeFolder",
-                    "args": [targetFolder],
-                    "validate": False,
-                }
-                cmds.append(cmd)
-
-            origFile = os.path.join(integrationBase, "helixae.cmd")
-            targetFile = os.path.join(installPath, "helixae.cmd")
-            if os.path.exists(targetFile):
-                cmd = {
-                    "type": "removeFile",
-                    "args": [targetFile],
-                    "validate": False,
-                }
-                cmds.append(cmd)
-
-            cmd = {"type": "copyFile", "args": [origFile, targetFile]}
-            cmds.append(cmd)
-
-            with open(origFile, "r") as init:
-                initStr = init.read()
-
-            initStr = initStr.replace("PLUGINROOT", "%s" % self.pluginDirectory.replace("\\", "/"))
-            initStr = initStr.replace("PRISMROOT", "%s" % self.core.prismRoot)
-            cmd = {"type": "writeToFile", "args": [targetFile, initStr]}
-            cmds.append(cmd)
-
-            result = self.core.runFileCommands(cmds)
-            if result:
-                result = self.extractZipWithDates(origAepZip, targetFolder)
-
-            if result is True:
-                return True
-            elif result is False:
-                return False
-            else:
-                raise Exception(result)
+            return helixae_install.install(
+                os.path.join(integrationBase, "helixae.zip"),
+                os.path.join(integrationBase, "helixae.cmd"),
+                installPath, self.core.prismRoot, self.pluginDirectory,
+            )
 
         except Exception as e:
             exc_type, exc_obj, exc_tb = sys.exc_info()
 
             msgStr = (
                 "Errors occurred during the installation of the HelixAE integration.\n"
-                "The installation is possibly incomplete.\n\n%s\n%s\n%s"
+                "\n%s\n%s\n%s"
                 % (str(e), exc_type, exc_tb.tb_lineno)
             )
-            msgStr += "\n\nRunning this application as administrator could solve this problem eventually."
             self.core.popup(msgStr)
             return False
 
     @err_catcher(name=__name__)
     def extractZipWithDates(self, zipPath, extractTo):
+        """Compatibility entry point; validate the whole ZIP before extracting."""
         try:
-            with zipfile.ZipFile(zipPath, "r") as zipRef:
-                for zipInfo in zipRef.infolist():
-                    extractedPath = os.path.join(extractTo, zipInfo.filename)
-                    if zipInfo.is_dir():
-                        os.makedirs(extractedPath, exist_ok=True)
-                    else:
-                        os.makedirs(os.path.dirname(extractedPath), exist_ok=True)
-                        zipRef.extract(zipInfo, extractTo)
-
-                    modTime = zipInfo.date_time
-                    timestamp = time.mktime(modTime + (0, 0, -1))
-                    os.utime(extractedPath, (timestamp, timestamp))
+            files = helixae_install.archive_files(zipPath)
+            for name, data in files.items():
+                path = os.path.join(extractTo, *name.split("/"))
+                os.makedirs(os.path.dirname(path), exist_ok=True)
+                with open(path, "wb") as handle:
+                    handle.write(data)
+            helixae_install.verify_files(extractTo, files)
         except Exception as e:
             return str(e)
         else:

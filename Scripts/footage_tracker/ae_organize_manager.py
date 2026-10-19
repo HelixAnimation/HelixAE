@@ -634,29 +634,19 @@ class AEOrganizeManager(QObject):
                         else:
                             self.tracker.debugLog.append(f"  - Successfully moved and renamed item {organized_count}")
 
-                        # Set label color if labels_checkbox is checked
-                        if do_labels and label_color:
-                            script_add_label = f"""
-                            var item = app.project.itemByID({item['id']});
-                            if (item) {{
-                                item.label = {label_color};
-                            }}
-                            "SUCCESS";
-                            """
-                            label_result = self.tracker.main.ae_core.executeAppleScript(script_add_label)
-                            self.tracker.debugLog.append(f"  - Label result: {label_result}")
-
-                        # Set comment if comments_checkbox is checked
-                        if do_comments and task_name:
-                            script_add_comment = f"""
-                            var item = app.project.itemByID({item['id']});
-                            if (item) {{
-                                item.comment = '{task_name}';
-                            }}
-                            "SUCCESS";
-                            """
-                            comment_result = self.tracker.main.ae_core.executeAppleScript(script_add_comment)
-                            self.tracker.debugLog.append(f"  - Comment result: {comment_result}")
+                        if (do_labels and label_color) or (do_comments and task_name):
+                            import helixae_protocol
+                            script = helixae_protocol.build_set_item_properties(
+                                item['id'],
+                                label=label_color if do_labels and label_color else None,
+                                comment=task_name if do_comments and task_name else None)
+                            response = self.tracker.main.ae_core.executeAppleScript(script)
+                            data, protocol_error = helixae_protocol.parse_json_response(response)
+                            ok, property_error = helixae_protocol.ack_result(data, protocol_error)
+                            if not ok:
+                                message = f"Properties not applied to {item['name']}: {property_error}"
+                                errors.append(message)
+                                self.tracker.debugLog.append(message)
                     else:
                         error_detail = result.get('error', 'Unknown error') if isinstance(result, dict) else f"unexpected result: {repr(result)}"
                         error_msg = f"Failed to organize {item['name']}: {error_detail}"
@@ -678,7 +668,7 @@ class AEOrganizeManager(QObject):
             # Remove all empty folders from the project
             self.tracker.debugLog.append("=== REMOVING EMPTY FOLDERS ===")
             empty_folder_result = self.tracker.ae_ops.removeAllEmptyFolders()
-            deleted_count = empty_folder_result.get('deletedCount', 0) if isinstance(empty_folder_result, dict) else 0
+            deleted_count = empty_folder_result.get('deleted_count', 0) if isinstance(empty_folder_result, dict) else 0
             self.tracker.debugLog.append(f"Removed {deleted_count} empty folder(s)")
 
             # After processing all items, update composition layers if needed
@@ -1044,40 +1034,6 @@ class AEOrganizeManager(QObject):
             self.tracker.debugLog.append(f"Error analyzing {folder_name}: {str(e)}")
             self.tracker.debugLog.append(f"Traceback: {traceback.format_exc()}")
             return analysis
-
-    @err_catcher(name=__name__)
-    def generateAEFolderStructure(self, analysis):
-        """Generate target folder structure for AE project"""
-        """Placeholder for folder structure generation"""
-        # TODO: Implement folder structure logic based on analysis
-        pass
-
-    @err_catcher(name=__name__)
-    def createAEFolderHierarchy(self, structure):
-        """Create folder hierarchy in AE project"""
-        """Placeholder for folder creation using ExtendScript"""
-        # TODO: Implement folder creation with ExtendScript
-        pass
-
-    @err_catcher(name=__name__)
-    def duplicateAndRenameItems(self, items, target_structure):
-        """Duplicate and rename items with proper naming conventions"""
-        """Placeholder for item duplication and renaming"""
-        # TODO: Implement item duplication and renaming logic
-        pass
-
-    # Folder-specific organization methods
-    @err_catcher(name=__name__)
-    def organizeFootageInAE(self, folder_name):
-        """Organize footage items in AE project"""
-        """Placeholder for footage organization"""
-        pass
-
-    @err_catcher(name=__name__)
-    def organizeCompsInAE(self, folder_name):
-        """Organize composition items in AE project"""
-        """Placeholder for composition organization"""
-        pass
 
     # Helper methods for naming convention parsing
     def parseFootageName(self, footage_name):

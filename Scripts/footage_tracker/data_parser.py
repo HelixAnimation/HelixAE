@@ -8,6 +8,7 @@ import os
 import re
 import json
 from qtpy.QtWidgets import QApplication
+import helixae_protocol
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -78,45 +79,23 @@ class DataParser:
 
     @err_catcher(name=__name__)
     def parseFootageData(self, result):
-        """Parse footage data from AppleScript result"""
+        """Parse footage data from the AE bridge (JSON array response)"""
         try:
-            footageData = str(result).replace("b'", "").replace("'", "").split('::ITEM::')
-            parsed_footage = []
+            parsed_footage, error = helixae_protocol.parse_footage_records(result)
+            if error:
+                # Transport/parse failure: tell the user instead of
+                # silently showing an empty tracker tree.
+                self.core.popup(f"Error parsing footage data:\n{error}")
+                return []
 
-            for footage in footageData:
-                if not footage or '|||' not in footage:
-                    continue
-
-                parts = footage.split('|||')
-                if len(parts) < 9:
-                    continue
-
-                footageId, name, path, width, height, fps, duration, startFrame, endFrame = parts
-                path = path.replace('\\\\', '/')
-
+            for record in parsed_footage:
                 # Try to read frame range and FPS from export JSON first
-                json_data = self.readExportJSON(path)
-
+                json_data = self.readExportJSON(record['path'])
                 if json_data:
-                    # Use JSON data for frame range and FPS
-                    startFrame = json_data.get('startFrame', startFrame)
-                    endFrame = json_data.get('endFrame', endFrame)
-                    fps = json_data.get('fps', fps)
-                    width = json_data.get('width', width)
-                    height = json_data.get('height', height)
-                    duration = json_data.get('duration', duration)
-
-                parsed_footage.append({
-                    'footageId': footageId,
-                    'name': name,
-                    'path': path,
-                    'width': width,
-                    'height': height,
-                    'fps': fps,
-                    'duration': duration,
-                    'startFrame': startFrame,
-                    'endFrame': endFrame
-                })
+                    for field in ('startFrame', 'endFrame', 'fps',
+                                  'width', 'height', 'duration'):
+                        if json_data.get(field) is not None:
+                            record[field] = str(json_data[field])
 
             return parsed_footage
         except Exception as e:
@@ -125,54 +104,18 @@ class DataParser:
 
     @err_catcher(name=__name__)
     def parseCompData(self, result):
-        """Parse composition data from AppleScript result"""
+        """Parse composition data from the AE bridge (JSON array response)"""
         try:
-            compData = str(result).replace("b'", "").replace("'", "").split('::COMP::')
-            parsed_comps = []
+            parsed_comps, error = helixae_protocol.parse_comp_records(result)
+            if error:
+                self.core.popup(f"Error parsing composition data:\n{error}")
+                return []
 
-            for comp in compData:
-                if not comp or '|||' not in comp:
-                    continue
-
-                parts = comp.split('|||')
-                # We expect 18 parts now with all fields
-                if len(parts) < 18:
-                    continue
-
-                # Extract all the parts we need
-                # Clean up inPoint - sometimes it contains unexpected data like "1220::ITEM::188"
-                inPoint = parts[8]
-                # Remove any non-numeric characters except decimal point and minus
-                inPoint_clean = re.sub(r'[^\d.-]', '', inPoint) if inPoint else '0'
-                if not inPoint_clean:
-                    inPoint_clean = '0'
-
-                compInfo = {
-                    'compId': parts[0],
-                    'name': parts[1],
-                    'width': parts[2],
-                    'height': parts[3],
-                    'pixelAspect': parts[4],
-                    'duration': parts[5],
-                    'frameRate': parts[6],
-                    'frameDuration': parts[7],
-                    'inPoint': parts[8],
-                    'outPoint': parts[9],
-                    'displayStartFrame': parts[10],
-                    'workAreaStart': parts[11],
-                    'workAreaDuration': parts[12],
-                    'startFrame': parts[13],
-                    'endFrame': parts[14],
-                    'isPrecomp': parts[15] == 'true',
-                    'parentComps': parts[16] if len(parts) > 16 else "",
-                    'numLayers': parts[17] if len(parts) > 17 else "",
-                    'displayStartTime': inPoint_clean  # Use cleaned value
-                }
-
+            for compInfo in parsed_comps:
+                # displayStartTime comes from the JSON inPoint field
+                compInfo['displayStartTime'] = compInfo.get('inPoint', '0')
                 # Determine comp category
                 compInfo['category'] = "Pre-comps" if compInfo['isPrecomp'] else "Main Comps"
-
-                parsed_comps.append(compInfo)
 
             return parsed_comps
         except Exception as e:
@@ -181,158 +124,22 @@ class DataParser:
 
     @err_catcher(name=__name__)
     def getFootageAppleScript(self):
-        """Get AppleScript for fetching footage data"""
-        return """
-        var footageList = [];
-        for (var i = 1; i <= app.project.numItems; i++) {
-            var item = app.project.item(i);
-            if (item instanceof FootageItem && item.mainSource instanceof FileSource) {
-                var fps = 'N/A';
-                var duration = 'N/A';
-                var startFrame = 'N/A';
-                var endFrame = 'N/A';
-                var width = 'N/A';
-                var height = 'N/A';
-
-                try {
-                    // conformFrameRate is 0 when footage uses its native rate — fall back to nativeFrameRate
-                    var conformRate = item.mainSource.conformFrameRate;
-                    fps = (conformRate > 0 ? conformRate : item.mainSource.nativeFrameRate).toFixed(2);
-                } catch(e) {}
-
-                try {
-                    duration = item.duration.toFixed(2);
-                } catch(e) {}
-
-                try {
-                    width = item.width.toString();
-                    height = item.height.toString();
-                } catch(e) {}
-
-                // Calculate frame range
-                try {
-                    if (fps != 'N/A' && duration != 'N/A') {
-                        var fpsFloat = parseFloat(fps);
-                        var durationFloat = parseFloat(duration);
-                        var fileName = item.mainSource.file.name;
-
-                        // Check if this is a video file (mp4, mov, etc.)
-                        var isVideoFile = /\\.(mp4|mov|avi|mkv|flv|wmv|webm|m4v|m4p|mpg|mpeg|mp2|webm)$/i.test(fileName);
-
-                        var startFrameNum = 0;
-                        var frameCount = Math.round(durationFloat * fpsFloat);
-
-                        if (isVideoFile) {
-                            // For video files (2D renders), use 0-based frame range
-                            // Kitsu frame range will be used for display in tree renderer
-                            startFrame = 0;
-                            endFrame = frameCount - 1;
-                        } else {
-                            // For image sequences, try to extract frame number from filename
-                            var frameMatch = fileName.match(/(\\d{4,6})\\.\\w+$/);
-                            if (frameMatch) {
-                                startFrameNum = parseInt(frameMatch[1], 10);
-                            }
-                            startFrame = startFrameNum;
-                            endFrame = startFrameNum + frameCount - 1;
-                        }
-                    }
-                } catch(e) {}
-
-                footageList.push(
-                    item.id + '|||' +
-                    item.name + '|||' +
-                    item.mainSource.file.fsName + '|||' +
-                    width + '|||' +
-                    height + '|||' +
-                    fps + '|||' +
-                    duration + '|||' +
-                    startFrame + '|||' +
-                    endFrame
-                );
-            }
-        }
-        footageList.join('::ITEM::');
-        """
+        """Get ExtendScript for fetching footage data (JSON response)"""
+        return helixae_protocol.build_collect_tracker_footage()
 
     @err_catcher(name=__name__)
     def getCompAppleScript(self):
-        """Get AppleScript for fetching composition data"""
-        return """
-        var compList = [];
-        for (var i = 1; i <= app.project.numItems; i++) {
-            var item = app.project.item(i);
-            if (item instanceof CompItem) {
-                var isPrecomp = false;
-                var parentComps = [];
-
-                // Check if this comp is used as a layer in other comps
-                for (var j = 1; j <= app.project.numItems; j++) {
-                    var parentItem = app.project.item(j);
-                    if (parentItem instanceof CompItem) {
-                        for (var k = 1; k <= parentItem.numLayers; k++) {
-                            var layer = parentItem.layer(k);
-                            if (layer.source === item) {
-                                isPrecomp = true;
-                                parentComps.push(parentItem.name);
-                                break;
-                            }
-                        }
-                    }
-                }
-
-                var compInfo = {
-                    id: item.id,
-                    name: item.name,
-                    width: item.width,
-                    height: item.height,
-                    pixelAspect: item.pixelAspect,
-                    duration: item.duration.toFixed(2),
-                    frameRate: item.frameRate.toFixed(2),
-                    frameDuration: item.frameDuration.toFixed(6),
-                    inPoint: item.displayStartTime.toFixed(2),
-                    outPoint: (item.displayStartTime + item.duration).toFixed(2),
-                    displayStartFrame: item.displayStartFrame,
-                    workAreaStart: item.workAreaStart.toFixed(2),
-                    workAreaDuration: item.workAreaDuration.toFixed(2),
-                    startFrame: Math.round(item.displayStartTime / item.frameDuration),
-                    endFrame: Math.round((item.displayStartTime + item.duration) / item.frameDuration - 1),
-                    isPrecomp: isPrecomp,
-                    parentComps: parentComps.join(','),
-                    numLayers: item.numLayers
-                };
-
-                compList.push(
-                    compInfo.id + '|||' +
-                    compInfo.name + '|||' +
-                    compInfo.width + '|||' +
-                    compInfo.height + '|||' +
-                    compInfo.pixelAspect + '|||' +
-                    compInfo.duration + '|||' +
-                    compInfo.frameRate + '|||' +
-                    compInfo.frameDuration + '|||' +
-                    compInfo.inPoint + '|||' +
-                    compInfo.outPoint + '|||' +
-                    compInfo.displayStartFrame + '|||' +
-                    compInfo.workAreaStart + '|||' +
-                    compInfo.workAreaDuration + '|||' +
-                    compInfo.startFrame + '|||' +
-                    compInfo.endFrame + '|||' +
-                    (compInfo.isPrecomp ? 'true' : 'false') + '|||' +
-                    compInfo.parentComps + '|||' +
-                    compInfo.numLayers
-                );
-            }
-        }
-        compList.join('::COMP::');
-        """
+        """Get ExtendScript for fetching composition data (JSON response)"""
+        return helixae_protocol.build_collect_comp_records()
 
     @err_catcher(name=__name__)
     def extractCurrentShotFromProject(self):
         """Extract the current shot from the .aep file name (cached)"""
         try:
             # Get the current project file path
-            current_file = self.core.getCurrentFileName()
+            current_file = getattr(self, '_prepared_scene_path', None)
+            if current_file is None:
+                current_file = self.core.getCurrentFileName()
 
             # Check if we can use cached value
             if current_file and current_file == self._cached_project_file:

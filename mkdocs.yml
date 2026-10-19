@@ -46,6 +46,11 @@ nav:
   - Render & Export: render-export.md
   - Kitsu Integration: kitsu-integration.md
   - Keyboard Shortcuts: shortcuts.md
+  - Development:
+    - Local Development & Deployment: development.md
+    - Initial Codebase Scan: codebase-scan.md
+    - Improvement Plan: improvement-plan.md
+    - HelixArchive Resolver Migration: helixarchive-render-dependencies.md
 
 markdown_extensions:
   - admonition

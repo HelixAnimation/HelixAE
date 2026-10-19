@@ -10,6 +10,8 @@ from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher as err_catcher
 
+from footage_tracker import bypass_keys
+
 
 class CircularMenu(QDialog):
     """5-slice pie menu with filter commands"""
@@ -664,40 +666,22 @@ class TreeOperationsCore:
             filterItem(self.tracker.tw_footage.topLevelItem(i))
 
     def _generateTreeItemKey(self, item, userData):
-        """Generate a unique key for a tree item (matches tree_renderer._checkAndApplyBypassStyling format)"""
-        # For comps, use compId + compName
+        """Generate a unique key for a tree item (shared implementation with
+        the issue checker and the bypass context menu; handles 2D prefixes and
+        duplicate suffixes consistently)."""
         if userData.get('type') == 'comp':
             comp_id = userData.get('id') or userData.get('compId')
             comp_name = userData.get('name') or userData.get('compName') or item.text(0)
-            return f"comp_{comp_id}_{comp_name}"
+            return bypass_keys.comp_key(comp_id, comp_name)
 
-        # For footage - use the same logic as bypass styling
-        shot_name = self.tracker.getShotNameFromItem(item)
-        identifier = userData.get('identifier', '')
-
-        # Check if this is a 3D render (has identifier which is the parent identifier)
-        is_3d_render = identifier and identifier != item.text(0)
-
-        # For 3D renders, include AOV in key
-        if is_3d_render:
-            aov = item.text(0)  # AOV name (e.g., "Z", "beauty")
-        else:
-            # For 2D renders: identifier is the item text, no AOV
-            aov = ''
-            if not identifier:
-                identifier = item.text(0)
-
-        # Generate key based on shot/identifier/aov (not version-specific)
-        if shot_name and identifier:
-            if aov:
-                # 3D render: include AOV for individual bypass
-                return f"footage_{shot_name}_{identifier}_{aov}"
-            else:
-                # 2D render: no AOV
-                return f"footage_{shot_name}_{identifier}"
-        else:
-            # Fallback to path if hierarchy info not available
-            return f"footage_{userData.get('path', '')}"
+        shot_name = self.tracker.getShotNameFromItem(item) or userData.get('shot', '')
+        return bypass_keys.key_from_tree_item(
+            'footage',
+            item.text(0),
+            shot_name,
+            userData.get('identifier', ''),
+            path=userData.get('path', ''),
+        )
 
     def _getItemDepth(self, item):
         """Calculate the depth of a tree widget item (root level = 0)"""
@@ -713,22 +697,16 @@ class TreeOperationsCore:
         """Handle Ctrl+Shift+Click to bypass/unbypass an issue type for an item (regardless of current state)"""
         userData = item.data(0, Qt.UserRole)
         if not userData:
-            print(f"[DEBUG BYPASS] No userData found")
             return
 
         item_type = userData.get('type')
-        print(f"[DEBUG BYPASS] item_type: {item_type}")
         if item_type not in ('footage', 'comp'):
-            print(f"[DEBUG BYPASS] Item type not in (footage, comp)")
             return  # Only bypass footage or comp items
 
         # Determine which column was clicked
         column = self.tracker.tw_footage.columnAt(pos.x())
-        print(f"[DEBUG BYPASS] column: {column}")
 
         # Determine issue type based on column (allow bypassing any column, even if no current issue)
-        issue_type = None
-
         if column == 2:
             issue_type = 'outdated'
         elif column == 3:
@@ -737,279 +715,25 @@ class TreeOperationsCore:
             issue_type = 'fps_mismatch'
         elif column == 5:
             issue_type = 'resolution_mismatch'
-
-        print(f"[DEBUG BYPASS] issue_type: {issue_type}")
-        if not issue_type:
+        else:
             return  # Not a valid column for bypassing
 
-        # Generate item key for bypass storage based on shot/identifier (not version-specific)
-        # This ensures bypassing applies to all versions of the same render
-        print(f"[DEBUG BYPASS] userData keys: {list(userData.keys())}")
-        print(f"[DEBUG BYPASS] userData: {userData}")
-        if item_type == 'footage':
-            # Get shot name from tree hierarchy, fall back to userData['shot'] for 2D renders
-            shot_name = self.tracker.getShotNameFromItem(item) or userData.get('shot', '')
-            print(f"[DEBUG BYPASS] shot_name: {shot_name}")
+        # Generate item key via the shared key builder (shot/identifier based, not version-specific)
+        item_key = self._generateTreeItemKey(item, userData)
 
-            # Get identifier from userData
-            identifier = userData.get('identifier', '')
+        # Toggle bypass state using the shared startup_warnings persistence
+        bypassed_items = self.tracker.startup_warnings._getIgnoredItems()
 
-            # Check if this is a 3D render (has identifier which is the parent identifier)
-            # For 2D renders, identifier exists but item.text(0) includes prefix like "[2D] LowRes"
-            # So we need to check if item.text(0) starts with a 2D render prefix
-            item_text = item.text(0)
-            is_2d_render = (item_text.startswith('[2D]') or item_text.startswith('[PB]'))
-            is_3d_render = identifier and not is_2d_render and identifier != item_text
+        bypassed_items[issue_type] = set(bypassed_items.get(issue_type, []))
 
-            # For 3D renders, include AOV in key for individual AOV bypass
-            if is_3d_render:
-                aov = item_text  # AOV name (e.g., "Z", "beauty")
-            else:
-                # For 2D renders and others: no AOV
-                aov = ''
-                # For 2D renders, extract duplicate suffix from item text if present
-                # e.g., "[2D] LowRes (1)" -> identifier should become "LowRes (1)" for unique bypass
-                if is_2d_render and identifier:
-                    # Extract suffix from item text (e.g., " (1)" from "[2D] LowRes (1)")
-                    # Remove the prefix to get "LowRes (1)" then extract just the suffix
-                    text_without_prefix = item_text.replace('[2D] ', '').replace('[PB] ', '')
-                    if text_without_prefix != identifier:
-                        # There's a duplicate suffix
-                        suffix = text_without_prefix.replace(identifier, '', 1).strip()
-                        if suffix:
-                            identifier = f"{identifier} {suffix}"
-
-            print(f"[DEBUG BYPASS] identifier: {identifier}, aov: {aov}, is_3d_render: {is_3d_render}")
-
-            # Generate key based on shot/identifier/aov (not version-specific)
-            if shot_name and identifier:
-                if aov:
-                    # 3D render: include AOV for individual bypass
-                    item_key = f"footage_{shot_name}_{identifier}_{aov}"
-                else:
-                    # 2D render: no AOV
-                    item_key = f"footage_{shot_name}_{identifier}"
-            else:
-                # Fallback to path if hierarchy info not available
-                path = userData.get('path', '')
-                item_key = f"footage_{path}"
-        elif item_type == 'comp':
-            comp_id = userData.get('id', '')
-            comp_name = userData.get('compName', userData.get('name', ''))
-            item_key = f"comp_{comp_id}_{comp_name}"
-        else:
-            return
-
-        print(f"[DEBUG BYPASS] Generated item_key: {item_key}")
-
-        # Also show what the issue data would generate
-        print(f"[DEBUG BYPASS] Item userData: {userData if item_type == 'footage' else 'N/A (comp)'}")
-
-        # Get current bypass state from .aep XMP metadata
-        import json
-
-        bypassed_items = self._getBypassedItemsFromXMP()
-
-        if issue_type not in bypassed_items:
-            bypassed_items[issue_type] = []
-
-        print(f"[DEBUG BYPASS] Before: bypassed_items[{issue_type}] has {len(bypassed_items[issue_type])} items")
-
-        # Toggle bypass state
         if item_key in bypassed_items[issue_type]:
-            # Unbypass
             bypassed_items[issue_type].remove(item_key)
-            print(f"[DEBUG BYPASS] UNBYPASS: Removed item_key")
         else:
-            # Bypass
-            bypassed_items[issue_type].append(item_key)
-            print(f"[DEBUG BYPASS] BYPASS: Added item_key")
+            bypassed_items[issue_type].add(item_key)
 
-        print(f"[DEBUG BYPASS] After: bypassed_items[{issue_type}] has {len(bypassed_items[issue_type])} items")
+        self.tracker.startup_warnings._saveIgnoredItems(bypassed_items)
 
-        # Save to .aep XMP metadata
-        self._saveBypassedItemsToXMP(bypassed_items)
-
-        # Save current scroll position
-        scroll_position = self.tracker.tw_footage.verticalScrollBar().value()
-
-        # Reload footage data to update visuals
-        self.tracker.loadFootageData()
-
-        # Restore scroll position
-        self.tracker.tw_footage.verticalScrollBar().setValue(scroll_position)
-
-    def _getBypassedItemsFromXMP(self):
-        """Get bypassed items from .aep file XMP metadata"""
-        import json
-        import os
-
-        try:
-            # Read XMP metadata from the project
-            scpt = """
-            if (app.project && app.project.xmpPacket) {
-                app.project.xmpPacket;
-            } else {
-                '';
-            }
-            """
-            result = self.core.executeAppleScript(scpt)
-            if result and isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result and 'PrismFootageTracker:BypassedItems' in result:
-                # Extract the JSON data between the tags
-                start_marker = 'PrismFootageTracker:BypassedItems">'
-                end_marker = '</rdf:li'
-
-                start_idx = result.find(start_marker)
-                if start_idx > 0:
-                    start_idx += len(start_marker)
-                    end_idx = result.find(end_marker, start_idx)
-                    if end_idx > start_idx:
-                        json_str = result[start_idx:end_idx].strip()
-                        bypassed = json.loads(json_str)
-                        print(f"[DEBUG BYPASS XMP] Loaded from .aep XMP metadata")
-                        return bypassed
-        except Exception as e:
-            print(f"[DEBUG BYPASS XMP] Error reading XMP: {e}")
-
-        # Fallback 1: Try sidecar file (migration)
-        current_file = None
-        try:
-            current_file = self.core.getCurrentFileName()
-            if current_file and isinstance(current_file, bytes):
-                current_file = current_file.decode('utf-8')
-        except Exception:
-            pass
-
-        if current_file and current_file.endswith('.aep'):
-            bypassed_file = os.path.splitext(current_file)[0] + '_bypassed.json'
-            if os.path.exists(bypassed_file):
-                try:
-                    with open(bypassed_file, 'r') as f:
-                        bypassed = json.load(f)
-                    print(f"[DEBUG BYPASS XMP] Loaded from sidecar (migration)")
-                    return bypassed
-                except Exception:
-                    pass
-
-        # Fallback 2: Project config
-        bypassed = self.core.getConfig("footage_tracker", "bypassed_items", config="project")
-        if bypassed:
-            print(f"[DEBUG BYPASS XMP] Loaded from project config (legacy)")
-            return bypassed
-
-        return {}
-
-    def _saveBypassedItemsToXMP(self, bypassed_items):
-        """Save bypassed items to .aep file XMP metadata"""
-        import json
-
-        # Ensure all keys exist (convert sets to lists for JSON)
-        all_keys = ['outdated', 'fps_mismatch', 'frame_range_mismatch', 'resolution_mismatch']
-        to_save = {}
-        for key in all_keys:
-            if key in bypassed_items:
-                # Convert set to list for JSON serialization
-                to_save[key] = list(bypassed_items[key]) if isinstance(bypassed_items[key], set) else bypassed_items[key]
-            else:
-                to_save[key] = []
-
-        json_data = json.dumps(to_save)
-
-        try:
-            # Read current XMP packet
-            scpt_read = """
-            if (app.project && app.project.xmpPacket) {
-                app.project.xmpPacket;
-            } else {
-                '';
-            }
-            """
-            result = self.core.executeAppleScript(scpt_read)
-            if result and isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            xmp_packet = result if result else ''
-
-            # Update or append our custom data
-            custom_tag = 'PrismFootageTracker:BypassedItems'
-            if custom_tag in xmp_packet:
-                # Replace existing data
-                start_marker = f'{custom_tag}>'
-                end_marker = '</rdf:li>'
-
-                start_idx = xmp_packet.find(start_marker)
-                if start_idx > 0:
-                    start_idx += len(start_marker)
-                    end_idx = xmp_packet.find(end_marker, start_idx)
-                    if end_idx > start_idx:
-                        xmp_packet = xmp_packet[:start_idx] + json_data + xmp_packet[end_idx:]
-                    else:
-                        xmp_packet = self._appendBypassedItemsToXMP(xmp_packet, json_data)
-                else:
-                    xmp_packet = self._appendBypassedItemsToXMP(xmp_packet, json_data)
-            else:
-                xmp_packet = self._appendBypassedItemsToXMP(xmp_packet, json_data)
-
-            # Write back to project
-            xmp_escaped = xmp_packet.replace('\\', '\\\\').replace('"', '\\"').replace('\n', '\\n').replace('\r', '\\r')
-
-            scpt_write = f'''
-            if (app.project) {{
-                app.project.xmpPacket = "{xmp_escaped}";
-                "SUCCESS";
-            }} else {{
-                "ERROR: No project";
-            }}
-            '''
-
-            result = self.core.executeAppleScript(scpt_write)
-            if result and b'SUCCESS' in result:
-                print(f"[DEBUG BYPASS XMP] Successfully saved to .aep XMP metadata")
-                # Invalidate startup_warnings cache
-                if hasattr(self.tracker, 'startup_warnings'):
-                    self.tracker.startup_warnings._ignored_items_cache = None
-                    self.tracker.startup_warnings._ignored_items_cache_file = None
-            else:
-                print(f"[DEBUG BYPASS XMP] Failed to save XMP, result: {result}")
-                # Fallback to project config
-                self.core.setConfig("footage_tracker", "bypassed_items", bypassed_items, config="project")
-                # Invalidate startup_warnings cache
-                if hasattr(self.tracker, 'startup_warnings'):
-                    self.tracker.startup_warnings._ignored_items_cache = None
-                    self.tracker.startup_warnings._ignored_items_cache_file = None
-
-        except Exception as e:
-            print(f"[DEBUG BYPASS XMP] Error writing XMP: {e}")
-            import traceback
-            traceback.print_exc()
-            # Fallback to project config
-            self.core.setConfig("footage_tracker", "bypassed_items", bypassed_items, config="project")
-            # Invalidate startup_warnings cache
-            if hasattr(self.tracker, 'startup_warnings'):
-                self.tracker.startup_warnings._ignored_items_cache = None
-                self.tracker.startup_warnings._ignored_items_cache_file = None
-
-    def _appendBypassedItemsToXMP(self, xmp_packet, json_data):
-        """Append bypassed items to XMP packet"""
-        custom_data = f'<rdf:li rdf:parseType="Resource">PrismFootageTracker:BypassedItems>{json_data}</rdf:li>'
-
-        if '<pdfx:UserDefined>' in xmp_packet:
-            marker = '<pdfx:UserDefined>'
-            insert_pos = xmp_packet.find(marker)
-            if insert_pos > 0:
-                insert_pos += len(marker)
-                xmp_packet = xmp_packet[:insert_pos] + custom_data + xmp_packet[insert_pos:]
-                return xmp_packet
-
-        if '</x:xmpmeta>' in xmp_packet:
-            user_defined_section = f'<pdfx:UserDefined>{custom_data}</pdfx:UserDefined>'
-            xmp_packet = xmp_packet.replace('</x:xmpmeta>', user_defined_section + '</x:xmpmeta>')
-            return xmp_packet
-
-        return xmp_packet + custom_data
+        # Saving schedules a cached cell update; no footage/Kitsu rescan needed.
 
     @err_catcher(name=__name__)
     def saveTreeExpansionState(self):

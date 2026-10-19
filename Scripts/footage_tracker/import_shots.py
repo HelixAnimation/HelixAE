@@ -12,6 +12,7 @@ import threading
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
+import helixae_protocol
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -27,6 +28,7 @@ class CacheManager(QObject):
         self.cache_file = os.path.join(cache_dir, "footage_cache.json")
         self.cache_lock = threading.Lock()
         self.stop_thread = False
+        self._stop_event = threading.Event()
         self.update_thread = None
         self._current_cache = {}
         self._last_scan_time = 0
@@ -48,11 +50,14 @@ class CacheManager(QObject):
         """Load cache from disk immediately - INSTANT"""
         try:
             if os.path.exists(self.cache_file):
-                with open(self.cache_file, 'r') as f:
+                with open(self.cache_file, "r", encoding="utf-8") as f:
                     cache_data = json.load(f)
-                    self._current_cache = cache_data.get('hierarchy', {})
-                    self._last_scan_time = cache_data.get('scan_time', 0)
-                    return self._current_cache
+                    hierarchy = cache_data.get("hierarchy", {})
+                    scan_time = cache_data.get("scan_time", 0)
+                    with self.cache_lock:
+                        self._current_cache = hierarchy
+                        self._last_scan_time = scan_time
+                    return hierarchy
         except Exception as e:
             self._debug(f"ERROR loading cache: {e}")
         return {}
@@ -66,27 +71,40 @@ class CacheManager(QObject):
         return count
     
     def saveCache(self, hierarchy):
-        """Save cache to disk"""
+        """Atomically save cache to disk; returns True on success.
+
+        The temp file name embeds the process id so two HelixAE processes
+        sharing the project cache directory cannot clobber each other, and
+        os.replace makes the swap atomic (no remove+rename gap).
+        """
+        temp_file = "%s.%d.tmp" % (self.cache_file, os.getpid())
         try:
             cache_data = {
                 'hierarchy': hierarchy,
                 'scan_time': time.time(),
                 'version': '1.0'
             }
-            
-            temp_file = self.cache_file + ".tmp"
-            with open(temp_file, 'w') as f:
+
+            with open(temp_file, 'w', encoding='utf-8') as f:
                 json.dump(cache_data, f, indent=2)
-            
-            if os.path.exists(self.cache_file):
-                os.remove(self.cache_file)
-            os.rename(temp_file, self.cache_file)
-            
-            self._current_cache = hierarchy
-            self._last_scan_time = cache_data['scan_time']
+                f.flush()
+                os.fsync(f.fileno())
+            os.replace(temp_file, self.cache_file)
+
+            with self.cache_lock:
+                self._current_cache = hierarchy
+                self._last_scan_time = cache_data['scan_time']
             self._debug("Cache saved successfully")
+            return True
         except Exception as e:
             self._debug(f"ERROR saving cache: {e}")
+            return False
+        finally:
+            if os.path.exists(temp_file):
+                try:
+                    os.remove(temp_file)
+                except OSError:
+                    pass
     
     def startBackgroundUpdate(self, shots_folder):
         """Start background thread that continuously updates cache"""
@@ -94,6 +112,7 @@ class CacheManager(QObject):
             return
         
         self.stop_thread = False
+        self._stop_event.clear()
         self.update_thread = threading.Thread(
             target=self._backgroundUpdateWorker,
             args=(shots_folder,),
@@ -104,37 +123,50 @@ class CacheManager(QObject):
     def stopBackgroundUpdate(self):
         """Stop background update thread"""
         self.stop_thread = True
+        self._stop_event.set()
         if self.update_thread:
             self.update_thread.join(timeout=2.0)
     
     def _backgroundUpdateWorker(self, shots_folder):
         """Background worker that scans for changes and updates cache"""
-        time.sleep(2)
-        
+        if self._stop_event.wait(2):
+            return
+
         while not self.stop_thread:
             try:
                 new_hierarchy = self._scanProjectStructure(shots_folder)
-                
+                if self._stop_event.is_set():
+                    return
+
                 with self.cache_lock:
-                    if new_hierarchy != self._current_cache:
-                        self.saveCache(new_hierarchy)
+                    current = self._current_cache
+                changed = new_hierarchy != current
+
+                if changed:
+                    # A transient NAS / folder failure makes the scan return
+                    # an empty hierarchy. Never overwrite a good cache with
+                    # an empty one - keep the last known good state.
+                    if not new_hierarchy and current:
+                        self._debug(
+                            "Empty scan result kept last known good cache "
+                            "(folder unavailable?)"
+                        )
+                    elif self.saveCache(new_hierarchy):
+                        # Emit from the worker thread; Qt queues cross-thread
+                        # signal delivery into the GUI thread automatically.
+                        # (Q_ARG(dict) via invokeMethod is not a registered
+                        # metatype and silently failed before.)
                         try:
-                            QMetaObject.invokeMethod(
-                                self,
-                                "cacheUpdated",
-                                Qt.QueuedConnection,
-                                Q_ARG(dict, new_hierarchy)
-                            )
+                            self.cacheUpdated.emit(new_hierarchy)
                         except Exception as e:
                             self._debug(f"ERROR emitting signal: {e}")
-                
-                for i in range(30):
-                    if self.stop_thread:
-                        break
-                    time.sleep(1)
+
+                if self._stop_event.wait(30):
+                    return
             except Exception as e:
                 self._debug(f"ERROR in background cache update: {e}")
-                time.sleep(10)
+                if self._stop_event.wait(10):
+                    return
     
     def _scanProjectStructure(self, shots_folder):
         """Scan project structure and return hierarchy"""
@@ -242,15 +274,22 @@ class CacheManager(QObject):
             
             has_subfolders = False
             has_files = False
-            
-            for item in version_contents[:5]:
-                if item.startswith('_'):
+
+            # Scan ALL entries (the old "first five" heuristic misclassified
+            # versions whose structure started with non-footage files) and
+            # only count footage files, so a folder holding nothing but
+            # versioninfo.json is not treated as usable media.
+            for item in version_contents:
+                if item.startswith('_') or item.startswith('.'):
                     continue
                 item_path = os.path.join(version_path, item)
                 if os.path.isdir(item_path):
                     has_subfolders = True
                     break
-                elif os.path.isfile(item_path):
+                elif os.path.isfile(item_path) and item.lower().endswith(
+                    ('.exr', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.dpx',
+                     '.mp4', '.mov', '.avi', '.mkv', '.psd')
+                ):
                     has_files = True
             
             if has_subfolders:
@@ -317,7 +356,11 @@ class ImportShots(QObject):
         self.main = tracker.main
         self.cache_manager = None
         self._debug_buffer = []
-        
+
+    def _ensureCacheManager(self):
+        """Import discovery is initialized only when its dialog is requested."""
+        if self.cache_manager is not None:
+            return
         try:
             project_path = self._getProjectPath()
             
@@ -326,9 +369,6 @@ class ImportShots(QObject):
                 self.cache_manager = CacheManager(self.core, cache_dir, debug_callback=None)
                 self.cache_manager.cacheUpdated.connect(self.onCacheUpdated)
                 
-                shots_folder = self._getShotsFolder()
-                if shots_folder:
-                    self.cache_manager.startBackgroundUpdate(shots_folder)
         except Exception as e:
             print(f"ERROR initializing cache manager: {e}")
     
@@ -360,7 +400,7 @@ class ImportShots(QObject):
             current_file = self.core.getCurrentFileName()
 
             if current_file:
-                current_file = current_file.replace("'", "").replace('"', '').strip()
+                current_file = str(current_file).strip()
         except Exception:
             current_file = None
 
@@ -406,6 +446,11 @@ class ImportShots(QObject):
     @err_catcher(name=__name__)
     def openImportDialog(self):
         """Open the import shots dialog"""
+        self._ensureCacheManager()
+        if self.cache_manager:
+            shots_folder = self._getShotsFolder()
+            if shots_folder:
+                self.cache_manager.startBackgroundUpdate(shots_folder)
         currentFile = self.getCurrentAEFile()
         shotName = "Unknown Shot"
         if currentFile:
@@ -1166,8 +1211,8 @@ class ImportShots(QObject):
             if not version_contents:
                 continue
             
-            has_subfolders = any(os.path.isdir(os.path.join(version_path, item)) 
-                               for item in version_contents[:5] if not item.startswith('_'))
+            has_subfolders = any(os.path.isdir(os.path.join(version_path, item))
+                               for item in version_contents if not item.startswith('_'))
             
             if has_subfolders:
                 aov_folders = [item for item in version_contents 
@@ -1209,13 +1254,16 @@ class ImportShots(QObject):
     def getCurrentAEFile(self):
         """Get the current After Effects file path"""
         try:
-            scpt = "app.project.file ? app.project.file.fsName : 'None'"
-            result = self.main.ae_core.executeAppleScript(scpt)
-            filePath = str(result).replace("b'", "").replace("'", "").strip()
-            
-            if filePath == 'None' or not filePath:
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_get_current_file())
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
                 return None
-            
+
+            filePath = str(data.get("path") or "")
+            if not filePath:
+                return None
+
             filePath = filePath.replace("\\", "/")
             return filePath if os.path.exists(filePath) else None
         except Exception:
@@ -1299,14 +1347,20 @@ class ImportShots(QObject):
     def importSelected(self):
         """Import selected footage into After Effects"""
         selectedItems = []
-        
+        seen = set()
+
         def findVersionItems(item):
+            # Selecting an ancestor AND its descendant visits the same
+            # version twice (double import); dedupe by item identity.
+            if id(item) in seen:
+                return
+            seen.add(id(item))
             userData = item.data(0, Qt.UserRole)
             if userData and userData.get('type') == 'version':
                 selectedItems.append(item)
             for i in range(item.childCount()):
                 findVersionItems(item.child(i))
-        
+
         for item in self.tw_import.selectedItems():
             findVersionItems(item)
         
@@ -1367,131 +1421,45 @@ class ImportShots(QObject):
     
     def importFootageItem(self, userData, asSequence):
         """Import a single footage item into After Effects with proper folder structure"""
-        import platform
-        
         path = userData['path']
         firstFile = userData['firstFile']
         shot = userData['shot']
         identifier = userData['identifier']
         aov = userData['aov']
         fps = userData['fps']
-        
+
         if not firstFile:
             return False
-        
+
         fullPath = os.path.join(path, firstFile)
-        
+
         if not os.path.exists(fullPath):
             return False
-        
-        if platform.system() == "Windows":
-            aePath = fullPath.replace('\\', '\\\\\\\\')
-        else:
-            aePath = fullPath.replace('\\', '/')
-        
+
+        # Old behavior: conform the frame rate only for sequence imports,
+        # and only when a usable rate is available.
+        conform_fps = None
         if asSequence:
-            scpt = f"""
-            try {{
-                var file = new File('{aePath}');
-                if (!file.exists) {{
-                    'ERROR: File not found - ' + file.fsName;
-                }} else {{
-                    var prismFolder = null, shotFolder = null, identifierFolder = null;
-                    
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        if (app.project.item(i) instanceof FolderItem && 
-                            app.project.item(i).name === 'Prism imports') {{
-                            prismFolder = app.project.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!prismFolder) prismFolder = app.project.items.addFolder('Prism imports');
-                    
-                    for (var i = 1; i <= prismFolder.numItems; i++) {{
-                        if (prismFolder.item(i) instanceof FolderItem && 
-                            prismFolder.item(i).name === '{shot}') {{
-                            shotFolder = prismFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!shotFolder) shotFolder = prismFolder.items.addFolder('{shot}');
-                    
-                    for (var i = 1; i <= shotFolder.numItems; i++) {{
-                        if (shotFolder.item(i) instanceof FolderItem && 
-                            shotFolder.item(i).name === '{identifier}') {{
-                            identifierFolder = shotFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!identifierFolder) identifierFolder = shotFolder.items.addFolder('{identifier}');
-                    
-                    var importOptions = new ImportOptions(file);
-                    importOptions.sequence = true;
-                    var footage = app.project.importFile(importOptions);
-                    
-                    if (footage && footage.mainSource) {{
-                        footage.mainSource.conformFrameRate = {fps};
-                    }}
-                    
-                    footage.parentFolder = identifierFolder;
-                    footage.name = '{aov}';
-                    
-                    'SUCCESS:' + footage.id;
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-        else:
-            scpt = f"""
-            try {{
-                var file = new File('{aePath}');
-                if (!file.exists) {{
-                    'ERROR: File not found - ' + file.fsName;
-                }} else {{
-                    var prismFolder = null, shotFolder = null, identifierFolder = null;
-                    
-                    for (var i = 1; i <= app.project.numItems; i++) {{
-                        if (app.project.item(i) instanceof FolderItem && 
-                            app.project.item(i).name === 'Prism imports') {{
-                            prismFolder = app.project.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!prismFolder) prismFolder = app.project.items.addFolder('Prism imports');
-                    
-                    for (var i = 1; i <= prismFolder.numItems; i++) {{
-                        if (prismFolder.item(i) instanceof FolderItem && 
-                            prismFolder.item(i).name === '{shot}') {{
-                            shotFolder = prismFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!shotFolder) shotFolder = prismFolder.items.addFolder('{shot}');
-                    
-                    for (var i = 1; i <= shotFolder.numItems; i++) {{
-                        if (shotFolder.item(i) instanceof FolderItem && 
-                            shotFolder.item(i).name === '{identifier}') {{
-                            identifierFolder = shotFolder.item(i);
-                            break;
-                        }}
-                    }}
-                    if (!identifierFolder) identifierFolder = shotFolder.items.addFolder('{identifier}');
-                    
-                    var importOptions = new ImportOptions(file);
-                    var footage = app.project.importFile(importOptions);
-                    
-                    footage.parentFolder = identifierFolder;
-                    footage.name = '{aov}';
-                    
-                    'SUCCESS:' + footage.id;
-                }}
-            }} catch(e) {{
-                'ERROR: ' + e.toString();
-            }}
-            """
-        
+            try:
+                conform_fps = float(str(fps).strip())
+                if conform_fps <= 0:
+                    conform_fps = None
+            except (TypeError, ValueError):
+                conform_fps = None
+
+        scpt = helixae_protocol.build_import_footage_item(
+            fullPath,
+            shot,
+            identifier,
+            aov,
+            fps=conform_fps,
+            sequence=asSequence,
+        )
+
         result = self.main.ae_core.executeAppleScript(scpt)
-        resultStr = str(result).replace("b'", "").replace("'", "").strip()
-        
-        return 'SUCCESS' in resultStr
+        data, error = helixae_protocol.parse_json_response(result)
+        if error or not data.get("result"):
+            details = error or data.get("details", "unknown After Effects error") if data else error
+            print("[HelixAE] importFootageItem failed: %s" % details)
+            return False
+        return True

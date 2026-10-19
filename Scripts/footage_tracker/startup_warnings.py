@@ -8,6 +8,8 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
+import helixae_protocol
+from footage_tracker import bypass_keys, xmp_payload
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -1312,67 +1314,11 @@ class StartupWarnings(QObject):
         - 3D Footage: footage_{shot}_{identifier}_{aov}
         - 2D Footage: footage_{shot}_{identifier}
         - Comps: comp_{comp_id}_{comp_name}
+
+        Implementation lives in footage_tracker/bypass_keys.py so the issue
+        checker and the context menu cannot drift apart.
         """
-        print(f"[DEBUG CHECK] _generateItemKey called:")
-        print(f"  issue_type = {issue_type}")
-        print(f"  item_data = {item_data}")
-
-        if item_data.get('group') == 'Comps':
-            # For comps, use compId + compName
-            comp_id = item_data.get('compId') or item_data.get('id') or item_data.get('comp_id')
-            comp_name = item_data.get('compName') or item_data.get('original_name') or item_data.get('name', '')
-            return f"comp_{comp_id}_{comp_name}"
-        else:
-            # For footage, use shot + identifier + optional AOV
-            shot = item_data.get('shot', '')
-            identifier = item_data.get('identifier', '')
-            aov = item_data.get('aov', '')
-            original_name = item_data.get('original_name') or item_data.get('name', '')
-
-            # For 3D renders with AOV: include AOV for individual bypass
-            if shot and identifier and aov:
-                return f"footage_{shot}_{identifier}_{aov}"
-
-            # For 2D renders (no AOV): use shot + identifier
-            # But check for duplicate suffix in tree_text (or original_name as fallback) and include it in identifier
-            if shot and identifier and not aov:
-                # Prefer tree_text for 2D renders (matches the tree display text used when saving bypass)
-                text_for_suffix = item_data.get('tree_text', original_name)
-                # Check if this is a 2D render by looking at tree_text or original_name prefix
-                is_2d_render = text_for_suffix.startswith('[2D]') or text_for_suffix.startswith('[PB]')
-                if is_2d_render:
-                    # Extract suffix from tree_text if present
-                    # e.g., "[2D] LowRes (1)" -> identifier should become "LowRes (1)" for unique bypass
-                    text_without_prefix = text_for_suffix.replace('[2D] ', '').replace('[PB] ', '')
-                    if text_without_prefix != identifier:
-                        # There's a duplicate suffix
-                        suffix = text_without_prefix.replace(identifier, '', 1).strip()
-                        if suffix:
-                            identifier = f"{identifier} {suffix}"
-                return f"footage_{shot}_{identifier}"
-
-            # For 2D renders, identifier might be in original_name
-            # Try to extract identifier from the name (e.g., "LowRes" from "[2D Renders] LowRes")
-            group = item_data.get('group', '')
-
-            if shot and original_name:
-                # Use shot + name as fallback (matches footage tracker's item.text(0) fallback)
-                return f"footage_{shot}_{original_name}"
-            elif original_name:
-                return f"footage_{group}_{original_name}"
-            else:
-                # Last resort - use path if available
-                path = item_data.get('path', '')
-                item_key = f"footage_{path}"
-
-        # Debug: show what generated
-        print(
-            f"[DEBUG CHECK] Generated key: {item_key} from item_data: "
-            f"shot={item_data.get('shot', 'N/A')}, identifier={item_data.get('identifier', 'N/A')}, "
-            f"aov={item_data.get('aov', 'N/A')}, original_name={item_data.get('original_name', 'N/A')}"
-        )
-
-        return item_key
+        return bypass_keys.key_from_item_data(item_data, issue_type)
 
     def _getIgnoredItems(self):
         """Load ignored items from .aep file XMP metadata (with caching)"""
@@ -1400,56 +1346,31 @@ class StartupWarnings(QObject):
         # Only use XMP metadata if we have an .aep file
         if current_file and current_file.endswith('.aep'):
             try:
-                # Read XMP metadata from the project
-                scpt = """
-                if (app.project && app.project.xmpPacket) {
-                    app.project.xmpPacket;
-                } else {
-                    '';
-                }
-                """
-                result = self.main.ae_core.executeAppleScript(scpt)
-                print(f"[DEBUG XMP READ] ExtendScript result length: {len(result) if result else 0}")
-                if result and isinstance(result, bytes):
-                    result = result.decode('utf-8')
+                # Read XMP metadata from the project (JSON ack, framed)
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_get_xmp_packet()
+                )
+                data, error = helixae_protocol.parse_json_response(result)
+                packet = ""
+                if not error and data.get("result"):
+                    packet = data.get("packet") or ""
 
-                if result:
-                    print(f"[DEBUG XMP READ] XMP packet length: {len(result)}")
+                if packet:
                     # Parse XMP to find our custom data
-                    # Look for PrismFootageTracker:BypassedItems tag
-                    if 'PrismFootageTracker:BypassedItems' in result:
-                        print(f"[DEBUG XMP READ] Found PrismFootageTracker:BypassedItems tag")
-                        # Extract the JSON data between the tags
-                        start_marker = 'PrismFootageTracker:BypassedItems">'
-                        end_marker = '</rdf:li'
-
-                        start_idx = result.find(start_marker)
-                        print(f"[DEBUG XMP READ] start_idx: {start_idx}")
-                        if start_idx > 0:
-                            start_idx += len(start_marker)
-                            # Find the end of this RDF element (use end_marker variable)
-                            end_idx = result.find(end_marker, start_idx)
-                            print(f"[DEBUG XMP READ] end_idx: {end_idx}")
-                            if end_idx > start_idx:
-                                json_str = result[start_idx:end_idx].strip()
-                                print(f"[DEBUG XMP READ] JSON string: {json_str}")
-                                bypassed = json.loads(json_str)
-                                result_data = {k: set(v) for k, v in bypassed.items()}
-                                # Ensure all keys exist
-                                all_keys = ['outdated', 'fps_mismatch', 'frame_range_mismatch', 'resolution_mismatch']
-                                for key in all_keys:
-                                    if key not in result_data:
-                                        result_data[key] = set()
-                                print(f"[DEBUG XMP] Loaded bypassed items from .aep XMP metadata")
-                                print(f"[DEBUG XMP] Result: {result_data}")
-                                self._ignored_items_cache = result_data
-                                return result_data
-                            else:
-                                print(f"[DEBUG XMP READ] Could not find end marker")
-                    else:
-                        print(f"[DEBUG XMP READ] PrismFootageTracker:BypassedItems tag NOT found in XMP")
-                else:
-                    print(f"[DEBUG XMP READ] Empty XMP packet")
+                    # (canonical prismft: form first, legacy variants after)
+                    payload, error = xmp_payload.extract_payload(
+                        packet, "BypassedItems"
+                    )
+                    if not error and payload:
+                        bypassed = json.loads(payload)
+                        result_data = {k: set(v) for k, v in bypassed.items()}
+                        # Ensure all keys exist
+                        all_keys = ['outdated', 'fps_mismatch', 'frame_range_mismatch', 'resolution_mismatch']
+                        for key in all_keys:
+                            if key not in result_data:
+                                result_data[key] = set()
+                        self._ignored_items_cache = result_data
+                        return result_data
             except Exception as e:
                 print(f"[DEBUG XMP] Error reading XMP metadata: {e}")
                 import traceback
@@ -1530,65 +1451,33 @@ class StartupWarnings(QObject):
         # Only write to XMP if we have an .aep file
         if current_file and current_file.endswith('.aep'):
             try:
-                # Read current XMP packet
-                scpt_read = """
-                if (app.project && app.project.xmpPacket) {
-                    app.project.xmpPacket;
-                } else {
-                    '';
-                }
-                """
-                result = self.main.ae_core.executeAppleScript(scpt_read)
-                if result and isinstance(result, bytes):
-                    result = result.decode('utf-8')
+                # Read current XMP packet (JSON ack, framed)
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_get_xmp_packet()
+                )
+                data, error = helixae_protocol.parse_json_response(result)
+                xmp_packet = ""
+                if not error and data.get("result"):
+                    xmp_packet = data.get("packet") or ""
 
-                xmp_packet = result if result else ''
-
-                # Check if our custom data already exists
-                custom_tag = 'PrismFootageTracker:BypassedItems'
-                if custom_tag in xmp_packet:
-                    # Replace existing data
-                    start_marker = f'{custom_tag}>'
-                    end_marker = '</rdf:li>'
-
-                    start_idx = xmp_packet.find(start_marker)
-                    if start_idx > 0:
-                        start_idx += len(start_marker)
-                        end_idx = xmp_packet.find(end_marker, start_idx)
-                        if end_idx > start_idx:
-                            # Replace the JSON data
-                            xmp_packet = xmp_packet[:start_idx] + json_data + xmp_packet[end_idx:]
-                        else:
-                            # Couldn't find proper end, append instead
-                            xmp_packet = self._appendBypassedItemsToXMP(xmp_packet, json_data)
-                    else:
-                        # Marker not found, append
-                        xmp_packet = self._appendBypassedItemsToXMP(xmp_packet, json_data)
-                else:
-                    # Add our custom data to XMP
-                    xmp_packet = self._appendBypassedItemsToXMP(xmp_packet, json_data)
-
-                # Write the updated XMP packet back to the project
-                # Need to escape the XMP packet for ExtendScript
-                xmp_escaped = (
-                    xmp_packet.replace('\\', '\\\\').replace('"', '\\"')
-                    .replace('\n', '\\n').replace('\r', '\\r')
+                # Insert/replace our payload in canonical namespace-aware
+                # form (also strips legacy malformed entries), then confirm
+                # the write via readback so success is never assumed.
+                new_packet = xmp_payload.upsert_payload(
+                    xmp_packet, "BypassedItems", json_data
                 )
 
-                scpt_write = f'''
-                if (app.project) {{
-                    app.project.xmpPacket = "{xmp_escaped}";
-                    "SUCCESS";
-                }} else {{
-                    "ERROR: No project";
-                }}
-                '''
-
-                result = self.main.ae_core.executeAppleScript(scpt_write)
-                if result and b'SUCCESS' in result:
+                result = self.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_set_xmp_packet(
+                        new_packet, required_marker="prismft:BypassedItems"
+                    )
+                )
+                data, error = helixae_protocol.parse_json_response(result)
+                if not error and data.get("result"):
                     print(f"[DEBUG XMP] Successfully saved bypassed items to .aep XMP metadata")
                 else:
-                    print(f"[DEBUG XMP] Failed to save XMP, result: {result}")
+                    reason = error or data.get("details", "unconfirmed write")
+                    print(f"[DEBUG XMP] Failed to save XMP: {reason}")
                 # Always save to project config as reliable fallback
                 # (AE may strip non-standard XMP tags on re-parse)
                 self.core.setConfig("footage_tracker", "bypassed_items", to_save, config="project")
@@ -1604,31 +1493,13 @@ class StartupWarnings(QObject):
             self.core.setConfig("footage_tracker", "bypassed_items", to_save, config="project")
             print(f"[DEBUG XMP] Saved to project config (no .aep file)")
 
-    def _appendBypassedItemsToXMP(self, xmp_packet, json_data):
-        """Append bypassed items to XMP packet"""
-        # Our custom namespace and data
-        custom_data = f'''<rdf:li rdf:parseType="Resource">PrismFootageTracker:BypassedItems>{json_data}</rdf:li>'''
-
-        # Find a good place to insert our data
-        # Look for the UserDefined array in the XMP
-        if '<pdfx:UserDefined>' in xmp_packet:
-            # Insert into existing UserDefined section
-            marker = '<pdfx:UserDefined>'
-            insert_pos = xmp_packet.find(marker)
-            if insert_pos > 0:
-                insert_pos += len(marker)
-                xmp_packet = xmp_packet[:insert_pos] + custom_data + xmp_packet[insert_pos:]
-                return xmp_packet
-
-        # If no UserDefined section, create one
-        # Find a good insertion point - before the closing x:xmpmeta tag
-        if '</x:xmpmeta>' in xmp_packet:
-            user_defined_section = f'<pdfx:UserDefined>{custom_data}</pdfx:UserDefined>'
-            xmp_packet = xmp_packet.replace('</x:xmpmeta>', user_defined_section + '</x:xmpmeta>')
-            return xmp_packet
-
-        # Last resort - append at the end
-        return xmp_packet + custom_data
+        # Keep the edited state authoritative without reading stale snapshot
+        # XMP or re-querying AE/NAS/Kitsu merely to update warning styling.
+        self._ignored_items_cache = {key: set(to_save[key]) for key in all_keys}
+        self._ignored_items_cache_file = current_file or ''
+        preparation = getattr(self.tracker, 'preparation', None)
+        if preparation:
+            preparation.update_bypasses(self._ignored_items_cache, current_file)
 
     def _updateCachedIssueCounts(self):
         """Update cached issue counts by filtering ignored items from the cached items"""
@@ -1814,8 +1685,7 @@ class StartupWarnings(QObject):
         # Update cached counts immediately (before loadFootageData)
         self._updateCachedIssueCounts()
 
-        # Reload footage tracker tree to update bypass styling
-        self.tracker.loadFootageData()
+        # Cached tree styling is updated by _saveIgnoredItems.
 
         # Close and reopen dialog
         if hasattr(self, '_current_dialog') and self._current_dialog:
@@ -1835,8 +1705,7 @@ class StartupWarnings(QObject):
         # Update cached counts immediately (before loadFootageData)
         self._updateCachedIssueCounts()
 
-        # Reload footage tracker tree to update bypass styling
-        self.tracker.loadFootageData()
+        # Cached tree styling is updated by _saveIgnoredItems.
 
         # Close and reopen dialog
         if hasattr(self, '_current_dialog') and self._current_dialog:
@@ -1866,8 +1735,7 @@ class StartupWarnings(QObject):
             # Update cached counts immediately (before loadFootageData)
             self._updateCachedIssueCounts()
 
-            # Reload footage tracker tree to update bypass styling
-            self.tracker.loadFootageData()
+            # Cached tree styling is updated by _saveIgnoredItems.
 
             # Close and reopen dialog
             if hasattr(self, '_current_dialog') and self._current_dialog:
@@ -1900,8 +1768,7 @@ class StartupWarnings(QObject):
             # Update cached counts immediately (before loadFootageData)
             self._updateCachedIssueCounts()
 
-            # Reload footage tracker tree to update bypass styling
-            self.tracker.loadFootageData()
+            # Cached tree styling is updated by _saveIgnoredItems.
 
             # Close and reopen dialog
             if hasattr(self, '_current_dialog') and self._current_dialog:
@@ -1927,8 +1794,7 @@ class StartupWarnings(QObject):
             # Update cached counts immediately (before loadFootageData)
             self._updateCachedIssueCounts()
 
-            # Reload footage tracker tree to update bypass styling
-            self.tracker.loadFootageData()
+            # Cached tree styling is updated by _saveIgnoredItems.
 
             # Close and reopen dialog
             if hasattr(self, '_current_dialog') and self._current_dialog:

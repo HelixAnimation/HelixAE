@@ -13,6 +13,9 @@ from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher as err_catcher
 
+import helixae_bridge
+import helixae_protocol
+
 
 class HelixAECore:
     def __init__(self, main):
@@ -20,18 +23,32 @@ class HelixAECore:
         self.core = main.core
         self.win = platform.system() == "Windows"
 
-    def _recvAll(self, sock):
-        """Read from socket until the null-byte sentinel, handling large responses."""
-        chunks = []
-        while True:
-            chunk = sock.recv(65536)
-            if not chunk:
-                break
-            if b'\x00' in chunk:
-                chunks.append(chunk[:chunk.index(b'\x00')])
-                break
-            chunks.append(chunk)
-        return b''.join(chunks)
+    @err_catcher(name=__name__)
+    def executeAppleScript(self, script):
+        """
+        Send ExtendScript to After Effects via a fresh socket connection per call.
+
+        Requests and responses are null-terminated frames (see
+        Scripts/helixae_bridge.py); exactly one request is sent per connection.
+        Returns bytes with the script result. Transport failures raise: a
+        connection that closes before the response terminator is never treated
+        as a valid (empty) response.
+        """
+        # Prepend JSON polyfill if the script uses JSON (json2, ExtendScript
+        # has no native JSON — see Scripts/helixae_protocol.py)
+        script = helixae_protocol.ensure_json_polyfill(script)
+
+        frame = helixae_bridge.frame_ae_request(script)
+
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.settimeout(120.0)  # 120s — imports can take a long time
+                s.connect(('127.0.0.1', 9888))
+            except Exception as e:
+                raise Exception("Cannot connect to After Effects on 127.0.0.1:9888 (%s)" % e)
+
+            s.sendall(frame)
+            return helixae_bridge.recv_ae_response(s)
 
     @err_catcher(name=__name__)
     def startup(self, origin):
@@ -73,76 +90,24 @@ class HelixAECore:
 
         return False
 
-    # JSON polyfill for ExtendScript (Crockford's json2, minified)
-    # ExtendScript doesn't have native JSON support — this ensures it's always available
-    _JSON_POLYFILL = r"""
-if(typeof JSON==='undefined'){JSON={};
-(function(){'use strict';function f(n){return n<10?'0'+n:n;}
-if(typeof Date.prototype.toJSON!=='function'){Date.prototype.toJSON=function(){return isFinite(this.valueOf())?this.getUTCFullYear()+'-'+f(this.getUTCMonth()+1)+'-'+f(this.getUTCDate())+'T'+f(this.getUTCHours())+':'+f(this.getUTCMinutes())+':'+f(this.getUTCSeconds())+'Z':null;};}
-var cx=/[\u0000\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,escapable=/[\\\"\x00-\x1f\x7f-\x9f\u00ad\u0600-\u0604\u070f\u17b4\u17b5\u200c-\u200f\u2028-\u202f\u2060-\u206f\ufeff\ufff0-\uffff]/g,gap,indent,meta={'\b':'\\b','\t':'\\t','\n':'\\n','\f':'\\f','\r':'\\r','"':'\\"','\\':'\\\\'},rep;
-function quote(string){escapable.lastIndex=0;return escapable.test(string)?'"'+string.replace(escapable,function(a){var c=meta[a];return typeof c==='string'?c:'\\u'+('0000'+a.charCodeAt(0).toString(16)).slice(-4);})+'"':'"'+string+'"';}
-function str(key,holder){var i,k,v,length,mind=gap,partial,value=holder[key];if(value&&typeof value==='object'&&typeof value.toJSON==='function'){value=value.toJSON(key);}
-if(typeof rep==='function'){value=rep.call(holder,key,value);}
-switch(typeof value){case'string':return quote(value);case'number':return isFinite(value)?String(value):'null';case'boolean':case'null':return String(value);case'object':if(!value){return'null';}
-gap+=indent;partial=[];if(Object.prototype.toString.apply(value)==='[object Array]'){length=value.length;for(i=0;i<length;i+=1){partial[i]=str(i,value)||'null';}
-v=partial.length===0?'[]':gap?'[\n'+gap+partial.join(',\n'+gap)+'\n'+mind+']':'['+partial.join(',')+']';gap=mind;return v;}
-if(rep&&typeof rep==='object'){length=rep.length;for(i=0;i<length;i+=1){if(typeof rep[i]==='string'){k=rep[i];v=str(k,value);if(v){partial.push(quote(k)+(gap?': ':':')+v);}}}}else{for(k in value){if(Object.prototype.hasOwnProperty.call(value,k)){v=str(k,value);if(v){partial.push(quote(k)+(gap?': ':':')+v);}}}}
-v=partial.length===0?'{}':gap?'{\n'+gap+partial.join(',\n'+gap)+'\n'+mind+'}':'{'+partial.join(',')+'}';gap=mind;return v;}}
-if(typeof JSON.stringify!=='function'){JSON.stringify=function(value,replacer,space){var i;gap='';indent='';if(typeof space==='number'){for(i=0;i<space;i+=1){indent+=' ';}}else if(typeof space==='string'){indent=space;}
-rep=replacer;if(replacer&&typeof replacer!=='function'&&(typeof replacer!=='object'||typeof replacer.length!=='number')){throw new Error('JSON.stringify');}
-return str('',{'':value});};}
-if(typeof JSON.parse!=='function'){JSON.parse=function(text,reviver){var j;function walk(holder,key){var k,v,value=holder[key];if(value&&typeof value==='object'){for(k in value){if(Object.prototype.hasOwnProperty.call(value,k)){v=walk(value,k);if(v!==undefined){value[k]=v;}else{delete value[k];}}}}
-return reviver.call(holder,key,value);}
-text=String(text);cx.lastIndex=0;if(cx.test(text)){text=text.replace(cx,function(a){return'\\u'+('0000'+a.charCodeAt(0).toString(16)).slice(-4);});}
-if(/^[\],:{}\s]*$/.test(text.replace(/\\(?:["\\\/bfnrt]|u[0-9a-fA-F]{4})/g,'@').replace(/"[^"\\\n\r]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g,']').replace(/(?:^|:|,)(?:\s*\[)+/g,''))){j=eval('('+text+')');return typeof reviver==='function'?walk({'':j},''):j;}
-throw new SyntaxError('JSON.parse');};}
-}());}
-"""
-
-    @err_catcher(name=__name__)
-    def executeAppleScript(self, script):
-        """
-        Send ExtendScript to After Effects via a fresh socket connection per call.
-        Returns bytes object with script result.
-        """
-        # Prepend JSON polyfill if the script uses JSON
-        if 'JSON.' in script:
-            script = self._JSON_POLYFILL + script
-
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            try:
-                s.connect(('127.0.0.1', 9888))
-            except Exception as e:
-                raise Exception("Cannot connect to After Effects on 127.0.0.1:9888 (%s)" % e)
-
-            s.settimeout(120.0)  # 120s — imports can take a long time
-            s.sendall(script.encode("utf-8"))
-            return self._recvAll(s)
+    # The JSON polyfill lives in Scripts/helixae_protocol.py (JSON2_POLYFILL).
+    # Kept as an alias for backwards compatibility.
+    _JSON_POLYFILL = helixae_protocol.JSON2_POLYFILL
 
     @err_catcher(name=__name__)
     def getCurrentFileName(self, origin, path=True):
         """Get current AE project file path"""
         try:
-            result = self.executeAppleScript("app.project.file.fsName;")
-            if result:
-                # Clean up the result from AE - ensure it's a string
-                if isinstance(result, bytes):
-                    result = result.decode('utf-8')
-                elif not isinstance(result, str):
-                    result = str(result)
-                result = result.strip()
-
-                # Remove any quote/backtick wrappers
-                if result.startswith("u'") or result.startswith('u"'):
-                    result = result[2:-1]  # Remove u' or u" wrapper
-                elif result.startswith("'") or result.startswith('"') or result.startswith("`"):
-                    result = result[1:-1]  # Remove ' or " or ` wrapper
-                result = result.rstrip('`\'"')  # Remove trailing backticks, quotes, apostrophes
-
-                file_name, _ = os.path.splitext(result)
-                currentFileName = file_name.replace("\\\\", "/")
-                return currentFileName + ".aep" if path else currentFileName.split("\\")[-1]
-            return ""
+            result = self.executeAppleScript(helixae_protocol.build_get_current_file())
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                return ""
+            file_path = data.get("path") or ""
+            if not file_path:
+                return ""
+            file_name, _ = os.path.splitext(file_path)
+            currentFileName = file_name.replace("\\\\", "/")
+            return currentFileName + ".aep" if path else currentFileName.split("\\")[-1]
         except Exception:
             return ""
 
@@ -154,90 +119,48 @@ throw new SyntaxError('JSON.parse');};}
 
     @err_catcher(name=__name__)
     def saveScene(self, origin, filepath, details={}):
-        """Save AE project to specified filepath and generate archive info"""
+        """Save AE project to specified filepath and generate archive info.
+
+        The save is only reported as successful when After Effects confirms
+        it (see helixae_protocol.build_save_scene). Archive data is owned by
+        the exact save that produced it: stale data from a previous save is
+        never reused for a later one.
+        """
+        # Per-save state: anything left from a previous save is stale.
+        self._last_archive_data = None
+        self._last_archive_path = None
+        skip_version_scan = bool(getattr(self, "_skip_version_scan_next", False))
+        self._skip_version_scan_next = False
         try:
-            # Escape backslashes in filepath for ExtendScript
-            escaped_path = filepath.replace(chr(92), "//")
-            scpt = f"app.project.save(File('{escaped_path}'));"
-            result = self.executeAppleScript(scpt)
+            result = self.executeAppleScript(helixae_protocol.build_save_scene(filepath))
+            data, error = helixae_protocol.parse_json_response(result)
+            if error:
+                raise Exception("Save failed: %s" % error)
+            if not data.get("result"):
+                raise Exception(
+                    "Save failed: %s" % data.get("details", "unknown After Effects error")
+                )
 
-            # Check for errors in the result
-            if result and b"error" in result.lower():
-                raise Exception(f"Save failed: {result.decode('utf-8', errors='ignore')}")
-
-            # After successful save, always generate archive info
+            # Save confirmed. Archive info generation must not fail the save.
             try:
-                # Import required modules for archive info generation
                 from footage_tracker import archive_info
                 from footage_tracker.utils import FootageUtils
-                from footage_tracker.tree_operations import TreeOperations
+                from footage_tracker.tree_operations import TreeOperations  # noqa: F401
 
                 # Create utils instance for parsing paths
                 utils = FootageUtils()
+                version_cache = {}
 
                 # Generate archive JSON file next to the .aep file
                 archive_path = os.path.splitext(filepath)[0] + "_archiveinfo.json"
 
-                # Always scan the footage list and generate fresh hierarchy
-                # Get fresh footage data from AE directly
-                scpt = """
-                    var footageList = [];
-                    for (var i = 1; i <= app.project.numItems; i++) {
-                        var item = app.project.item(i);
-                        if (item instanceof FootageItem && item.mainSource instanceof FileSource) {
-                            var fps = 'N/A';
-                            var duration = 'N/A';
-                            var startFrame = 'N/A';
-                            var endFrame = 'N/A';
-
-                            try {
-                                fps = item.mainSource.conformFrameRate.toFixed(2);
-                            } catch(e) {}
-
-                            try {
-                                duration = item.duration.toFixed(2);
-                            } catch(e) {}
-
-                            try {
-                                if (item.mainSource instanceof FileSource) {
-                                    var filePath = item.mainSource.file.fsName;
-                                    var fileName = item.mainSource.file.name;
-                                    var frameMatch = fileName.match(/[._](\\d{4,5})\\.[^.]+$/);
-                                    if (frameMatch) {
-                                        startFrame = parseInt(frameMatch[1]);
-                                        if (duration != 'N/A' && fps != 'N/A') {
-                                            var frameCount = Math.floor(parseFloat(duration) * parseFloat(fps));
-                                            endFrame = startFrame + frameCount - 1;
-                                        }
-                                    }
-                                }
-                            } catch(e) {}
-
-                            footageList.push(
-                                item.id + '|||' +
-                                item.name + '|||' +
-                                item.mainSource.file.fsName + '|||' +
-                                fps + '|||' +
-                                duration + '|||' +
-                                startFrame + '|||' +
-                                endFrame
-                            );
-                        }
-                    }
-                    footageList.join('::ITEM::');
-                    """
-
-                result = self.executeAppleScript(scpt)
-
-                # Handle bytes result properly
-                result_str = ""
-                if result:
-                    if isinstance(result, bytes):
-                        result_str = result.decode('utf-8')
-                    else:
-                        result_str = str(result)
-
-                footageData = result_str.split('::ITEM::') if result_str else []
+                # Fresh footage scan (JSON; file-backed items only)
+                result = self.executeAppleScript(
+                    helixae_protocol.build_collect_footage_records()
+                )
+                footage_records, scan_error = helixae_protocol.parse_footage_records(result)
+                if scan_error:
+                    raise Exception("footage scan failed: %s" % scan_error)
 
                 # Process the footage data into hierarchy (same logic as loadFootageData)
                 hierarchy = {
@@ -248,22 +171,16 @@ throw new SyntaxError('JSON.parse');};}
                     "Comps": {}
                 }
 
-                processed_count = 0
-                for footage in footageData:
-                    if not footage or '|||' not in footage:
-                        continue
+                for record in footage_records:
+                    name = record["name"]
+                    path = record["path"]
 
-                    parts = footage.split('|||')
-                    if len(parts) < 7:
-                        continue
-
-                    processed_count += 1
-                    footageId, name, path, fps, duration, startFrame, endFrame = parts
-                    path = path.replace('\\\\', '/')
-
-                    versionInfo = utils.parseFootagePath(path)
-                    if not versionInfo:
-                        continue
+                    versionInfo = utils.parseFootagePath(
+                        path,
+                        version_cache,
+                        verify_versions=False,
+                        scan_versions=not skip_version_scan,
+                    )
                     if not versionInfo:
                         continue
 
@@ -285,6 +202,20 @@ throw new SyntaxError('JSON.parse');};}
                             # Default preserved to Resources if not specified
                             group = "Resources"
 
+                    footage_entry = {
+                        'name': name,
+                        'footageId': record['footageId'],
+                        'versionInfo': versionInfo,
+                        'fps': record['fps'],
+                        'duration': record['duration'],
+                        'startFrame': record['startFrame'],
+                        'endFrame': record['endFrame'],
+                        'path': path,
+                        'group': group,
+                        'hierarchy_type': hierarchy_type,
+                        'isLatest': versionInfo['currentVersion'] == versionInfo['latestVersion']
+                    }
+
                     if hierarchy_type == 'render':
                         # For renders, use shot/identifier/aov structure
                         if shot not in hierarchy[group]:
@@ -294,41 +225,15 @@ throw new SyntaxError('JSON.parse');};}
                         if aov not in hierarchy[group][shot][identifier]:
                             hierarchy[group][shot][identifier][aov] = []
 
-                        footageData = {
-                            'name': name,
-                            'footageId': footageId,
-                            'versionInfo': versionInfo,
-                            'fps': fps,
-                            'duration': duration,
-                            'startFrame': startFrame,
-                            'endFrame': endFrame,
-                            'path': path,
-                            'group': group,
-                            'hierarchy_type': hierarchy_type,
-                            'isLatest': versionInfo['currentVersion'] == versionInfo['latestVersion']
-                        }
-                        hierarchy[group][shot][identifier][aov].append(footageData)
+                        hierarchy[group][shot][identifier][aov].append(footage_entry)
                     else:
                         # For preserved structures, use relative path structure
                         relative_path = identifier if identifier else os.path.splitext(name)[0]
                         if relative_path not in hierarchy[group]:
                             hierarchy[group][relative_path] = []
 
-                        footageData = {
-                            'name': name,
-                            'footageId': footageId,
-                            'versionInfo': versionInfo,
-                            'fps': fps,
-                            'duration': duration,
-                            'startFrame': startFrame,
-                            'endFrame': endFrame,
-                            'path': path,
-                            'group': group,
-                            'hierarchy_type': hierarchy_type,
-                            'relative_path': relative_path,
-                            'isLatest': versionInfo['currentVersion'] == versionInfo['latestVersion']
-                        }
-                        hierarchy[group][relative_path].append(footageData)
+                        footage_entry['relative_path'] = relative_path
+                        hierarchy[group][relative_path].append(footage_entry)
 
                 # Get tracker for archive info generation (use ae_footage like old plugin)
                 main_functions = getattr(self.main, 'functions', None) or self.main
@@ -343,9 +248,12 @@ throw new SyntaxError('JSON.parse');};}
                 # Generate archive data with fresh hierarchy (only if tracker available)
                 if tracker:
                     archive_data = archive_info.generate_archive_info(tracker, filepath, hierarchy)
-                    self._last_archive_data = archive_data  # stored for postSaveScene callback
+                    # Owned by THIS save; postSaveScene only uses it for this path.
+                    self._last_archive_data = archive_data
+                    self._last_archive_path = os.path.normpath(os.path.abspath(filepath))
 
-                    if not archive_info.write_archive_json(archive_data, archive_path):
+                    written = archive_info.write_archive_json(archive_data, archive_path)
+                    if not written:
                         self.core.popup("Failed to save archive info file.")
                 else:
                     self.core.popup(
@@ -360,8 +268,8 @@ throw new SyntaxError('JSON.parse');};}
                 self.core.popup(f"Warning: Could not generate archive info.\nError: {str(e)}")
 
             return True
-        except Exception:
-            self.core.popup("There is no active document in AfterEffects.")
+        except Exception as e:
+            self.core.popup(f"Saving in After Effects failed:\n{str(e)}")
             return False
 
     def _patchVersionInfo(self, filepath, archive_data=None):
@@ -397,9 +305,10 @@ throw new SyntaxError('JSON.parse');};}
                 archive_data.get("external_paths", [])
             ]
 
-            if dependencies:
+            # An absent category in archive data means "keep whatever the
+            # archive file says"; a present (even empty) list is authoritative.
+            if "source_paths" in archive_data:
                 vinfo["dependencies"] = dependencies
-            if external_files:
                 vinfo["externalFiles"] = external_files
 
             with open(versioninfo_path, 'w') as f:
@@ -418,11 +327,25 @@ throw new SyntaxError('JSON.parse');};}
 
     @err_catcher(name=__name__)
     def openScene(self, origin, filepath, force=False):
-        """Open AE project file"""
+        """Open AE project file.  Success requires a confirmed AE ack."""
         if not filepath.endswith(".aep"):
             return False
-        self.executeAppleScript(f"app.open(File('{filepath}'));")
-        return True
+        try:
+            result = self.executeAppleScript(helixae_protocol.build_open_scene(filepath))
+            data, error = helixae_protocol.parse_json_response(result)
+            if error:
+                raise Exception(error)
+            if not data.get("result"):
+                raise Exception(
+                    data.get("details", "After Effects did not open the project")
+                )
+            preparation = getattr(self.main, '_footage_preparation', None)
+            if preparation:
+                preparation.scene_opened()
+            return True
+        except Exception as e:
+            self.core.popup(f"Opening in After Effects failed:\n{str(e)}")
+            return False
 
     @err_catcher(name=__name__)
     def openFootageTracker(self):

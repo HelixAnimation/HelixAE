@@ -31,9 +31,9 @@ class AEKitsu(QObject):
             try:
                 currentFile = self.core.getCurrentFileName()
 
-                # Clean up the path - remove any stray quotes
+                # Clean up the path
                 if currentFile:
-                    currentFile = currentFile.replace("'", "").replace('"', '').strip()
+                    currentFile = str(currentFile).strip()
 
                 if currentFile and os.path.exists(currentFile):
                     # Try to detect project from file path

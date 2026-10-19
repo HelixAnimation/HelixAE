@@ -16,7 +16,7 @@ class ContextMenuFootage:
     """Mixin: footage item context menu actions"""
 
     def _addKitsuMenu(self, menu, item):
-        """Add Kitsu integration menu to footage context menu (uses cached data, no API call)"""
+        """Add Kitsu links, loading task lists only when needed."""
         shotName = self.tracker.getShotNameFromItem(item)
         if not shotName:
             return
@@ -32,7 +32,7 @@ class ContextMenuFootage:
         openKitsuMenu.addAction(openShotAction)
 
         if shotName in self.tracker.kitsuShotData:
-            tasks = self.tracker.kitsuShotData[shotName].get('tasks', [])
+            tasks = self.tracker.kitsu_integration.getTasksForShot(shotName)
 
             if tasks:
                 openKitsuMenu.addSeparator()

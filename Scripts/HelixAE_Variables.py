@@ -41,7 +41,7 @@ class HelixAE_Variables(object):
         self.appSpecificFormats = self.sceneFormats
         self.outputFormats = []
         self.appColor = [25, 71, 154]
-        self.platforms = ["Windows", "Darwin"]
+        self.platforms = ["Windows"]
         self.pluginDirectory = os.path.abspath(
             os.path.dirname(os.path.dirname(__file__))
         )

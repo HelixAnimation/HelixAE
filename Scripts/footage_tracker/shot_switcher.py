@@ -6,6 +6,8 @@ Handles switching footage between different shots
 
 import os
 import re
+
+import helixae_protocol
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
@@ -504,21 +506,12 @@ class ShotSwitcher:
             # Get project paths
             possible_project_paths = []
 
-            # First try to extract from current .aep file
+            # Extract from the current .aep file only. Hard-coded foreign
+            # project fallbacks were removed: switching shots must never
+            # silently pull media from an unrelated project on disk.
             current_project_path = self._extractProjectPathFromCurrentFile()
             if current_project_path:
                 possible_project_paths.append(current_project_path)
-
-            # Add fallback project paths that might be relevant
-            fallback_paths = [
-                "X:/Align_iTero_Lumina_MultiPreps",
-                "X:/Halloween_2025",
-                # Add more project paths here if needed
-            ]
-
-            for fallback_path in fallback_paths:
-                if fallback_path not in possible_project_paths:
-                    possible_project_paths.append(fallback_path)
 
             # Build the search paths for each possible project
             search_paths = []
@@ -550,7 +543,9 @@ class ShotSwitcher:
                 # Sort by version number (highest first)
                 all_versions.sort(key=lambda x: x[0], reverse=True)
 
-                # Find the latest version that has the requested AOV
+                # Find the latest version that has the requested AOV.
+                # The requested AOV is required: falling back to a different AOV
+                # would silently replace the shot with the wrong passes.
                 latest_version = None
                 latest_version_path = None
 
@@ -561,13 +556,16 @@ class ShotSwitcher:
                         for aov_dir in os.listdir(version_path):
                             aov_full_path = os.path.join(version_path, aov_dir)
                             if os.path.isdir(aov_full_path) and aov_dir.lower() == aov.lower():
-                                # Check if this AOV folder actually has files (not just subfolders)
+                                # Check if this AOV folder actually has media files
+                                # (not just metadata like versioninfo.json)
                                 has_files = False
                                 for item in os.listdir(aov_full_path):
                                     item_path = os.path.join(aov_full_path, item)
                                     if os.path.isfile(item_path) and not item.startswith('.'):
-                                        # Allow image files (they may have dots in the name like .1001.exr)
-                                        if not item.endswith('.json'):
+                                        if item.lower().endswith(
+                                            ('.exr', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.dpx',
+                                             '.mp4', '.mov', '.avi', '.mkv', '.psd')
+                                        ):
                                             has_files = True
                                             break
 
@@ -579,36 +577,18 @@ class ShotSwitcher:
                         if latest_version:
                             break
 
-                # If still not found, look for any valid AOV in the latest version
-                if not latest_version and all_versions:
-                    version_name, search_path = all_versions[0][1], all_versions[0][2]
-                    version_path = os.path.join(search_path, version_name)
-                    if os.path.exists(version_path):
-                        for aov_dir in os.listdir(version_path):
-                            aov_full_path = os.path.join(version_path, aov_dir)
-                            if os.path.isdir(aov_full_path) and not aov_dir.endswith('.json'):
-                                # Check if this AOV folder actually has files
-                                has_files = False
-                                for item in os.listdir(aov_full_path):
-                                    item_path = os.path.join(aov_full_path, item)
-                                    if os.path.isfile(item_path) and not item.startswith('.'):
-                                        # Allow image files (they may have dots)
-                                        if not item.endswith('.json'):
-                                            has_files = True
-                                            break
-
-                                if has_files:
-                                    latest_version = version_name
-                                    latest_version_path = aov_full_path
-                                    break
-
                 if latest_version and latest_version_path:
                     # We already have the AOV directory path
-                    # Only include actual files (not directories), excluding hidden files and json files
-                    files = [f for f in os.listdir(latest_version_path)
-                            if not f.startswith('.')
-                            and not f.endswith('.json')
-                            and os.path.isfile(os.path.join(latest_version_path, f))]
+                    # Only include actual media files (not directories or
+                    # metadata); sorted() makes the pick deterministic.
+                    files = sorted(
+                        f for f in os.listdir(latest_version_path)
+                        if not f.startswith('.')
+                        and os.path.isfile(os.path.join(latest_version_path, f))
+                        and f.lower().endswith(
+                            ('.exr', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.dpx',
+                             '.mp4', '.mov', '.avi', '.mkv', '.psd'))
+                    )
                     if files:
                         file_path = os.path.join(latest_version_path, files[0])
                         return {
@@ -647,14 +627,19 @@ class ShotSwitcher:
                 aov_path = os.path.dirname(aov_path)
 
             # Check if this is a sequence or single file
-            # Only include actual files (not directories), excluding hidden files and json files
-            files = [f for f in os.listdir(aov_path)
-                    if not f.startswith('.')
-                    and not f.endswith('.json')
-                    and os.path.isfile(os.path.join(aov_path, f))]
+            # Only actual media files (not directories or metadata); sorted()
+            # makes the sequence start file deterministic.
+            files = sorted(
+                f for f in os.listdir(aov_path)
+                if not f.startswith('.')
+                and os.path.isfile(os.path.join(aov_path, f))
+                and f.lower().endswith(
+                    ('.exr', '.png', '.jpg', '.jpeg', '.tif', '.tiff', '.dpx',
+                     '.mp4', '.mov', '.avi', '.mkv', '.psd'))
+            )
 
             if not files:
-                self.core.popup(f"No files found in {aov_path}")
+                self.core.popup(f"No media files found in {aov_path}")
                 return False
 
             # Find the sequence pattern
@@ -666,50 +651,22 @@ class ShotSwitcher:
             # Check if this is a sequence
             is_sequence = bool(re.search(r'\.\d{4,5}\.[^.]+$', first_file))
 
-            # Execute AppleScript to replace footage
-            if is_sequence:
-                scpt = f"""
-                try {{
-                    var footageItem = app.project.itemByID({current_footage_id});
-                    if (footageItem && footageItem instanceof FootageItem) {{
-                        var newFile = new File("{full_path_ae}");
-                        footageItem.replaceWithSequence(newFile, false);
-                        footageItem.mainSource.alphabeticOrder = false;
-                        "SUCCESS";
-                    }} else {{
-                        "ERROR: Footage item not found";
-                    }}
-                }} catch(e) {{
-                    "ERROR: " + e.toString();
-                }}
-                """
-            else:
-                # For single files, use normal replace
-                scpt = f"""
-                try {{
-                    var footageItem = app.project.itemByID({current_footage_id});
-                    if (footageItem && footageItem instanceof FootageItem) {{
-                        var newFile = new File("{full_path_ae}");
-                        footageItem.replace(newFile);
-                        "SUCCESS";
-                    }} else {{
-                        "ERROR: Footage item not found";
-                    }}
-                }} catch(e) {{
-                    "ERROR: " + e.toString();
-                }}
-                """
-
-            result = self.tracker.main.ae_core.executeAppleScript(scpt)
-
-            # Convert result to string if it's bytes
-            result_str = result.decode('utf-8') if isinstance(result, bytes) else str(result)
-
-            if result and "SUCCESS" in result_str:
-                return True
-            else:
-                self.core.popup(f"Failed to replace footage in After Effects.\n\nError: {result_str}")
+            # Execute the replacement via the shared JSON protocol
+            import helixae_protocol
+            try:
+                result = self.tracker.main.ae_core.executeAppleScript(
+                    helixae_protocol.build_replace_footage_by_id(
+                        current_footage_id, full_path_ae, is_sequence
+                    )
+                )
+            except Exception as e:
+                result = None
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                reason = error or data.get("details", "unknown After Effects error")
+                self.core.popup(f"Failed to replace footage in After Effects.\n\nError: {reason}")
                 return False
+            return True
 
         except Exception as e:
             import traceback
@@ -2138,32 +2095,24 @@ class ShotSwitcher:
             if not footage_id:
                 return False
 
-            # Use AE operations to replace the footage
-            # Pre-process the path to avoid backslash in f-string
-            processed_path = new_path.replace('\\', '/')
-            scpt = f'''
-            var footageItem = app.project.itemByID({footage_id});
-            if (footageItem && footageItem instanceof FootageItem) {{
-                var newFile = new File("{processed_path}");
-                if (newFile.exists) {{
-                    footageItem.replace(newFile);
-                    "SUCCESS";
-                }} else {{
-                    "ERROR: File does not exist: " + newFile.fsName;
-                }}
-            }} else {{
-                "ERROR: Footage item not found";
-            }}
-            '''
+            # Confirmed JSON round trip via the shared protocol module
+            # (js_string embeds the path safely; ack required for success).
+            scpt = helixae_protocol.build_replace_footage_by_id(
+                footage_id, new_path, sequence=False
+            )
 
             result = self.tracker.main.ae_core.executeAppleScript(scpt)
-            result_str = result.decode('utf-8') if isinstance(result, bytes) else str(result)
-
-            if result and "SUCCESS" in result_str:
-                return True
-            else:
-                self.core.popup(f"Failed to replace footage in After Effects.\n\nError: {result_str}")
+            data, error = helixae_protocol.parse_json_response(result)
+            if error:
+                self.core.popup(f"Failed to replace footage in After Effects.\n\nError: {error}")
                 return False
+            if not data.get("result"):
+                self.core.popup(
+                    "Failed to replace footage in After Effects.\n\nError: %s"
+                    % data.get("details", "unknown After Effects error")
+                )
+                return False
+            return True
 
         except Exception as e:
             import traceback

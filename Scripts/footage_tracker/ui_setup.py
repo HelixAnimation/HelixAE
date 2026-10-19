@@ -194,10 +194,16 @@ class DebugConsoleKeyPressFilter(QObject):
         return False
 
 
+class DebugConsoleBridge(QObject):
+    message = Signal(str)
+
+
 class DebugConsole:
     """Debug console output handler"""
     def __init__(self, text_edit):
         self.text_edit = text_edit
+        self.bridge = DebugConsoleBridge(text_edit)
+        self.bridge.message.connect(text_edit.appendPlainText, Qt.QueuedConnection)
 
     def _is_valid(self):
         """Check if the widget is still valid"""
@@ -215,11 +221,11 @@ class DebugConsole:
 
     def write(self, text):
         if text.strip():  # Only write non-empty text
-            if self._is_valid():
-                try:
-                    self.text_edit.appendPlainText(text.strip())
-                except RuntimeError:
-                    pass
+            try:
+                self.bridge.message.emit(text.strip())
+            except RuntimeError:
+                pass
+        return len(text)
 
     def flush(self):
         pass
@@ -561,6 +567,13 @@ class UISetup(QObject):
         statsBarLayout.addWidget(self.tracker.statsLabel, 1)  # Give label stretch to fill remaining space
 
         # Refresh menu button (icon on right side of stats bar)
+        self.tracker.refreshProgress = QProgressBar()
+        self.tracker.refreshProgress.setFixedWidth(130)
+        self.tracker.refreshProgress.setFixedHeight(12)
+        self.tracker.refreshProgress.setTextVisible(False)
+        self.tracker.refreshProgress.setRange(0, 0)
+        self.tracker.refreshProgress.hide()
+        statsBarLayout.addWidget(self.tracker.refreshProgress)
         self.tracker.btn_refreshMenu = QPushButton("⟳")
         self.tracker.btn_refreshMenu.setToolTip("Refresh options...")
         self.tracker.btn_refreshMenu.setFixedSize(32, 24)
@@ -705,6 +718,8 @@ class UISetup(QObject):
         # Immediately redirect stdout to capture ALL output from the start
         import sys
         if hasattr(sys, '__stdout__'):
+            self.tracker._pre_debug_stdout = sys.stdout
+            self.tracker._pre_debug_stderr = sys.stderr
             sys.stdout = self.debug_console_handler
             sys.stderr = self.debug_console_handler
         handler_end = time.perf_counter()
@@ -831,12 +846,12 @@ class UISetup(QObject):
 
         # Footage refresh option
         footage_action = menu.addAction("Footage")
-        footage_action.setToolTip("Reload footage hierarchy from After Effects (uses cached Kitsu data)")
+        footage_action.setToolTip("Refresh AE inventory and NAS versions in the background (reuses Kitsu data)")
         footage_action.triggered.connect(self.tracker.loadFootageData)
 
         # Kitsu refresh option
         kitsu_action = menu.addAction("Kitsu")
-        kitsu_action.setToolTip("Force refresh Kitsu data from server (bypasses 5-min cache)")
+        kitsu_action.setToolTip("Refresh Kitsu in the background (does not rescan NAS folders)")
         kitsu_action.triggered.connect(self.tracker.forceRefreshKitsuData)
 
         # Show menu at current cursor position

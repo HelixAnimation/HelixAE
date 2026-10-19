@@ -11,6 +11,9 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
+import helixae_protocol
+from footage_tracker import cache_store
+from footage_tracker import xmp_payload
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -22,118 +25,64 @@ class HierarchyBuilder:
         self.core = tracker.core
         self.utils = tracker.utils
 
-        # In-memory version cache for current session
-        self._xmp_cache = None
-        self._xmp_cache_dirty = False
-
-        # Initialize cache manager for backward compatibility (fallback)
+        # File-based persistent version cache (project-scoped)
         from .version_cache_manager import VersionCacheManager
         self.cache_manager = VersionCacheManager(tracker)
+        self._cache_loaded = False
+        # One-time migration of the legacy .aep XMP cache
+        self._legacy_migrated = False
 
     @err_catcher(name=__name__)
-    def _readVersionCacheFromXMP(self):
-        """Read version cache from .aep file's XMP metadata"""
+    def _ensureCacheLoaded(self):
+        """Lazily load the file-based version cache for this project."""
+        if self._cache_loaded:
+            return
+        project_root = getattr(self.core, "projectPath", None)
+        self.cache_manager.loadCache(project_root)
+        self._cache_loaded = True
+        if not self._legacy_migrated:
+            self._legacy_migrated = True
+            self._migrateLegacyXmpCache()
+
+    @err_catcher(name=__name__)
+    def _migrateLegacyXmpCache(self):
+        """One-time migration: legacy XMP version cache -> file cache.
+
+        Older versions stored the version cache inside the .aep XMP packet
+        (with a malformed marker, see xmp_payload). The data is migrated
+        into the file-based cache once and never written back to the .aep,
+        keeping disposable caches out of the project file.
+        """
         import json
 
         try:
-            # Read XMP metadata from the project
-            scpt = """
-            if (app.project && app.project.xmpPacket) {
-                app.project.xmpPacket;
-            } else {
-                '';
-            }
-            """
-            result = self.tracker.main.ae_core.executeAppleScript(scpt)
-            if result and isinstance(result, bytes):
-                result = result.decode('utf-8')
+            result = self.tracker.main.ae_core.executeAppleScript(
+                helixae_protocol.build_get_xmp_packet()
+            )
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                return 0
 
-            if result and 'PrismFootageTracker:VersionCache' in result:
-                # Extract the JSON data between the tags
-                start_marker = 'PrismFootageTracker:VersionCache">'
-                end_marker = '</rdf:li'
+            packet = data.get("packet") or ""
+            if not packet or not xmp_payload.has_payload(packet, "VersionCache"):
+                return 0
 
-                start_idx = result.find(start_marker)
-                if start_idx > 0:
-                    start_idx += len(start_marker)
-                    end_idx = result.find(end_marker, start_idx)
-                    if end_idx > start_idx:
-                        json_str = result[start_idx:end_idx].strip()
-                        cache_data = json.loads(json_str)
-                        entry_count = len(cache_data.get('versions', {}))
-                        print(f"[CACHE XMP] Loaded version cache from .aep XMP: {entry_count} entries")
-                        return cache_data
+            payload, error = xmp_payload.extract_payload(packet, "VersionCache")
+            if error or not payload:
+                return 0
+
+            cache_data = json.loads(payload)
+            entries = cache_data.get("versions", {})
+            merged = self.cache_manager.mergeEntries(entries)
+            if merged:
+                print(
+                    "[CACHE] Migrated %d entries from legacy .aep XMP cache "
+                    "to file cache" % merged
+                )
+            return merged
         except Exception as e:
-            print(f"[CACHE XMP] Error reading XMP: {e}")
-
-        return None
-
-    @err_catcher(name=__name__)
-    def _writeVersionCacheToXMP(self, cache_data):
-        """Write version cache to .aep file's XMP metadata"""
-        import json
-
-        try:
-            # Read current XMP
-            scpt_read = """
-            if (app.project && app.project.xmpPacket) {
-                app.project.xmpPacket;
-            } else {
-                '';
-            }
-            """
-            current_xmp = self.tracker.main.ae_core.executeAppleScript(scpt_read)
-            if current_xmp and isinstance(current_xmp, bytes):
-                current_xmp = current_xmp.decode('utf-8')
-            else:
-                current_xmp = ''
-
-            # Prepare the cache data as JSON
-            cache_json = json.dumps(cache_data)
-
-            # Create XMP structure for our cache
-            xmp_entry = f'        <rdf:li>PrismFootageTracker:VersionCache">{cache_json}</rdf:li'
-
-            # Check if we need to update existing entry or create new one
-            if 'PrismFootageTracker:VersionCache' in current_xmp:
-                # Replace existing entry
-                import re
-                pattern = r'        <rdf:li>PrismFootageTracker:VersionCache">.*?</rdf:li'
-                new_xmp = re.sub(pattern, xmp_entry, current_xmp, flags=re.DOTALL)
-            else:
-                # Add new entry - find a good place to insert it
-                if '</rdf:Description>' in current_xmp:
-                    new_xmp = current_xmp.replace(
-                        '</rdf:Description>',
-                        f'{xmp_entry}\n    </rdf:Description>'
-                    )
-                else:
-                    # Create basic XMP structure if none exists
-                    new_xmp = f'''<?xpacket begin="..." id="W5M0MpCehiHzreSzNTczkc9d"?>
-<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6-c140 79.160451">
-  <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <rdf:Description rdf:about="" xmlns:PrismFootageTracker="http://prism-pipeline.com/FootageTracker/1.0/">
-{xmp_entry}
-    </rdf:Description>
-  </rdf:RDF>
-</x:xmpmeta>
-<?xpacket end="w"?>'''
-
-            # Write updated XMP back to project
-            scpt_write = f'''
-            if (app.project) {{
-                app.project.xmpPacket = "{new_xmp.replace(chr(10), '\\n').replace(chr(13), '').replace('"', '\\"')}";
-            }}
-            '''
-            self.tracker.main.ae_core.executeAppleScript(scpt_write)
-            print(f"[CACHE XMP] Saved version cache to .aep XMP: {len(cache_data.get('versions', {}))} entries")
-            return True
-
-        except Exception as e:
-            print(f"[CACHE XMP] Error writing XMP: {e}")
-            import traceback
-            traceback.print_exc()
-            return False
+            print(f"[CACHE] Legacy XMP migration failed: {e}")
+            return 0
 
     @err_catcher(name=__name__)
     def getVersionInfoFromAPI(self, path):
@@ -181,23 +130,14 @@ class HierarchyBuilder:
             baseVersionMatch = re.match(r'(v\d+)', currentVersionFull)
             currentVersion = baseVersionMatch.group(1) if baseVersionMatch else currentVersionFull
 
-            # Load XMP cache on first access
-            if self._xmp_cache is None:
-                self._xmp_cache = self._readVersionCacheFromXMP()
-                if not self._xmp_cache:
-                    # Initialize empty cache structure
-                    self._xmp_cache = {
-                        "version": "1.0",
-                        "last_updated": datetime.now().isoformat(),
-                        "versions": {}
-                    }
+            # Load the file-based cache on first access
+            self._ensureCacheLoaded()
 
-            # Get cache key for this path
-            cache_key = self.cache_manager._getCacheKey(path)
+            # Try the persistent cache first (zero file system access);
+            # entries expire so version switches are picked up quickly.
+            cached_info = self.cache_manager.getVersionInfo(path)
 
-            # Try XMP cache first (zero file system access)
-            if cache_key and cache_key in self._xmp_cache.get("versions", {}):
-                cached_info = self._xmp_cache["versions"][cache_key]
+            if cached_info:
                 allVersions = cached_info.get("allVersions", [])
                 latestVersion = cached_info.get("latestVersion", currentVersion)
             else:
@@ -211,17 +151,6 @@ class HierarchyBuilder:
 
                 if os.path.exists(versionDir):
                     try:
-                        # Custom sort for version folders
-                        def versionSortKey(versionFolder):
-                            match = re.match(r'(v\d+)(.*)', versionFolder)
-                            if match:
-                                baseVer = match.group(1)
-                                suffix = match.group(2) or ''
-                                verNum = int(baseVer[1:])
-                                hasSuffix = 0 if suffix == '' else 1
-                                return (-verNum, hasSuffix, suffix)
-                            return (0, 0, versionFolder)
-
                         versionItems = []
                         for item in os.listdir(versionDir):
                             if item.startswith('v') and len(item) >= 5 and item[1:5].isdigit():
@@ -237,7 +166,7 @@ class HierarchyBuilder:
                                     versionItems.append(item)
 
                         # Sort and cache
-                        for item in sorted(versionItems, key=versionSortKey):
+                        for item in sorted(versionItems, key=cache_store.version_sort_key):
                             allVersions.append(item)
                             if len(allVersions) == 1:
                                 baseMatch = re.match(r'(v\d+)', item)
@@ -253,14 +182,15 @@ class HierarchyBuilder:
                     allVersions = [currentVersionFull]
                     latestVersion = currentVersion
 
-                # Cache this result for next time (in XMP)
+                # Cache this result for next time (file-based, project-scoped)
                 versionInfo = {
                     "allVersions": allVersions,
                     "latestVersion": latestVersion or allVersions[0] if allVersions else "v0000",
                     "last_scanned": datetime.now().isoformat()
                 }
-                self._xmp_cache.setdefault("versions", {})[cache_key] = versionInfo
-                self._xmp_cache_dirty = True
+                cache_key = self.cache_manager._getCacheKey(path)
+                if cache_key:
+                    self.cache_manager.storeEntry(cache_key, versionInfo)
 
             return {
                 'currentVersion': currentVersion,
@@ -289,17 +219,9 @@ class HierarchyBuilder:
 
         build_start = time.perf_counter()
 
-        # Load XMP cache on first buildHierarchy call
-        # (project should be loaded by now, so XMP is accessible)
-        if self._xmp_cache is None:
-            self._xmp_cache = self._readVersionCacheFromXMP()
-            if not self._xmp_cache:
-                # Initialize empty cache structure
-                self._xmp_cache = {
-                    "version": "1.0",
-                    "last_updated": datetime.now().isoformat(),
-                    "versions": {}
-                }
+        # Load the file-based version cache on first build
+        # (project should be loaded by now)
+        self._ensureCacheLoaded()
 
         hierarchy = {
             "3D Renders": {},
@@ -461,11 +383,9 @@ class HierarchyBuilder:
         build_end = time.perf_counter()
         print(f"[TIMING]   buildHierarchy internal: {build_end - build_start:.4f}s")
 
-        # Save XMP cache if it was updated
-        if self._xmp_cache_dirty:
-            self._xmp_cache["last_updated"] = datetime.now().isoformat()
-            self._writeVersionCacheToXMP(self._xmp_cache)
-            self._xmp_cache_dirty = False
+        # Persist the file-based version cache if it was updated
+        if self.cache_manager.isDirty():
+            self.cache_manager.saveCache()
 
         return hierarchy, {
             'total': totalCount,
@@ -517,18 +437,15 @@ class HierarchyBuilder:
     @err_catcher(name=__name__)
     def cleanup(self):
         """Cleanup when closing the footage tracker."""
-        # Save XMP cache if dirty
-        if self._xmp_cache_dirty and self._xmp_cache:
-            self._xmp_cache["last_updated"] = datetime.now().isoformat()
-            self._writeVersionCacheToXMP(self._xmp_cache)
-            self._xmp_cache_dirty = False
+        # Persist any unsaved version-cache entries (retry failed saves)
+        if self._cache_loaded and self.cache_manager.isDirty():
+            self.cache_manager.saveCache()
 
     @err_catcher(name=__name__)
     def preCacheProject(self, project_path=None):
         """
         Pre-cache all render folders for the project.
-        XMP cache is built on-demand, so this is now a no-op.
+        The file cache is built on-demand, so this is a no-op.
         Kept for backward compatibility.
         """
-        print("[CACHE XMP] Pre-caching is now automatic - no manual action needed")
         pass

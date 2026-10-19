@@ -11,6 +11,9 @@ from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher as err_catcher
 
+from footage_tracker import comp_cleanup
+import helixae_protocol
+
 
 class CompManager(QObject):
     """Manages composition operations and information"""
@@ -21,819 +24,544 @@ class CompManager(QObject):
         self.core = tracker.core
         self.main = tracker.main
 
-    @err_catcher(name=__name__)
-    def setCompFrameRangeFromKitsu(self, compId, compName, kitsu_frame_range):
-        """Set composition frame range from Kitsu data"""
+    # ------------------------------------------------------------------
+    # Internal helpers (protocol-based, no string parsing)
+    # ------------------------------------------------------------------
+
+    def _execute(self, script):
+        """Run a protocol script. Returns (data, error) like parse_json_response."""
         try:
-            if not kitsu_frame_range:
-                return
-
-            # Parse the frame range (expected format: "1001-1100" or "1001-1100 (100)")
-            if "-" in kitsu_frame_range:
-                frame_parts = kitsu_frame_range.split("-")
-                start_frame = frame_parts[0].strip()
-                end_frame = frame_parts[1].split()[0].strip()  # Remove any frame count in parentheses
-            else:
-                self.core.popup(f"Invalid Kitsu frame range format: {kitsu_frame_range}")
-                return
-
-            # Create JavaScript/ExtendScript to set frame range
-            kitsu_start_frame = int(start_frame)
-            kitsu_end_frame = int(end_frame)
-
-            scpt = f'''
-            var compId = {compId};
-            var kitsuStartFrame = {kitsu_start_frame};
-            var kitsuEndFrame = {kitsu_end_frame};
-
-            if (app.project && app.project.numItems > 0) {{
-                var comp = app.project.itemByID(compId);
-                if (comp && comp instanceof CompItem) {{
-                    try {{
-                        var frameRate = comp.frameRate;
-
-                        // Use the formula with floating-point precision compensation
-                        var epsilon = 0.000001;
-                        var displayStartTime = kitsuStartFrame / frameRate + epsilon;
-                        var duration = (kitsuEndFrame - kitsuStartFrame + 1) / frameRate + epsilon;
-
-                        // Apply the calculated values to the comp
-                        comp.displayStartTime = displayStartTime;
-                        comp.duration = duration;
-
-                        "Success: Set " + comp.name + " to " + kitsuStartFrame + "-" + kitsuEndFrame;
-                    }} catch (e) {{
-                        "Error: " + e.toString();
-                    }}
-                }} else {{
-                    "Error: Composition not found";
-                }}
-            }} else {{
-                "Error: No project open";
-            }}
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            # Handle result that might be bytes or string
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result.startswith("Success"):
-                # Refresh the footage data to show updated info
-                if hasattr(self.tracker, 'tw_footage'):
-                    self.tracker.loadFootageData()
-                return result
-            else:
-                self.core.popup(f"Error setting frame range for {compName}:\n{result}")
-                return None
-
+            response = self.main.ae_core.executeAppleScript(script)
         except Exception as e:
-            import traceback
-            self.core.popup(f"Error setting frame range:\n{str(e)}\n\n{traceback.format_exc()}")
+            return None, "After Effects bridge error: %s" % e
+        return helixae_protocol.parse_json_response(response)
+
+    def _ack(self, data, error):
+        """Validate an acknowledgement. Returns (ok, failure_reason)."""
+        ok, ack_error = helixae_protocol.ack_result(data, error)
+        if ack_error:
+            return False, ack_error
+        if not ok:
+            reason = ""
+            if isinstance(data, dict):
+                reason = data.get("reason") or data.get("details") or ""
+            if reason == "comp_not_found":
+                reason = "Composition not found"
+            return False, reason or "After Effects reported failure"
+        return True, ""
+
+    @staticmethod
+    def _parseKitsuFrameRange(kitsu_frame_range):
+        """Parse '1001-1100' or '1001-1100 (100)'. Returns ((start, end), error)."""
+        text = str(kitsu_frame_range or "").strip()
+        if "-" in text:
+            frame_parts = text.split("-")
+            try:
+                start_frame = int(frame_parts[0].strip())
+                end_frame = int(frame_parts[1].split()[0].strip())
+            except (ValueError, IndexError):
+                return None, "Invalid Kitsu frame range format: %s" % kitsu_frame_range
+            return (start_frame, end_frame), None
+        return None, "Invalid Kitsu frame range format: %s" % kitsu_frame_range
+
+    def _applyFrameRange(self, compId, compName, start_frame, end_frame):
+        """Apply a parsed frame range to one comp using its current fps."""
+        try:
+            comp_id = int(compId)
+        except (TypeError, ValueError):
+            return False, "Invalid composition id: %r" % (compId,)
+
+        info, error = self._execute(helixae_protocol.build_get_comp_info(comp_id))
+        if error:
+            return False, error
+        if not info.get("result"):
+            return False, "Composition not found"
+
+        try:
+            script = helixae_protocol.build_set_comp_frame_range(
+                comp_id, start_frame, end_frame, info.get("frameRate"))
+        except (TypeError, ValueError) as e:
+            return False, str(e)
+
+        data, error = self._execute(script)
+        if error:
+            return False, error
+        return self._ack(data, error)
+
+    def _applyFps(self, compId, compName, fps_value):
+        """Apply a parsed fps to one comp, preserving the frame count."""
+        try:
+            comp_id = int(compId)
+            script = helixae_protocol.build_set_comp_fps(comp_id, fps_value)
+        except (TypeError, ValueError) as e:
+            return False, str(e)
+        data, error = self._execute(script)
+        if error:
+            return False, error
+        return self._ack(data, error)
+
+    def _applyResolution(self, compId, compName, width_value, height_value):
+        """Apply a parsed resolution to one comp."""
+        try:
+            comp_id = int(compId)
+            script = helixae_protocol.build_set_comp_resolution(
+                comp_id, width_value, height_value)
+        except (TypeError, ValueError) as e:
+            return False, str(e)
+        data, error = self._execute(script)
+        if error:
+            return False, error
+        return self._ack(data, error)
+
+    def _compIdsFromItems(self, comp_items):
+        """Extract (id, name) pairs for comp-type tree items."""
+        comps = []
+        for item in comp_items or []:
+            userData = item.data(0, Qt.UserRole)
+            if userData and userData.get('type') == 'comp' and userData.get('id') is not None:
+                name = userData.get('compName') or userData.get('name') or ''
+                comps.append((userData.get('id'), name))
+        return comps
+
+    def _applyToComps(self, comps, apply_fn):
+        """Apply per-comp operation. Returns (succeeded_names, [(name, error)])."""
+        succeeded, failed = [], []
+        for comp_id, comp_name in comps:
+            ok, error = apply_fn(comp_id, comp_name)
+            if ok:
+                succeeded.append(comp_name)
+            else:
+                failed.append((comp_name, error))
+        return succeeded, failed
+
+    def _reportMultiResult(self, succeeded, failed, what):
+        """Refresh the tracker once and report a multi-comp result."""
+        if succeeded and hasattr(self.tracker, 'tw_footage'):
+            self.tracker.loadFootageData()
+        total = len(succeeded) + len(failed)
+        if failed:
+            lines = "\n".join("- %s: %s" % (name, error) for name, error in failed[:10])
+            if len(failed) > 10:
+                lines += "\n... and %d more" % (len(failed) - 10)
+            self.core.popup(
+                "Updated %d of %d composition(s) to %s.\n\nFailed:\n%s"
+                % (len(succeeded), total, what, lines))
+        else:
+            self.core.popup(
+                "Successfully set %s for %d composition(s)." % (what, len(succeeded)))
+
+    # ------------------------------------------------------------------
+    # Single-comp Kitsu sync
+    # ------------------------------------------------------------------
+
+    @err_catcher(name=__name__)
+    def setCompFrameRangeFromKitsu(self, compId, compName, kitsu_frame_range, silent=False):
+        """Set composition frame range from Kitsu data"""
+        if not kitsu_frame_range:
+            return False
+
+        parsed, error = self._parseKitsuFrameRange(kitsu_frame_range)
+        if error:
+            if not silent:
+                self.core.popup(error)
+            return False
+
+        ok, apply_error = self._applyFrameRange(compId, compName, parsed[0], parsed[1])
+        if not ok:
+            if not silent:
+                self.core.popup("Error setting frame range for %s:\n%s" % (compName, apply_error))
+            return False
+
+        if not silent and hasattr(self.tracker, 'tw_footage'):
+            self.tracker.loadFootageData()
+        return True
 
     @err_catcher(name=__name__)
     def setCompFPSFromKitsu(self, compId, compName, kitsu_fps, silent=False):
         """Set composition FPS from Kitsu data"""
+        if not kitsu_fps:
+            return False
+
         try:
-            if not kitsu_fps:
-                return
-
-            # Parse the FPS (expected format: "24" or "23.976")
-            try:
-                fps_value = float(kitsu_fps)
-            except ValueError:
-                if not silent:
-                    self.core.popup(f"Invalid Kitsu FPS format: {kitsu_fps}")
-                return
-
-            # Create JavaScript/ExtendScript to set composition FPS (same as setCompFromKitsu)
-            scpt = f'''
-            var compId = {compId};
-            var kitsuFps = {fps_value};
-
-            if (app.project && app.project.numItems > 0) {{
-                var comp = app.project.itemByID(compId);
-                if (comp && comp instanceof CompItem) {{
-                    try {{
-                        // Get current frame range to preserve it
-                        var currentStartFrame = Math.floor(comp.displayStartTime * comp.frameRate);
-                        var currentDuration = comp.duration;
-                        var currentFrameCount = Math.floor(currentDuration * comp.frameRate);
-
-                        // Set FPS
-                        comp.frameRate = kitsuFps;
-
-                        // Preserve frame range by recalculating with new FPS
-                        var epsilon = 0.000001;
-                        comp.displayStartTime = currentStartFrame / kitsuFps + epsilon;
-                        comp.duration = currentFrameCount / kitsuFps + epsilon;
-
-                        "Success: Set " + comp.name + " FPS to " + kitsuFps;
-                    }} catch (e) {{
-                        "Error: " + e.toString();
-                    }}
-                }} else {{
-                    "Error: Composition not found";
-                }}
-            }} else {{
-                "Error: No project open";
-            }}
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            # Handle result that might be bytes or string
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result.startswith("Success"):
-                if not silent:
-                    self.core.popup(f"Successfully set {compName} FPS to {fps_value}")
-                    # Refresh the footage data to show updated info
-                    if hasattr(self.tracker, 'tw_footage'):
-                        self.tracker.loadFootageData()
-                return result
-            else:
-                if not silent:
-                    self.core.popup(f"Error setting FPS for {compName}:\n{result}")
-                return None
-
-        except Exception as e:
-            import traceback
+            fps_value = float(kitsu_fps)
+        except (TypeError, ValueError):
             if not silent:
-                self.core.popup(f"Error setting FPS:\n{str(e)}\n\n{traceback.format_exc()}")
-            return None
+                self.core.popup("Invalid Kitsu FPS format: %s" % kitsu_fps)
+            return False
+
+        ok, apply_error = self._applyFps(compId, compName, fps_value)
+        if not ok:
+            if not silent:
+                self.core.popup("Error setting FPS for %s:\n%s" % (compName, apply_error))
+            return False
+
+        if not silent:
+            self.core.popup("Successfully set %s FPS to %g" % (compName, fps_value))
+            if hasattr(self.tracker, 'tw_footage'):
+                self.tracker.loadFootageData()
+        return True
 
     @err_catcher(name=__name__)
     def setCompResolutionFromKitsu(self, compId, compName, kitsu_width, kitsu_height):
         """Set composition resolution from Kitsu data"""
+        if not kitsu_width or not kitsu_height:
+            return False
+
         try:
-            if not kitsu_width or not kitsu_height:
-                return
+            width_value = int(kitsu_width)
+            height_value = int(kitsu_height)
+        except (TypeError, ValueError):
+            self.core.popup("Invalid Kitsu resolution format: %sx%s" % (kitsu_width, kitsu_height))
+            return False
 
-            # Parse the resolution values
-            try:
-                width_value = int(kitsu_width)
-                height_value = int(kitsu_height)
-            except ValueError:
-                self.core.popup(f"Invalid Kitsu resolution format: {kitsu_width}x{kitsu_height}")
-                return
+        ok, apply_error = self._applyResolution(compId, compName, width_value, height_value)
+        if not ok:
+            self.core.popup("Error setting resolution for %s:\n%s" % (compName, apply_error))
+            return False
 
-            # Create JavaScript/ExtendScript to set composition resolution
-            scpt = f'''
-            var compId = {compId};
-            var newWidth = {width_value};
-            var newHeight = {height_value};
-
-            if (app.project && app.project.numItems > 0) {{
-                var comp = app.project.itemByID(compId);
-                if (comp && comp instanceof CompItem) {{
-                    try {{
-                        comp.width = newWidth;
-                        comp.height = newHeight;
-                        "Success: Set " + comp.name + " resolution to " + newWidth + "x" + newHeight;
-                    }} catch (e) {{
-                        "Error: " + e.toString();
-                    }}
-                }} else {{
-                    "Error: Composition not found";
-                }}
-            }} else {{
-                "Error: No project open";
-            }}
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            # Handle result that might be bytes or string
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result.startswith("Success"):
-                self.core.popup(f"Successfully set {compName} resolution to {width_value}x{height_value}")
-                # Refresh the footage data to show updated info
-                if hasattr(self.tracker, 'tw_footage'):
-                    self.tracker.loadFootageData()
-                return result
-            else:
-                self.core.popup(f"Error setting resolution for {compName}:\n{result}")
-                return None
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error setting resolution:\n{str(e)}\n\n{traceback.format_exc()}")
-            return None
+        self.core.popup("Successfully set %s resolution to %dx%d" % (compName, width_value, height_value))
+        if hasattr(self.tracker, 'tw_footage'):
+            self.tracker.loadFootageData()
+        return True
 
     @err_catcher(name=__name__)
-    def setCompFromKitsu(self, compId, compName, kitsu_frame_range, kitsu_fps):
+    def setCompFromKitsu(self, compId, compName, kitsu_frame_range, kitsu_fps, silent=False):
         """Set both frame range and FPS from Kitsu data"""
-        try:
-            if not kitsu_frame_range or not kitsu_fps:
+        if not kitsu_frame_range or not kitsu_fps:
+            if not silent:
                 self.core.popup("Both frame range and FPS are required from Kitsu data")
-                return
+            return False
 
-            # Parse the frame range
-            if "-" in kitsu_frame_range:
-                frame_parts = kitsu_frame_range.split("-")
-                start_frame = int(frame_parts[0].strip())
-                end_frame = int(frame_parts[1].split()[0].strip())
-            else:
-                self.core.popup(f"Invalid Kitsu frame range format: {kitsu_frame_range}")
-                return
+        parsed, error = self._parseKitsuFrameRange(kitsu_frame_range)
+        if error:
+            if not silent:
+                self.core.popup(error)
+            return False
 
-            # Parse the FPS
-            try:
-                fps_value = float(kitsu_fps)
-            except ValueError:
-                self.core.popup(f"Invalid Kitsu FPS format: {kitsu_fps}")
-                return
+        try:
+            fps_value = float(kitsu_fps)
+        except (TypeError, ValueError):
+            if not silent:
+                self.core.popup("Invalid Kitsu FPS format: %s" % kitsu_fps)
+            return False
 
-            # Create JavaScript/ExtendScript to set both frame range and FPS
-            scpt = f'''
-            var compId = {compId};
-            var kitsuStartFrame = {start_frame};
-            var kitsuEndFrame = {end_frame};
-            var kitsuFps = {fps_value};
+        fps_ok, fps_error = self._applyFps(compId, compName, fps_value)
+        if not fps_ok:
+            if not silent:
+                self.core.popup("Error setting %s from Kitsu:\n%s" % (compName, fps_error))
+            return False
 
-            if (app.project && app.project.numItems > 0) {{
-                var comp = app.project.itemByID(compId);
-                if (comp && comp instanceof CompItem) {{
-                    try {{
-                        var frameRate = kitsuFps;
+        range_ok, range_error = self._applyFrameRange(compId, compName, parsed[0], parsed[1])
+        if not range_ok:
+            if not silent:
+                self.core.popup("Error setting %s from Kitsu:\n%s" % (compName, range_error))
+            return False
 
-                        // Use the formula with floating-point precision compensation
-                        var epsilon = 0.000001;
-                        var displayStartTime = kitsuStartFrame / frameRate + epsilon;
-                        var duration = (kitsuEndFrame - kitsuStartFrame + 1) / frameRate + epsilon;
+        if hasattr(self.tracker, 'tw_footage'):
+            self.tracker.loadFootageData()
+        return True
 
-                        // Set FPS first
-                        comp.frameRate = frameRate;
-
-                        // Then set frame range
-                        comp.displayStartTime = displayStartTime;
-                        comp.duration = duration;
-
-                        "Success: Set " + comp.name + " to "
-                            + kitsuStartFrame + "-" + kitsuEndFrame
-                            + " at " + frameRate + " fps";
-                    }} catch (e) {{
-                        "Error: " + e.toString();
-                    }}
-                }} else {{
-                    "Error: Composition not found";
-                }}
-            }} else {{
-                "Error: No project open";
-            }}
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            # Handle result that might be bytes or string
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result.startswith("Success"):
-                # Don't show popup for each comp - just refresh
-                # Refresh the footage data to show updated info
-                if hasattr(self.tracker, 'tw_footage'):
-                    self.tracker.loadFootageData()
-            else:
-                self.core.popup(f"Error setting {compName} from Kitsu:\n{result}")
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error setting composition from Kitsu:\n{str(e)}\n\n{traceback.format_exc()}")
+    # ------------------------------------------------------------------
+    # Comp info display
+    # ------------------------------------------------------------------
 
     @err_catcher(name=__name__)
     def showCompInfo(self, compId, compName):
         """Show detailed information about a composition"""
+        # Get current shot for Kitsu comparison
+        current_shot = self.tracker.data_parser.extractCurrentShotFromProject()
+        kitsu_shot_data = None
+        if current_shot and current_shot in self.tracker.kitsuShotData:
+            kitsu_shot_data = self.tracker.kitsuShotData[current_shot]
+
         try:
-            # Get current shot for Kitsu comparison
-            current_shot = self.tracker.data_parser.extractCurrentShotFromProject()
-            kitsu_shot_data = None
-            if current_shot and current_shot in self.tracker.kitsuShotData:
-                kitsu_shot_data = self.tracker.kitsuShotData[current_shot]
+            script = helixae_protocol.build_get_comp_info(int(compId))
+        except (TypeError, ValueError):
+            self.core.popup("Invalid composition id: %r" % (compId,))
+            return
 
-            # Create AppleScript to get composition info
-            apple_script_template = '''
-            tell application "Adobe After Effects 2024"
-                set compRef to item id {comp_id} of project 1
-                try
-                    set compName to name of compRef
-                    set compWidth to width of compRef
-                    set compHeight to height of compRef
-                    set pixelAspect to pixel aspect ratio of compRef
-                    set frameDuration to frame duration of compRef
-                    set frameRate to 1.0 / frameDuration
-                    set startTime to start time of compRef
-                    set duration to duration of compRef
-                    set startFrame to round (startTime * frameRate)
-                    set endFrame to round ((startTime + duration) * frameRate) - 1
-                    set frameRange to (startFrame as string) & "-" & (endFrame as string)
+        data, error = self._execute(script)
+        if error:
+            self.core.popup("Error getting composition info:\n%s" % error)
+            return
+        if not data.get("result"):
+            self.core.popup("Could not read composition info for '%s'.\n%s" % (compName, data.get("reason") or ""))
+            return
 
-                    set compInfo to {{}}
-                    set compInfo to compInfo & {{name:compName}}
-                    set compInfo to compInfo & {{width:compWidth}}
-                    set compInfo to compInfo & {{height:compHeight}}
-                    set compInfo to compInfo & {{pixelAspect:pixelAspect}}
-                    set compInfo to compInfo & {{frameRate:frameRate}}
-                    set compInfo to compInfo & {{startFrame:startFrame}}
-                    set compInfo to compInfo & {{endFrame:endFrame}}
-                    set compInfo to compInfo & {{frameRange:frameRange}}
-                    set compInfo to compInfo & {{duration:duration}}
+        comp_info = data
 
-                    -- Get layer count
-                    set layerCount to count of layers of compRef
-                    set compInfo to compInfo & {{layerCount:layerCount}}
+        # Create info dialog
+        dialog = QDialog(self.tracker.dlg_footage)
+        dialog.setWindowTitle("Composition Info - %s" % compName)
+        dialog.resize(500, 600)
+        dialog.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
 
-                    -- Get used layers count
-                    set usedLayers to 0
-                    repeat with i from 1 to layerCount
-                        set layerRef to layer i of compRef
-                        try
-                            if enabled of layerRef then
-                                set usedLayers to usedLayers + 1
-                            end if
-                        end try
-                    end repeat
-                    set compInfo to compInfo & {{usedLayers:usedLayers}}
+        layout = QVBoxLayout()
+        dialog.setLayout(layout)
 
-                    return my jsonify(compInfo)
-                on error errMsg
-                    return "Error: " & errMsg
-                end try
-            end tell
+        # Title
+        title = QLabel("<h2>%s</h2>" % comp_info.get('name', 'Unknown'))
+        title.setAlignment(Qt.AlignCenter)
+        layout.addWidget(title)
 
-            on jsonify(compInfo)
-                set jsonStr to "{"
-                set firstItem to true
-                set keyList to {"name", "width", "height", "pixelAspect", ¬
-                    "frameRate", "startFrame", "endFrame", "frameRange", ¬
-                    "duration", "layerCount", "usedLayers"}
-                repeat with key in keyList
-                    if not firstItem then
-                        set jsonStr to jsonStr & ", "
-                    end if
-                    set firstItem to false
-                    set value to compInfo's key
+        # Basic info
+        info_text = QTextEdit()
+        info_text.setReadOnly(True)
 
-                    if key is "name" then
-                        set jsonStr to jsonStr & "\\"name\\"" & ": \\"" & value & "\\""
-                    else if key is "frameRange" then
-                        set jsonStr to jsonStr & "\\"frameRange\\"" & ": \\"" & value & "\\""
-                    else
-                        set jsonStr to jsonStr & "\\"" & key & "\\"" & ": " & value
-                    end if
-                end repeat
-                set jsonStr to jsonStr & "}"
-                return jsonStr
-            end jsonify
-            '''
-
-            scpt = apple_script_template.format(comp_id=compId)
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            if result.startswith("Error"):
-                self.core.popup(f"Error getting composition info:\n{result}")
-                return
-
-            try:
-                comp_info = json.loads(result)
-            except json.JSONDecodeError:
-                self.core.popup(f"Failed to parse composition info:\n{result}")
-                return
-
-            # Create info dialog
-            dialog = QDialog(self.tracker.dlg_footage)
-            dialog.setWindowTitle(f"Composition Info - {compName}")
-            dialog.resize(500, 600)
-            dialog.setWindowFlags(Qt.Dialog | Qt.WindowTitleHint | Qt.WindowCloseButtonHint)
-
-            layout = QVBoxLayout()
-            dialog.setLayout(layout)
-
-            # Title
-            title = QLabel(f"<h2>{comp_info.get('name', 'Unknown')}</h2>")
-            title.setAlignment(Qt.AlignCenter)
-            layout.addWidget(title)
-
-            # Basic info
-            info_text = QTextEdit()
-            info_text.setReadOnly(True)
-
-            info_content = f"""
+        info_content = """
 <b>Composition Settings:</b><br>
-• Dimensions: {comp_info.get('width', 'N/A')} x {comp_info.get('height', 'N/A')}<br>
-• Pixel Aspect Ratio: {comp_info.get('pixelAspect', 'N/A')}<br>
-• Frame Rate: {comp_info.get('frameRate', 'N/A')} fps<br>
-• Frame Range: {comp_info.get('frameRange', 'N/A')}<br>
-• Duration: {comp_info.get('duration', 'N/A')} seconds<br><br>
+• Dimensions: {width} x {height}<br>
+• Pixel Aspect Ratio: {pixelAspect}<br>
+• Frame Rate: {frameRate} fps<br>
+• Frame Range: {frameRange}<br>
+• Duration: {duration} seconds<br><br>
 
 <b>Layers:</b><br>
-• Total Layers: {comp_info.get('layerCount', 'N/A')}<br>
-• Used Layers: {comp_info.get('usedLayers', 'N/A')}<br>
-• Unused Layers: {comp_info.get('layerCount', 0) - comp_info.get('usedLayers', 0)}<br>
-            """
+• Total Layers: {layerCount}<br>
+• Used Layers: {usedLayers}<br>
+• Unused Layers: {unused}
+        """.format(
+            width=comp_info.get('width', 'N/A'),
+            height=comp_info.get('height', 'N/A'),
+            pixelAspect=comp_info.get('pixelAspect', 'N/A'),
+            frameRate=comp_info.get('frameRate', 'N/A'),
+            frameRange=comp_info.get('frameRange', 'N/A'),
+            duration=comp_info.get('duration', 'N/A'),
+            layerCount=comp_info.get('layerCount', 'N/A'),
+            usedLayers=comp_info.get('usedLayers', 'N/A'),
+            unused=comp_info.get('layerCount', 0) - comp_info.get('usedLayers', 0),
+        )
 
-            # Add Kitsu comparison if available
-            if kitsu_shot_data:
-                frame_range = kitsu_shot_data.get('frameRange', 'N/A')
-                kitsu_fps = kitsu_shot_data.get('fps', 'N/A')
-                kitsu_info = (
-                    f"<br><b>Kitsu Shot Data:</b><br>"
-                    f"• Expected Frame Range: {frame_range}<br>"
-                    f"• Expected FPS: {kitsu_fps}<br>"
-                )
-                info_content += kitsu_info
+        # Add Kitsu comparison if available
+        if kitsu_shot_data:
+            frame_range = kitsu_shot_data.get('frameRange', 'N/A')
+            kitsu_fps = kitsu_shot_data.get('fps', 'N/A')
+            kitsu_info = (
+                "<br><b>Kitsu Shot Data:</b><br>"
+                "• Expected Frame Range: %s<br>"
+                "• Expected FPS: %s<br>" % (frame_range, kitsu_fps)
+            )
+            info_content += kitsu_info
 
-            info_text.setHtml(info_content)
-            layout.addWidget(info_text)
+        info_text.setHtml(info_content)
+        layout.addWidget(info_text)
 
-            # Close button
-            close_button = QPushButton("Close")
-            close_button.clicked.connect(dialog.close)
-            layout.addWidget(close_button)
+        # Close button
+        close_button = QPushButton("Close")
+        close_button.clicked.connect(dialog.close)
+        layout.addWidget(close_button)
 
-            dialog.exec_()
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error showing composition info:\n{str(e)}\n\n{traceback.format_exc()}")
+        dialog.exec_()
 
     @err_catcher(name=__name__)
     def showRawCompInfo(self, compId, compName):
         """Show raw composition information without calculations"""
         try:
-            # Create JavaScript/ExtendScript to get raw composition info
-            scpt = f'''
-            var compId = {compId};
-            var compName = "{compName}";
+            script = helixae_protocol.build_get_comp_info(int(compId))
+        except (TypeError, ValueError):
+            self.core.popup("Invalid composition id: %r" % (compId,))
+            return
 
-            if (app.project && app.project.numItems > 0) {{
-                var comp = app.project.itemByID(compId);
-                if (comp && comp instanceof CompItem) {{
-                    try {{
-                        var compInfo = compName + "\\n";
-                        compInfo += "ID: " + compId + "\\n";
-                        compInfo += "Width: " + comp.width + "\\n";
-                        compInfo += "Height: " + comp.height + "\\n";
-                        compInfo += "Pixel Aspect: " + comp.pixelAspect + "\\n";
-                        compInfo += "Frame Duration: " + comp.frameDuration + "\\n";
-                        compInfo += "Start Time: " + comp.startTime + "\\n";
-                        compInfo += "Duration: " + comp.duration + "\\n";
-                        compInfo += "Display Start Time: " + comp.displayStartTime + "\\n";
-                        compInfo += "Display Start Frame: " + comp.displayStartFrame + "\\n";
-                        compInfo += "Frame Rate: " + comp.frameRate + "\\n";
-                        compInfo += "Work Area Start: " + comp.workAreaStart + "\\n";
-                        compInfo += "Work Area Duration: " + comp.workAreaDuration + "\\n";
-                        compInfo += "Layer Count: " + comp.numLayers + "\\n";
+        data, error = self._execute(script)
+        if error:
+            self.core.popup("Error getting raw composition info:\n%s" % error)
+            return
+        if not data.get("result"):
+            self.core.popup(
+                "Could not read composition info for '%s'.\n%s" % (compName, data.get("reason") or ""))
+            return
 
-                        compInfo;
-                    }} catch (e) {{
-                        "Error: " + e.toString();
-                    }}
-                }} else {{
-                    "Error: Composition not found";
-                }}
-            }} else {{
-                "Error: No project open";
-            }}
-            '''
+        lines = [
+            compName,
+            "ID: %s" % compId,
+            "Width: %s" % data.get('width', 'N/A'),
+            "Height: %s" % data.get('height', 'N/A'),
+            "Pixel Aspect: %s" % data.get('pixelAspect', 'N/A'),
+            "Frame Duration: %s" % data.get('frameDuration', 'N/A'),
+            "Start Time: %s" % data.get('startTime', 'N/A'),
+            "Duration: %s" % data.get('duration', 'N/A'),
+            "Display Start Time: %s" % data.get('displayStartTime', 'N/A'),
+            "Display Start Frame: %s" % data.get('displayStartFrame', 'N/A'),
+            "Frame Rate: %s" % data.get('frameRate', 'N/A'),
+            "Work Area Start: %s" % data.get('workAreaStart', 'N/A'),
+            "Work Area Duration: %s" % data.get('workAreaDuration', 'N/A'),
+            "Layer Count: %s" % data.get('layerCount', 'N/A'),
+        ]
 
-            result = self.main.ae_core.executeAppleScript(scpt)
+        # Show raw info dialog
+        self.tracker.showSelectableMessage(
+            "Raw Composition Info - %s" % compName, "\n".join(str(line) for line in lines))
 
-            # Handle result that might be bytes or string
-            if isinstance(result, bytes):
-                result = result.decode('utf-8')
-
-            if result.startswith("Error"):
-                self.core.popup(f"Error getting raw composition info:\n{result}")
-                return
-
-            # Show raw info dialog
-            self.tracker.showSelectableMessage(f"Raw Composition Info - {compName}", result)
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error showing raw composition info:\n{str(e)}\n\n{traceback.format_exc()}")
+    # ------------------------------------------------------------------
+    # Reveal operations
+    # ------------------------------------------------------------------
 
     @err_catcher(name=__name__)
     def revealMultipleComps(self, comp_items):
         """Reveal multiple compositions in the project panel"""
+        comps = self._compIdsFromItems(comp_items)
+        if not comps:
+            self.core.popup("No valid compositions selected")
+            return
+
         try:
-            if not comp_items:
-                return
+            script = helixae_protocol.build_reveal_items_in_project(
+                [comp_id for comp_id, _ in comps])
+        except (TypeError, ValueError) as e:
+            self.core.popup("Error revealing compositions:\n%s" % e)
+            return
 
-            comp_ids = []
-            for item in comp_items:
-                userData = item.data(0, Qt.UserRole)
-                if userData and userData.get('type') == 'comp':
-                    comp_ids.append(userData.get('id'))
+        data, error = self._execute(script)
+        if error:
+            self.core.popup("Error revealing compositions:\n%s" % error)
+            return
 
-            if not comp_ids:
-                self.core.popup("No valid compositions selected")
-                return
+        ok, fail_error = self._ack(data, error)
+        if not ok:
+            self.core.popup("Error revealing compositions:\n%s" % fail_error)
+            return
 
-            # Create AppleScript to select multiple compositions
-            ids_list = ", ".join([str(cid) for cid in comp_ids])
-            scpt = f'''
-            tell application "Adobe After Effects 2024"
-                try
-                    set compRefs to {{}}
-                    repeat with compID in {{{ids_list}}}
-                        try
-                            set end of compRefs to item id compID of project 1
-                        end try
-                    end repeat
-
-                    if count of compRefs > 0 then
-                        set selection of project 1 to compRefs
-                        -- Scroll to first composition
-                        set firstComp to item 1 of compRefs
-                        reveal firstComp in project 1
-                        return "Success: Revealed " & (count of compRefs as string) & " compositions"
-                    else
-                        return "Error: No valid compositions found"
-                    end if
-                on error errMsg
-                    return "Error: " & errMsg
-                end try
-            end tell
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            if result.startswith("Success"):
-                self.core.popup(f"Successfully revealed {len(comp_ids)} compositions in project panel")
-            else:
-                self.core.popup(f"Error revealing compositions:\n{result}")
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error revealing compositions:\n{str(e)}\n\n{traceback.format_exc()}")
-
-    # Multiple composition sync methods
-    def setMultipleCompFrameRangesFromKitsu(self, comp_items, kitsu_frame_range):
-        """Set frame ranges for multiple compositions from Kitsu data"""
-        try:
-            if not comp_items or not kitsu_frame_range:
-                return
-
-            comp_ids = []
-            for item in comp_items:
-                userData = item.data(0, Qt.UserRole)
-                if userData and userData.get('type') == 'comp':
-                    comp_ids.append(userData.get('id'))
-
-            if not comp_ids:
-                self.core.popup("No valid compositions selected")
-                return
-
-            # Parse the frame range
-            if "-" in kitsu_frame_range:
-                frame_parts = kitsu_frame_range.split("-")
-                start_frame = frame_parts[0].strip()
-                end_frame = frame_parts[1].split()[0].strip()
-            else:
-                self.core.popup(f"Invalid Kitsu frame range format: {kitsu_frame_range}")
-                return
-
-            # Create AppleScript to set frame ranges for multiple compositions
-            ids_list = ", ".join([str(cid) for cid in comp_ids])
-            scpt = f'''
-            tell application "Adobe After Effects 2024"
-                try
-                    set successCount to 0
-                    repeat with compID in {{{ids_list}}}
-                        try
-                            set compRef to item id compID of project 1
-                            set frameRate to frame duration of compRef
-                            set frameRate to 1.0 / frameRate
-                            set startFrame to {start_frame}
-                            set endFrame to {end_frame}
-                            set duration to (endFrame - startFrame + 1) / frameRate
-
-                            set frameRate of compRef to 1.0 / frameRate
-                            set start time of compRef to startFrame / frameRate
-                            set duration of compRef to duration
-                            set successCount to successCount + 1
-                        end try
-                    end repeat
-
-                    return "Success: Updated " & (successCount as string) & " compositions"
-                on error errMsg
-                    return "Error: " & errMsg
-                end try
-            end tell
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            if result.startswith("Success"):
-                self.core.popup(f"Successfully set frame range for compositions to {kitsu_frame_range}\n{result}")
-                if hasattr(self.tracker, 'tw_footage'):
-                    self.tracker.loadFootageData()
-            else:
-                self.core.popup(f"Error setting frame ranges:\n{result}")
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error setting multiple frame ranges:\n{str(e)}\n\n{traceback.format_exc()}")
-
-    def setMultipleCompFPSFromKitsu(self, comp_items, kitsu_fps):
-        """Set FPS for multiple compositions from Kitsu data"""
-        try:
-            if not comp_items or not kitsu_fps:
-                return
-
-            comp_ids = []
-            for item in comp_items:
-                userData = item.data(0, Qt.UserRole)
-                if userData and userData.get('type') == 'comp':
-                    comp_ids.append(userData.get('id'))
-
-            if not comp_ids:
-                self.core.popup("No valid compositions selected")
-                return
-
-            # Parse the FPS
-            try:
-                fps_value = float(kitsu_fps)
-            except ValueError:
-                self.core.popup(f"Invalid Kitsu FPS format: {kitsu_fps}")
-                return
-
-            # Create AppleScript to set FPS for multiple compositions
-            ids_list = ", ".join([str(cid) for cid in comp_ids])
-            scpt = f'''
-            tell application "Adobe After Effects 2024"
-                try
-                    set successCount to 0
-                    repeat with compID in {{{ids_list}}}
-                        try
-                            set compRef to item id compID of project 1
-                            set currentDuration to duration of compRef
-                            set currentStart to start time of compRef
-                            set frameRate to {fps_value}
-                            set frameDuration of compRef to 1.0 / frameRate
-                            set duration of compRef to currentDuration
-                            set start time of compRef to currentStart
-                            set successCount to successCount + 1
-                        end try
-                    end repeat
-
-                    return "Success: Updated " & (successCount as string) & " compositions"
-                on error errMsg
-                    return "Error: " & errMsg
-                end try
-            end tell
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            if result.startswith("Success"):
-                self.core.popup(f"Successfully set FPS for compositions to {kitsu_fps} fps\n{result}")
-                if hasattr(self.tracker, 'tw_footage'):
-                    self.tracker.loadFootageData()
-            else:
-                self.core.popup(f"Error setting FPS:\n{result}")
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error setting multiple FPS:\n{str(e)}\n\n{traceback.format_exc()}")
-
-    def setMultipleCompFromKitsu(self, comp_items, kitsu_frame_range, kitsu_fps):
-        """Set both frame range and FPS for multiple compositions from Kitsu data"""
-        try:
-            if not comp_items or not kitsu_frame_range or not kitsu_fps:
-                return
-
-            comp_ids = []
-            for item in comp_items:
-                userData = item.data(0, Qt.UserRole)
-                if userData and userData.get('type') == 'comp':
-                    comp_ids.append(userData.get('id'))
-
-            if not comp_ids:
-                self.core.popup("No valid compositions selected")
-                return
-
-            # Parse the frame range
-            if "-" in kitsu_frame_range:
-                frame_parts = kitsu_frame_range.split("-")
-                start_frame = frame_parts[0].strip()
-                end_frame = frame_parts[1].split()[0].strip()
-            else:
-                self.core.popup(f"Invalid Kitsu frame range format: {kitsu_frame_range}")
-                return
-
-            # Parse the FPS
-            try:
-                fps_value = float(kitsu_fps)
-            except ValueError:
-                self.core.popup(f"Invalid Kitsu FPS format: {kitsu_fps}")
-                return
-
-            # Create AppleScript to set both frame range and FPS for multiple compositions
-            ids_list = ", ".join([str(cid) for cid in comp_ids])
-            scpt = f'''
-            tell application "Adobe After Effects 2024"
-                try
-                    set successCount to 0
-                    repeat with compID in {{{ids_list}}}
-                        try
-                            set compRef to item id compID of project 1
-                            set frameRate to {fps_value}
-                            set frameDuration of compRef to 1.0 / frameRate
-
-                            set startFrame to {start_frame}
-                            set endFrame to {end_frame}
-                            set duration to (endFrame - startFrame + 1) / frameRate
-
-                            set start time of compRef to startFrame / frameRate
-                            set duration of compRef to duration
-                            set successCount to successCount + 1
-                        end try
-                    end repeat
-
-                    return "Success: Updated " & (successCount as string) & " compositions"
-                on error errMsg
-                    return "Error: " & errMsg
-                end try
-            end tell
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            if result.startswith("Success"):
-                self.core.popup(f"Successfully set {kitsu_frame_range} @ {kitsu_fps} fps for compositions\n{result}")
-                if hasattr(self.tracker, 'tw_footage'):
-                    self.tracker.loadFootageData()
-            else:
-                self.core.popup(f"Error setting composition properties:\n{result}")
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error setting multiple compositions from Kitsu:\n{str(e)}\n\n{traceback.format_exc()}")
+        count = data.get("revealedCount", len(comps))
+        self.core.popup("Successfully revealed %d composition(s) in the project panel" % count)
 
     def revealCompInProject(self, compId):
         """Reveal composition in After Effects project panel"""
         try:
-            scpt = f'''
-            tell application "Adobe After Effects 2024"
-                try
-                    set compRef to item id {compId} of project 1
-                    set selection of project 1 to {{compRef}}
-                    reveal compRef in project 1
-                    return "Success: Revealed composition in project panel"
-                on error errMsg
-                    return "Error: " & errMsg
-                end try
-            end tell
-            '''
-
-            result = self.main.ae_core.executeAppleScript(scpt)
-
-            if result.startswith("Success"):
-                return True  # Success
-            else:
-                self.core.popup(f"Error revealing composition:\n{result}")
-                return False
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error revealing composition:\n{str(e)}\n\n{traceback.format_exc()}")
+            script = helixae_protocol.build_reveal_item_in_project(int(compId))
+        except (TypeError, ValueError) as e:
+            self.core.popup("Error revealing composition:\n%s" % e)
             return False
+
+        data, error = self._execute(script)
+        if error:
+            self.core.popup("Error revealing composition:\n%s" % error)
+            return False
+
+        ok, fail_error = self._ack(data, error)
+        if not ok:
+            self.core.popup("Error revealing composition:\n%s" % fail_error)
+            return False
+        return True
+
+    # ------------------------------------------------------------------
+    # Multiple composition sync
+    # ------------------------------------------------------------------
+
+    def setMultipleCompFrameRangesFromKitsu(self, comp_items, kitsu_frame_range):
+        """Set frame ranges for multiple compositions from Kitsu data"""
+        if not comp_items or not kitsu_frame_range:
+            return
+
+        comps = self._compIdsFromItems(comp_items)
+        if not comps:
+            self.core.popup("No valid compositions selected")
+            return
+
+        parsed, error = self._parseKitsuFrameRange(kitsu_frame_range)
+        if error:
+            self.core.popup(error)
+            return
+
+        succeeded, failed = self._applyToComps(
+            comps,
+            lambda comp_id, comp_name: self._applyFrameRange(
+                comp_id, comp_name, parsed[0], parsed[1]))
+        self._reportMultiResult(succeeded, failed, "frame range %s" % kitsu_frame_range)
+
+    def setMultipleCompFPSFromKitsu(self, comp_items, kitsu_fps):
+        """Set FPS for multiple compositions from Kitsu data"""
+        if not comp_items or not kitsu_fps:
+            return
+
+        comps = self._compIdsFromItems(comp_items)
+        if not comps:
+            self.core.popup("No valid compositions selected")
+            return
+
+        try:
+            fps_value = float(kitsu_fps)
+        except (TypeError, ValueError):
+            self.core.popup("Invalid Kitsu FPS format: %s" % kitsu_fps)
+            return
+
+        succeeded, failed = self._applyToComps(
+            comps,
+            lambda comp_id, comp_name: self._applyFps(comp_id, comp_name, fps_value))
+        self._reportMultiResult(succeeded, failed, "FPS to %g" % fps_value)
+
+    def setMultipleCompFromKitsu(self, comp_items, kitsu_frame_range, kitsu_fps):
+        """Set both frame range and FPS for multiple compositions from Kitsu data"""
+        if not comp_items or not kitsu_frame_range or not kitsu_fps:
+            return
+
+        comps = self._compIdsFromItems(comp_items)
+        if not comps:
+            self.core.popup("No valid compositions selected")
+            return
+
+        parsed, error = self._parseKitsuFrameRange(kitsu_frame_range)
+        if error:
+            self.core.popup(error)
+            return
+
+        try:
+            fps_value = float(kitsu_fps)
+        except (TypeError, ValueError):
+            self.core.popup("Invalid Kitsu FPS format: %s" % kitsu_fps)
+            return
+
+        def apply_both(comp_id, comp_name):
+            fps_ok, fps_error = self._applyFps(comp_id, comp_name, fps_value)
+            if not fps_ok:
+                return False, fps_error
+            return self._applyFrameRange(comp_id, comp_name, parsed[0], parsed[1])
+
+        succeeded, failed = self._applyToComps(comps, apply_both)
+        self._reportMultiResult(
+            succeeded, failed, "%s @ %g fps" % (kitsu_frame_range, fps_value))
 
     @err_catcher(name=__name__)
     def removeUnusedFromComp(self, compId, compName):
         """Remove compositions and footage not used by the selected composition"""
         try:
-            from qtpy.QtWidgets import QTabWidget, QListWidget, QProgressDialog
-            from qtpy.QtCore import Qt
-            from qtpy.QtWidgets import QApplication
-
-            # Step 1: Get items used by this comp
-            used_items = self._getUsedItemsByComp(compId)
-            if not used_items:
-                self.core.popup("Could not determine used items for this composition")
+            try:
+                comp_id_int = comp_cleanup.normalize_comp_id(compId)
+            except (TypeError, ValueError):
+                self.core.popup(f"Invalid composition identifier for '{compName}': {compId!r}")
                 return
 
-            # Step 2: Get unused items
-            unused_items = self._getUnusedItems(used_items)
+            query_result = comp_cleanup.parse_unused_items_result(
+                self.main.ae_core.executeAppleScript(
+                    comp_cleanup.build_unused_items_script(comp_id_int)))
 
-            unused_footage = unused_items.get('footage', {})
-            unused_comps = unused_items.get('comps', {})
+            if not query_result["ok"]:
+                self.core.popup(
+                    f"Could not determine unused items for '{compName}':\n\n"
+                    f"{query_result['error']}\n\nNo items were removed."
+                )
+                return
 
-            # Exclude the selected comp itself
-            comp_id_str = str(compId) if not isinstance(compId, str) else compId
-            if comp_id_str in unused_comps:
-                del unused_comps[comp_id_str]
+            if query_result["reason"]:
+                reason = query_result["reason"]
+                if reason == comp_cleanup.STATUS_NO_PROJECT:
+                    message = "There is no open project in After Effects."
+                elif reason == comp_cleanup.STATUS_COMP_NOT_FOUND:
+                    message = (
+                        f"The composition '{compName}' no longer exists in the project.\n\n"
+                        "Refresh the footage tracker and try again."
+                    )
+                else:
+                    message = "The selected item is not a composition."
+                QMessageBox.information(
+                    self.tracker.dlg_footage,
+                    "Cannot Remove Unused Items",
+                    message
+                )
+                return
 
-            # Check if there's anything to remove
+            unused_footage = query_result["unused"]["footage"]
+            unused_comps = query_result["unused"]["comps"]
+
             if not unused_footage and not unused_comps:
                 QMessageBox.information(
                     self.tracker.dlg_footage,
@@ -842,168 +570,42 @@ class CompManager(QObject):
                 )
                 return
 
-            # Step 3: Show confirmation dialog
             reply = self._showRemoveUnusedDialog(unused_footage, unused_comps, compName)
             if reply != QDialog.Accepted:
                 return
 
-            # Step 4: Remove items with progress
-            self._executeRemoval(unused_footage, unused_comps)
+            summary = self._executeRemoval(unused_footage, unused_comps, comp_id_int)
 
-            # Step 5: Refresh tree
             if hasattr(self.tracker, 'tw_footage'):
                 self.tracker.loadFootageData()
 
-            # Show success message
-            QMessageBox.information(
-                self.tracker.dlg_footage,
-                "Removal Complete",
-                f"Successfully removed:\n\n"
-                f"- {len(unused_comps)} composition(s)\n"
-                f"- {len(unused_footage)} footage item(s)\n\n"
+            if summary["canceled"]:
+                title = "Removal Canceled"
+                header = "Removal was canceled. Results before canceling:"
+            else:
+                title = "Removal Complete"
+                header = "Removal finished:"
+
+            message = (
+                f"{header}\n\n"
+                f"- Removed: {summary['removed']} item(s)\n"
+                f"- No longer in project: {summary['not_found']}\n"
+                f"- Kept because in use: {summary['retained']}\n"
+                f"- Wrong type (skipped): {summary['wrong_type']}\n"
+                f"- Failed: {summary['failed']}\n\n"
                 "The footage tracker has been refreshed."
             )
+            if summary["failed_details"]:
+                details = "\n".join(summary["failed_details"][:10])
+                if len(summary["failed_details"]) > 10:
+                    details += f"\n... and {len(summary['failed_details']) - 10} more"
+                message += f"\n\nFailed items:\n{details}"
+
+            QMessageBox.information(self.tracker.dlg_footage, title, message)
 
         except Exception as e:
             import traceback
             self.core.popup(f"Error removing unused items:\n{str(e)}\n\n{traceback.format_exc()}")
-
-    @err_catcher(name=__name__)
-    def _getUsedItemsByComp(self, compId):
-        """Get all footage and comps used by the selected composition (recursive for precomps)"""
-        scpt = f'''
-        var compId = {compId};
-        var usedItems = {{
-            footage: {{}},
-            comps: {{}}
-        }};
-        var checkedComps = {{}};
-
-        function checkComp(comp) {{
-            if (checkedComps[comp.id]) return;
-            checkedComps[comp.id] = true;
-
-            for (var i = 1; i <= comp.numLayers; i++) {{
-                try {{
-                    var layer = comp.layer(i);
-                    if (layer.source) {{
-                        if (layer.source instanceof FootageItem) {{
-                            usedItems.footage[layer.source.id] = layer.source.name;
-                        }} else if (layer.source instanceof CompItem) {{
-                            usedItems.comps[layer.source.id] = layer.source.name;
-                            // Recursively check precomps
-                            checkComp(layer.source);
-                        }}
-                    }}
-                }} catch(e) {{
-                    // Layer may not have source
-                }}
-            }}
-        }}
-
-        if (app.project && app.project.numItems > 0) {{
-            var targetComp = app.project.itemByID(compId);
-            if (targetComp && targetComp instanceof CompItem) {{
-                checkComp(targetComp);
-            }}
-        }}
-
-        var result = [];
-        for (var id in usedItems.footage) {{
-            result.push("FOOTAGE:" + id + "::" + usedItems.footage[id]);
-        }}
-        for (var id in usedItems.comps) {{
-            result.push("COMP:" + id + "::" + usedItems.comps[id]);
-        }}
-        result.join(";;");
-        '''
-
-        result = self.main.ae_core.executeAppleScript(scpt)
-        if isinstance(result, bytes):
-            result = result.decode('utf-8')
-
-        used_items = {'footage': {}, 'comps': {}}
-
-        if result and ';;' in result:
-            items = result.split(';;')
-            for item in items:
-                if '::' in item:
-                    type_id, name = item.split('::', 1)
-                    if ':' in type_id:
-                        item_type, item_id = type_id.split(':', 1)
-                        if item_type == 'FOOTAGE':
-                            used_items['footage'][item_id] = name
-                        elif item_type == 'COMP':
-                            used_items['comps'][item_id] = name
-
-        return used_items
-
-    @err_catcher(name=__name__)
-    def _getUnusedItems(self, used_items):
-        """Get all items in project that are NOT used"""
-        # Convert used items to strings for ExtendScript comparison
-        used_footage_ids = list(used_items['footage'].keys())
-        used_comp_ids = list(used_items['comps'].keys())
-
-        footage_array = ",".join([str(fid) for fid in used_footage_ids])
-        comp_array = ",".join([str(cid) for cid in used_comp_ids])
-
-        scpt = f'''
-        var usedFootageIds = [{footage_array}];
-        var usedCompIds = [{comp_array}];
-        var usedFootage = {{}};
-        var usedComps = {{}};
-
-        for (var i = 0; i < usedFootageIds.length; i++) {{
-            usedFootage[usedFootageIds[i].toString()] = true;
-        }}
-        for (var i = 0; i < usedCompIds.length; i++) {{
-            usedComps[usedCompIds[i].toString()] = true;
-        }}
-
-        var unusedItems = [];
-
-        for (var i = 1; i <= app.project.numItems; i++) {{
-            try {{
-                var item = app.project.item(i);
-                var idStr = item.id.toString();
-
-                if (item instanceof FootageItem) {{
-                    if (!usedFootage[idStr]) {{
-                        unusedItems.push("FOOTAGE:" + item.id + "::" + item.name);
-                    }}
-                }} else if (item instanceof CompItem) {{
-                    if (!usedComps[idStr]) {{
-                        unusedItems.push("COMP:" + item.id + "::" + item.name);
-                    }}
-                }}
-            }} catch(e) {{
-                // Item may have been deleted
-            }}
-        }}
-
-        unusedItems.join(";;");
-        '''
-
-        result = self.main.ae_core.executeAppleScript(scpt)
-        if isinstance(result, bytes):
-            result = result.decode('utf-8')
-
-        unused_items = {'footage': {}, 'comps': {}}
-
-        if result and ';;' in result:
-            items = result.split(';;')
-            for item in items:
-                if '::' in item:
-                    type_id, name = item.split('::', 1)
-                    if ':' in type_id:
-                        item_type, item_id = type_id.split(':', 1)
-                        if item_type == 'FOOTAGE':
-                            unused_items['footage'][item_id] = name
-                        elif item_type == 'COMP':
-                            unused_items['comps'][item_id] = name
-
-        return unused_items
 
     @err_catcher(name=__name__)
     def _showRemoveUnusedDialog(self, unused_footage, unused_comps, comp_name):
@@ -1025,7 +627,7 @@ class CompManager(QObject):
             f"<p style='background-color: #2b2b2b; padding: 10px; border-radius: 4px;'>"
             f"<span style='color: orange;'>&#9888; Items will be removed from the AE project only</span><br>"
             f"<span style='color: #4CAF50;'>Files will NOT be deleted from disk</span></p>"
-            f"<p style='color: red;'><b>This action cannot be undone.</b></p>"
+            f"<p>This removal is wrapped in an AE undo group: you can undo it in After Effects (Edit &gt; Undo).</p>"
         )
         msg.setWordWrap(True)
         layout.addWidget(msg)
@@ -1075,15 +677,33 @@ class CompManager(QObject):
         return dialog.exec_()
 
     @err_catcher(name=__name__)
-    def _executeRemoval(self, unused_footage, unused_comps):
-        """Execute the removal with progress dialog"""
+    def _executeRemoval(self, unused_footage, unused_comps, comp_id):
+        """Execute the removal in batches with a cancelable progress dialog.
+
+        Returns a summary dict with actual per-item outcome counts from
+        After Effects (removed / not_found / retained / wrong_type / failed).
+        """
         from qtpy.QtWidgets import QProgressDialog
         from qtpy.QtCore import Qt
         from qtpy.QtWidgets import QApplication
 
         parent = self.tracker.dlg_footage if hasattr(self.tracker, 'dlg_footage') else None
 
-        total_items = len(unused_footage) + len(unused_comps)
+        comp_ids = list(unused_comps.keys())
+        footage_ids = list(unused_footage.keys())
+        all_ids = comp_ids + footage_ids
+        total_items = len(all_ids)
+
+        summary = {
+            "removed": 0,
+            "not_found": 0,
+            "retained": 0,
+            "wrong_type": 0,
+            "failed": 0,
+            "failed_details": [],
+            "canceled": False,
+        }
+
         progress = QProgressDialog(
             f"Removing {total_items} unused items...",
             "Cancel",
@@ -1093,128 +713,48 @@ class CompManager(QObject):
         )
         progress.setWindowTitle("Removing Unused Items")
         progress.setWindowModality(Qt.WindowModal)
+        progress.setMinimumDuration(0)
         progress.show()
         QApplication.processEvents()
 
-        removed_count = 0
-        errors = []
+        batch_size = 20
+        processed = 0
+        try:
+            for start in range(0, total_items, batch_size):
+                if progress.wasCanceled():
+                    summary["canceled"] = True
+                    break
 
-        # Remove compositions first (to avoid dependency issues)
-        if unused_comps:
-            progress.setLabelText(f"Removing compositions (0/{len(unused_comps)})...")
-            QApplication.processEvents()
-
-            comp_ids = list(unused_comps.keys())
-            result = self._removeCompsFromProject(comp_ids, progress, removed_count)
-            removed_count, comp_errors = result
-            errors.extend(comp_errors)
-
-        # Remove footage
-        if unused_footage:
-            progress.setLabelText(f"Removing footage (0/{len(unused_footage)})...")
-            QApplication.processEvents()
-
-            footage_ids = list(unused_footage.keys())
-            result = self._removeFootageFromProject(footage_ids, progress, removed_count)
-            removed_count, footage_errors = result
-            errors.extend(footage_errors)
-
-        progress.close()
-
-        if errors:
-            error_msg = "\n".join(errors[:10])
-            if len(errors) > 10:
-                error_msg += f"\n... and {len(errors) - 10} more errors"
-            self.core.popup(f"Removal completed with some errors:\n{error_msg}")
-
-    @err_catcher(name=__name__)
-    def _removeCompsFromProject(self, comp_ids, progress, start_count):
-        """Remove compositions from project"""
-        ids_array = ",".join([str(cid) for cid in comp_ids])
-        removed_count = start_count
-        errors = []
-
-        scpt = f'''
-        var compIds = [{ids_array}];
-        var results = [];
-
-        for (var i = 0; i < compIds.length; i++) {{
-            try {{
-                var item = app.project.itemByID(compIds[i]);
-                if (item && item instanceof CompItem) {{
-                    item.remove();
-                    results.push("SUCCESS:" + compIds[i]);
-                }} else {{
-                    results.push("NOT_FOUND:" + compIds[i]);
-                }}
-            }} catch(e) {{
-                results.push("ERROR:" + compIds[i] + "::" + e.toString());
-            }}
-        }}
-
-        results.join(";;");
-        '''
-
-        result = self.main.ae_core.executeAppleScript(scpt)
-        if isinstance(result, bytes):
-            result = result.decode('utf-8')
-
-        if result:
-            items = result.split(';;')
-            for i, item in enumerate(items):
-                progress.setValue(removed_count + i + 1)
-                from qtpy.QtWidgets import QApplication
+                batch = all_ids[start:start + batch_size]
+                end = start + len(batch)
+                progress.setLabelText(f"Removing items {start + 1}-{end} of {total_items}...")
                 QApplication.processEvents()
 
-                if item.startswith('ERROR:'):
-                    parts = item.split('::', 1)
-                    if len(parts) > 1:
-                        errors.append(f"Failed to remove comp {parts[0][6:]}: {parts[1]}")
+                try:
+                    batch_ids = comp_cleanup.normalize_item_ids(batch)
+                except (TypeError, ValueError) as e:
+                    summary["failed"] += len(batch)
+                    summary["failed_details"].append(str(e))
+                    break
 
-        return removed_count + len(comp_ids), errors
+                result = comp_cleanup.parse_remove_items_result(
+                    self.main.ae_core.executeAppleScript(
+                        comp_cleanup.build_remove_items_script(comp_id, batch_ids)))
 
-    @err_catcher(name=__name__)
-    def _removeFootageFromProject(self, footage_ids, progress, start_count):
-        """Remove footage from project"""
-        ids_array = ",".join([str(fid) for fid in footage_ids])
-        removed_count = start_count
-        errors = []
+                if not result["ok"]:
+                    summary["failed"] += len(batch)
+                    summary["failed_details"].append(result["error"])
+                    break
 
-        scpt = f'''
-        var footageIds = [{ids_array}];
-        var results = [];
+                counts = comp_cleanup.summarize_removal_results(result["results"])
+                for key in ("removed", "not_found", "retained", "wrong_type", "failed"):
+                    summary[key] += counts[key]
+                summary["failed_details"].extend(counts["failed_details"])
 
-        for (var i = 0; i < footageIds.length; i++) {{
-            try {{
-                var item = app.project.itemByID(footageIds[i]);
-                if (item && item instanceof FootageItem) {{
-                    item.remove();
-                    results.push("SUCCESS:" + footageIds[i]);
-                }} else {{
-                    results.push("NOT_FOUND:" + footageIds[i]);
-                }}
-            }} catch(e) {{
-                results.push("ERROR:" + footageIds[i] + "::" + e.toString());
-            }}
-        }}
-
-        results.join(";;");
-        '''
-
-        result = self.main.ae_core.executeAppleScript(scpt)
-        if isinstance(result, bytes):
-            result = result.decode('utf-8')
-
-        if result:
-            items = result.split(';;')
-            for i, item in enumerate(items):
-                progress.setValue(removed_count + i + 1)
-                from qtpy.QtWidgets import QApplication
+                processed += len(batch)
+                progress.setValue(processed)
                 QApplication.processEvents()
+        finally:
+            progress.close()
 
-                if item.startswith('ERROR:'):
-                    parts = item.split('::', 1)
-                    if len(parts) > 1:
-                        errors.append(f"Failed to remove footage {parts[0][6:]}: {parts[1]}")
-
-        return removed_count + len(footage_ids), errors
+        return summary

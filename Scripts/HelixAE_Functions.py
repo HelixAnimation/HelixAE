@@ -41,6 +41,9 @@ from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher as err_catcher
 
+import helixae_bridge
+import helixae_protocol
+
 
 logger = logging.getLogger(__name__)
 
@@ -102,6 +105,18 @@ class HelixAE_Functions(object):
         self.checkAeAlive()
         origin.startAutosaveTimer()
 
+        # Prepare scene data without opening a tracker window. Timer/worker jobs
+        # never delay this startup callback or enumerate AE on the GUI thread.
+        QTimer.singleShot(0, self._getFootagePreparation)
+
+    def _getFootagePreparation(self):
+        preparation = getattr(self, '_footage_preparation', None)
+        if preparation is None:
+            from footage_tracker.refresh_controller import RefreshController
+            preparation = RefreshController(self)
+            self._footage_preparation = preparation
+        return preparation
+
 
     @err_catcher(name=__name__)
     def checkAeAlive(self):
@@ -114,25 +129,27 @@ class HelixAE_Functions(object):
             QApplication.instance().quit()
 
     @err_catcher(name=__name__)
-    def sendCmd(self, cmd):
-        """Send a lightweight command over a short-lived socket (does not block the ae_core mutex)"""
+    def sendCmd(self, cmd, timeout=3.0):
+        """Send a lightweight command over a short-lived socket (does not block the ae_core mutex).
+
+        Requests and responses are null-terminated frames (Scripts/helixae_bridge.py);
+        premature EOF is a transport failure and returns None, never b"".
+
+        ``timeout`` covers the whole round trip; pass a larger value for
+        blocking AE operations (e.g. renderQueue.render()).
+        """
         import socket as _socket
-        HOST, PORT = '127.0.0.1', 9888
+        HOST, PORT = helixae_bridge.AE_HOST, helixae_bridge.AE_PORT
         try:
             with _socket.socket(_socket.AF_INET, _socket.SOCK_STREAM) as s:
-                s.settimeout(3.0)
+                s.settimeout(float(timeout))
                 s.connect((HOST, PORT))
-                s.sendall(cmd.encode("utf-8"))
-                chunks = []
-                while True:
-                    chunk = s.recv(65536)
-                    if not chunk:
-                        break
-                    if b'\x00' in chunk:
-                        chunks.append(chunk[:chunk.index(b'\x00')])
-                        break
-                    chunks.append(chunk)
-                return b''.join(chunks)
+                s.sendall(
+                    helixae_bridge.frame_ae_request(
+                        helixae_protocol.ensure_json_polyfill(cmd)
+                    )
+                )
+                return helixae_bridge.recv_ae_response(s)
         except Exception as e:
             logger.debug("sendCmd failed: %s" % str(e))
             return None
@@ -161,19 +178,19 @@ class HelixAE_Functions(object):
     def sceneOpen(self, origin):
         if self.core.shouldAutosaveTimerRun():
             origin.startAutosaveTimer()
+        self._getFootagePreparation().scene_opened()
 
     @err_catcher(name=__name__)
     def getCurrentFileName(self, origin=None, path=True):
-        """Get current AE project file path"""
-        if origin is None:
-            # Default origin if not specified
-            origin = "footage_tracker"
-        cmd = "app.project.file.fsName;"
-        filename = (self.sendCmd(cmd) or "".encode()).decode("utf-8")
+        """Get current AE project file path ('' when nothing is open)"""
+        result = self.sendCmd(helixae_protocol.build_get_current_file())
+        data, error = helixae_protocol.parse_json_response(result)
+        if error or not data.get("result"):
+            return ""
+        filename = (data.get("path") or "").replace("\\", "/")
         if path:
             return filename
-        else:
-            return os.path.basename(filename)
+        return os.path.basename(filename)
 
     @err_catcher(name=__name__)
     def getSceneExtension(self, origin=None):
@@ -190,7 +207,12 @@ class HelixAE_Functions(object):
     @err_catcher(name=__name__)
     def postSaveScene(self, origin, filepath, versionUp, comment, publish, details):
         # Prism creates versioninfo.json before firing this callback, so it's safe to patch now.
-        self.ae_core._patchVersionInfo(filepath, getattr(self.ae_core, '_last_archive_data', None))
+        # Only pass archive data that was produced by THIS save (per-save ownership).
+        archive_data = None
+        last_path = getattr(self.ae_core, "_last_archive_path", None)
+        if last_path and os.path.normpath(os.path.abspath(filepath)) == last_path:
+            archive_data = getattr(self.ae_core, "_last_archive_data", None)
+        self.ae_core._patchVersionInfo(filepath, archive_data)
 
     @err_catcher(name=__name__)
     def getImportPaths(self, origin):
@@ -198,175 +220,77 @@ class HelixAE_Functions(object):
 
     @err_catcher(name=__name__)
     def hasActiveComp(self):
-        cmd = """
-        if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {
-            "{\\"result\\": True}";
-        } else {
-            "{\\"result\\": False}";
-        }"""
-
-        result = self.sendCmd(cmd)
-        if not result:
-            return
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return
-
-        result = eval(result)
-        return result["result"]
+        result = self.sendCmd(helixae_protocol.build_has_active_comp())
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            return None
+        return bool(data.get("result"))
 
     @err_catcher(name=__name__)
     def getCompositionNames(self):
-        cmd = """
-        function getAllCompositions() {
-            var project = app.project;
-            var compositions = [];
-
-            if (project && project.items) {
-                for (var i = 1; i <= project.items.length; i++) {
-                    var item = project.items[i];
-                    if (item instanceof CompItem) {
-                        compositions.push(item.name);
-                    }
-                }
-            }
-
-            return compositions;
-        }
-
-        // Example usage
-        var compositions = getAllCompositions();
-        var compositionNames = compositions.join(",");
-        "{\\"result\\": True, \\"compositions\\": \\"" + compositionNames + "\\"}";"""
-
-        result = self.sendCmd(cmd)
-        if not result:
-            return
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return
-
-        result = eval(result)
-        return [x for x in result["compositions"].split(",") if x]
+        result = self.sendCmd(helixae_protocol.build_get_composition_names())
+        data, error = helixae_protocol.parse_json_response(result)
+        if error or not data.get("result"):
+            return None
+        return [x for x in data.get("compositions", []) if x]
 
     @err_catcher(name=__name__)
     def getFrameRange(self, origin):
         startframe = None
         endframe = None
 
-        cmd = """
-        if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {
-            var comp = app.project.activeItem;
-            var frameRate = comp.frameRate;
-            var startFrame = comp.displayStartFrame;
-            var durationFrames = comp.duration * frameRate;
-            var endFrame = startFrame + durationFrames - 1;
-            "{\\"result\\": True, \\"startFrame\\": " + startFrame + ", \\"endFrame\\": " + endFrame + "}";
-        } else {
-            "{\\"result\\": False, \\"details\\": \\"No active composition found.\\"}";
-        }"""
-
-        result = self.sendCmd(cmd)
-        if not result:
-            return [startframe, endframe]
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return [startframe, endframe]
-
-        result = eval(result)
-        if result["result"] is True:
-            startframe = result["startFrame"]
-            endframe = result["endFrame"]
+        result = self.sendCmd(helixae_protocol.build_get_frame_range())
+        data, error = helixae_protocol.parse_json_response(result)
+        if not error and data.get("result"):
+            startframe = data.get("startFrame")
+            endframe = data.get("endFrame")
 
         return [startframe, endframe]
 
     @err_catcher(name=__name__)
     def setFrameRange(self, origin, startFrame, endFrame):
-        cmd = """
-        if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {
-            var comp = app.project.activeItem;
-            var frameRate = comp.frameRate;
-            var startFrame = %s;
-            comp.displayStartFrame = startFrame;
-            comp.duration = (%s - startFrame + 1) / frameRate;
-            comp.workAreaStart = 0;
-            comp.workAreaDuration = comp.duration;
-            "{\\"result\\": True}";
-        } else {
-            "{\\"result\\": False, \\"details\\": \\"No active composition found.\\"}";
-        }""" % (startFrame, endFrame)
-        self.sendCmd(cmd)
+        try:
+            cmd = helixae_protocol.build_set_frame_range(startFrame, endFrame)
+        except ValueError as e:
+            logger.warning("setFrameRange: %s" % e)
+            return False
+        result = self.sendCmd(cmd)
+        data, error = helixae_protocol.parse_json_response(result)
+        return bool(data.get("result")) if not error else False
 
     @err_catcher(name=__name__)
     def getFPS(self, origin):
-        cmd = """
-        if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {
-            var comp = app.project.activeItem;
-            var frameRate = comp.frameRate;
-            "{\\"result\\": True, \\"frameRate\\": " + frameRate + "}";
-        } else {
-            "{\\"result\\": False, \\"details\\": \\"No active composition found.\\"}";
-        }"""
-
-        result = self.sendCmd(cmd)
-        if not result:
+        result = self.sendCmd(helixae_protocol.build_get_fps())
+        data, error = helixae_protocol.parse_json_response(result)
+        if error or not data.get("result"):
             return None
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return None
-
-        result = eval(result)
-        if result["result"] is True:
-            return result["frameRate"]
-        else:
-            return None
+        return data.get("frameRate")
 
     @err_catcher(name=__name__)
     def setFPS(self, origin, fps):
-        cmd = """
-        if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {
-            var comp = app.project.activeItem;
-            comp.frameRate = %s;
-            "{\\"result\\": True, \\"frameRate\\": " + comp.frameRate + "}";
-        } else {
-            "{\\"result\\": False, \\"details\\": \\"No active composition found.\\"}";
-        }""" % fps
-
-        self.sendCmd(cmd)
+        try:
+            cmd = helixae_protocol.build_set_fps(fps)
+        except ValueError as e:
+            logger.warning("setFPS: %s" % e)
+            return False
+        result = self.sendCmd(cmd)
+        data, error = helixae_protocol.parse_json_response(result)
+        return bool(data.get("result")) if not error else False
 
     @err_catcher(name=__name__)
     def getAppVersion(self, origin):
-        cmd = """
-        if (app) {
-            var version = app.version;
-            "{\\"result\\": True, \\"version\\": \\"" + version + "\\"}";
-        } else {
-            "{\\"result\\": False, \\"details\\": \\"No app found.\\"}";
-        }"""
-
-        result = self.sendCmd(cmd)
-        if not result:
+        result = self.sendCmd(helixae_protocol.build_get_app_version())
+        data, error = helixae_protocol.parse_json_response(result)
+        if error or not data.get("result"):
             return None
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return None
-
-        result = eval(result)
-        if result["result"] is True:
-            return result["version"]
-        else:
-            return None
+        return data.get("version")
 
     @err_catcher(name=__name__)
     def openScene(self, origin, filepath, force=False):
-        cmd = "app.open(File(\"%s\"));" % filepath
-        self.sendCmd(cmd)
-        return True
+        # Project loading can exceed the lightweight command timeout (3s),
+        # especially over the NAS. Use the core's 120s operation transport
+        # and its confirmed acknowledgement instead of timing out mid-open.
+        return self.ae_core.openScene(origin, filepath, force=force)
 
     @err_catcher(name=__name__)
     def getCurrentSceneFiles(self, origin):
@@ -497,175 +421,102 @@ class HelixAE_Functions(object):
             res = self.importMedia(pattern, addToComp=addToComp)
             if not res:
                 continue
+            result = True
 
-            res = res.decode("utf-8")
-            if res == "null":
-                continue
-
-            result = eval(res)
-
-        return result.get("result") if result else False
+        return result
 
     @err_catcher(name=__name__)
     def importMedia(self, filepath, addToComp=False):
         filepaths = self.core.media.getFilesFromSequence(filepath)
         if not filepaths:
-            return
+            return None
 
-        if addToComp:
-            addToComp = """
-    if (activeItem instanceof CompItem) {
-        var newLayer = activeItem.layers.add(importedFile);
-    }
-            """
-        else:
-            addToComp = ""
-
-        cmd = """
-if (app.project) {
-    var activeItem = app.project.activeItem;
-    var importOptions = new ImportOptions(File("%s"));
-    importOptions.sequence = %s;
-    if (importOptions.canImportAs(ImportAsType.FOOTAGE)) {
-        importOptions.importAs = ImportAsType.FOOTAGE;
-    }
-    var importedFile = app.project.importFile(importOptions);
-    %s
-    "{\\"result\\": True, \\"fileName\\": \\"" + importedFile.name + "\\"}";
-} else {
-    "{\\"result\\": False, \\"details\\": \\"No project found.\\"}";
-}""" % (filepaths[0].replace("\\", "/"), "true" if len(filepaths) > 1 else "false", addToComp)
-
+        cmd = helixae_protocol.build_import_media(
+            filepaths[0], sequence=len(filepaths) > 1, add_to_comp=addToComp
+        )
         result = self.sendCmd(cmd)
-        return result
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            self.core.popup("Importing media failed:\n%s" % error)
+            return None
+        if not data.get("result"):
+            self.core.popup(
+                "Importing media failed:\n%s"
+                % data.get("details", "unknown After Effects error")
+            )
+            return None
+        return True
 
     @err_catcher(name=__name__)
     def replaceActiveItem(self, filepath):
         filepaths = self.core.media.getFilesFromSequence(filepath)
         if not filepaths:
-            return
+            return None
 
-        cmd = """
-if (app.project && app.project.activeItem && app.project.activeItem instanceof FootageItem) {
-    var curItem = app.project.activeItem
-    if (curItem instanceof FootageItem) {
-        curItem.replace(File("%s"));
-    }
-    "{\\"result\\": True, \\"fileName\\": \\"" + curItem.name + "\\"}";
-} else {
-    "{\\"result\\": False, \\"details\\": \\"No active item found.\\"}";
-}""" % (filepaths[0].replace("\\", "/"))
-
-        if len(filepaths) > 1:
-            old_replace = "curItem.replace(File(\"%s\"));" % filepaths[0].replace("\\", "/")
-            new_replace = "curItem.replaceWithSequence(File(\"%s\"), false);" % filepaths[0].replace("\\", "/")
-            cmd = cmd.replace(old_replace, new_replace)
-
+        cmd = helixae_protocol.build_replace_active_item(
+            filepaths[0], sequence=len(filepaths) > 1
+        )
         result = self.sendCmd(cmd)
-        if not result:
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            self.core.popup("Replacing item failed:\n%s" % error)
             return None
-
-        result = result.decode("utf-8")
-        if result == "null":
+        if not data.get("result"):
+            self.core.popup(
+                "Replacing item failed:\n%s"
+                % data.get("details", "unknown After Effects error")
+            )
             return None
-
-        result = eval(result)
-        if result["result"] is False:
-            self.core.popup(result["details"])
-
-        return result["result"]
+        return True
 
     @err_catcher(name=__name__)
     def replaceItem(self, idx, filepath):
         filepaths = self.core.media.getFilesFromSequence(filepath)
         if not filepaths:
-            return
+            return None
 
-        cmd = """
-if (app.project) {
-    var curItem = app.project.item(%s)
-    if (curItem instanceof FootageItem) {
-        curItem.replace(File("%s"));
-    }
-    "{\\"result\\": True, \\"fileName\\": \\"" + curItem.name + "\\"}";
-} else {
-    "{\\"result\\": False, \\"details\\": \\"No project active.\\"}";
-}""" % (idx, filepaths[0].replace("\\", "/"))
-
-        if len(filepaths) > 1:
-            old_replace = "curItem.replace(File(\"%s\"));" % filepaths[0].replace("\\", "/")
-            new_replace = "curItem.replaceWithSequence(File(\"%s\"), false);" % filepaths[0].replace("\\", "/")
-            cmd = cmd.replace(old_replace, new_replace)
+        try:
+            cmd = helixae_protocol.build_replace_item(
+                idx, filepaths[0], sequence=len(filepaths) > 1
+            )
+        except ValueError as e:
+            logger.warning("replaceItem: %s" % e)
+            return None
 
         result = self.sendCmd(cmd)
-        if not result:
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            self.core.popup("Replacing item failed:\n%s" % error)
             return None
-
-        result = result.decode("utf-8")
-        if result == "null":
+        if not data.get("result"):
+            self.core.popup(
+                "Replacing item failed:\n%s"
+                % data.get("details", "unknown After Effects error")
+            )
             return None
-
-        result = eval(result)
-        if result["result"] is False:
-            self.core.popup(result["details"])
-
-        return result["result"]
+        return True
 
     @err_catcher(name=__name__)
     def getFootageFromProject(self):
-        cmd = """
-function getAllFootage() {
-    var project = app.project;
-    var footages = [];
-
-    if (project && project.items) {
-        for (var i = 1; i <= project.items.length; i++) {
-            var item = project.items[i];
-            if (item instanceof FootageItem) {
-                footages.push(i);
-                footages.push(item.file.path);
-                footages.push(item.file.name);
-            }
-        }
-    }
-
-    return footages;
-}
-if (app.project) {
-    var footage = getAllFootage();
-    var footageData = footage.join(",");
-    "{\\"result\\": True, \\"footage\\": \\"" + footageData + "\\"}";
-} else {
-    "{\\"result\\": False, \\"details\\": \\"No project active.\\"}";
-}"""
-
-        result = self.sendCmd(cmd)
-        if not result:
+        """File-backed footage as [{'idx', 'path', 'name'}]; None on failure."""
+        result = self.sendCmd(helixae_protocol.build_get_footage_from_project())
+        records, error = helixae_protocol.parse_json_array(result)
+        if error:
+            logger.debug("getFootageFromProject failed: %s" % error)
             return None
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return None
-
-        result = eval(result)
-        if result["result"] is False:
-            self.core.popup(result["details"])
-        else:
-            resultData = []
-            for idx, data in enumerate(result["footage"].split(",")):
-                if (idx % 3) == 2:
-                    resultData[-1]["path"] = os.path.normpath(resultData[-1]["path"] + "/" + data)
-                    resultData[-1]["name"] = data
-                elif (idx % 3) == 1:
-                    if data and data[0] == "/" and data[1] != "/" and data[2] == "/":
-                        data = data.strip("/")
-                        data = os.path.normpath(data[0].upper() + ":" + data[1:])
-
-                    resultData[-1]["path"] = data
-                elif data:
-                    resultData.append({"idx": int(data)})
-
-            return resultData
+        resultData = []
+        for record in records:
+            if not isinstance(record, dict):
+                continue
+            try:
+                idx = int(record.get("idx"))
+            except (TypeError, ValueError):
+                continue
+            path = record.get("path") or ""
+            resultData.append(
+                {"idx": idx, "path": os.path.normpath(path), "name": record.get("name") or path}
+            )
+        return resultData
 
     @err_catcher(name=__name__)
     def openImportMediaDlg(self):
@@ -675,7 +526,14 @@ if (app.project) {
 
     @err_catcher(name=__name__)
     def checkVersions(self):
-        items = self.getFootageFromProject() or []
+        items = self.getFootageFromProject()
+        if items is None:
+            # Bridge/scan failure is not "everything is up to date".
+            self.core.popup(
+                "Could not read the footage list from After Effects.\n"
+                "Please make sure After Effects is running and the HelixAE panel is open."
+            )
+            return
         outdatedItems = []
         for item in items:
             version = self.core.mediaProducts.getLatestVersionFromFilepath(item["path"])
@@ -709,36 +567,15 @@ if (app.project) {
 
     @err_catcher(name=__name__)
     def getRenderTemplates(self):
-        cmd = """
-if (app.project && app.project.activeItem && app.project.activeItem instanceof CompItem) {
-    var comp = app.project.activeItem;
-    var renderQueueItem = app.project.renderQueue.items.add(comp);
-    var outputModule = renderQueueItem.outputModule(1);
-    var templateNames = outputModule.templates.join(",")
-    renderQueueItem.remove();
-    "{\\"result\\": True, \\"templates\\": \\"" + templateNames + "\\"}";
-} else {
-    "{\\"result\\": False, \\"details\\": \\"No app found.\\"}";
-}"""
-
-        result = self.sendCmd(cmd)
-        if not result:
+        result = self.sendCmd(helixae_protocol.build_get_output_module_templates())
+        data, error = helixae_protocol.parse_json_response(result)
+        if error or not data.get("result"):
             return None
-
-        result = result.decode("utf-8")
-        if result == "null":
-            return None
-
-        try:
-            result = eval(result)
-        except Exception:
-            result = {"result": False}
-
-        if result["result"] is True:
-            templates = [x for x in result["templates"].split(",") if not x.startswith("_HIDDEN") ]
-            return templates
-        else:
-            return None
+        return [
+            x
+            for x in data.get("templates", [])
+            if x and not x.startswith("_HIDDEN")
+        ]
 
     @property
     def ae_footage(self):

@@ -10,6 +10,8 @@ from qtpy.QtCore import *
 from qtpy.QtGui import QCursor
 from qtpy.QtWidgets import *
 
+import helixae_protocol
+import helixae_render_deps
 from PrismUtils.Decorators import err_catcher as err_catcher
 
 
@@ -18,15 +20,53 @@ class HelixAE_Export:
         self.main = main
         self.core = main.core
 
+    def _getActiveCompInfo(self):
+        """Return the active composition as ``{id, name}`` or None."""
+        try:
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_get_active_comp_info()
+            )
+            data, error = helixae_protocol.parse_json_response(result)
+            if error:
+                self.core.popup(
+                    "Could not determine the active composition:\n%s" % error
+                )
+                return None
+            if not data.get("result"):
+                self.core.popup(
+                    "Could not determine the active composition:\n%s"
+                    % data.get("details", "no active composition")
+                )
+                return None
+            comp_id = data.get("compId")
+            comp_name = data.get("compName")
+            if comp_id is None or not comp_name:
+                self.core.popup(
+                    "Could not determine the active composition:\n"
+                    "After Effects returned an incomplete response."
+                )
+                return None
+            return {"id": str(comp_id), "name": str(comp_name)}
+        except Exception as e:
+            self.core.popup(
+                "Could not determine the active composition:\n%s" % e
+            )
+            return None
+
     @err_catcher(name=__name__)
     def exportImage(self):
         """Show export dialog for rendering from AE"""
         if not self.core.projects.ensureProject() or not self.core.users.ensureUser():
             return False
 
+        comp = self._getActiveCompInfo()
+        if comp is None:
+            return False
+        self._render_comp = comp
+
         self.dlg_export = QDialog()
         self.core.parentWindow(self.dlg_export)
-        self.dlg_export.setWindowTitle("Helix AE - Export")
+        self.dlg_export.setWindowTitle("Helix AE - Export - %s" % comp["name"])
 
         self.setupExportUI()
         self.exportGetTasks()
@@ -41,6 +81,14 @@ class HelixAE_Export:
         self.w_task = QWidget()
         lo_prismExport = QVBoxLayout()
         self.w_task.setLayout(lo_prismExport)
+
+        comp = getattr(self, "_render_comp", None)
+        comp_text = "unknown composition"
+        if comp:
+            comp_text = "%s (ID: %s)" % (comp["name"], comp["id"])
+        self.l_comp = QLabel("Composition: %s" % comp_text)
+        self.l_comp.setWordWrap(True)
+        lo_prismExport.addWidget(self.l_comp)
 
         # Task selection
         lo_task = QHBoxLayout()
@@ -119,33 +167,19 @@ class HelixAE_Export:
     def getOutputModules(self):
         """Query After Effects for available output module templates"""
         try:
-            scpt = """
-            var renderQueue = app.project.renderQueue;
-            var templates = [];
-            
-            // Check if render queue has items
-            if (renderQueue.numItems > 0) {
-                templates = renderQueue.item(1).outputModule(1).templates;
-            } else {
-                // If queue is empty, temporarily add active comp to get templates
-                if (app.project.activeItem && app.project.activeItem instanceof CompItem) {
-                    var tempItem = renderQueue.items.add(app.project.activeItem);
-                    templates = tempItem.outputModule(1).templates;
-                    tempItem.remove();  // Remove the temporary item
-                }
-            }
-            
-            var templateList = [];
-            for (var i = 0; i < templates.length; i++) {
-                templateList.push(templates[i]);
-            }
-            templateList.join('|||');
-            """
-            result = self.main.ae_core.executeAppleScript(scpt)
-            modules = str(result).replace("b'", "").replace("'", "").split('|||')
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_get_output_module_templates()
+            )
+            data, error = helixae_protocol.parse_json_response(result)
+            if error or not data.get("result"):
+                raise Exception(
+                    error or data.get("details", "unknown After Effects error")
+                )
+            modules = data.get("templates") or []
             return [x.strip() for x in modules if x.strip() and "_HIDDEN" not in x.upper()]
         except Exception as e:
-            # Fallback to common output modules if script fails
+            # Fallback to common output modules if the bridge fails
+            print(f"[HelixAE Export] Could not read output modules: {e}")
             return ["Lossless", "PNG Sequence", "JPEG Sequence", "H.264"]
 
     @err_catcher(name=__name__)
@@ -222,86 +256,157 @@ class HelixAE_Export:
         
         return outputPathData["path"], os.path.dirname(outputPathData["path"]), outputPathData["version"]
 
-    @err_catcher(name=__name__)
-    def saveExport(self):
-        """Execute export to render queue"""
-        
-        taskName = self.le_task.text()
-        if not taskName:
-            QMessageBox.warning(
-                self.core.messageParent, 
-                "Warning", 
-                "Please choose a taskname"
-            )
-            return
-
+    def _currentPipelineFile(self):
+        """Return the current .aep path if it belongs to this project."""
         currentFile = self.core.getCurrentFileName()
         projectPath = getattr(self.core, 'projectPath', self.core.prismRoot)
-        
+
         if not currentFile or not projectPath or not os.path.normpath(currentFile).lower().startswith(
             os.path.normpath(projectPath).lower()
         ):
             QMessageBox.warning(
-                self.core.messageParent, 
-                "Warning", 
+                self.core.messageParent,
+                "Warning",
                 "The current file is not inside the Pipeline.\n"
                 "Use the Project Browser to create a file in the Pipeline."
             )
-            return False
+            return None
+        return currentFile
 
-        oversion = "next" if self.chb_useNextVersion.isChecked() else self.cb_versions.currentText()
-        if not oversion:
-            QMessageBox.warning(self.core.messageParent, "Warning", "Invalid version")
-            return
-
-        outputPath, outputDir, hVersion = self.exportGetOutputName(oversion)
-        
-        # Check path length on Windows
-        if platform.system() == "Windows" and len(outputPath) > 255:
-            self.core.popup(
-                f"The outputpath is longer than 255 characters ({len(outputPath)}), "
-                "which is not supported on Windows."
+    def _validateExportInputs(self):
+        """Return (taskName, currentFile) or (None, None) after warning."""
+        taskName = self.le_task.text()
+        if not taskName:
+            QMessageBox.warning(
+                self.core.messageParent,
+                "Warning",
+                "Please choose a taskname"
             )
-            return
+            return None, None
 
-        # Create output directory
-        os.makedirs(outputDir, exist_ok=True)
+        currentFile = self._currentPipelineFile()
+        if not currentFile:
+            return None, None
+        return taskName, currentFile
 
-        # Add to render queue in AE first
-        selectedOutputModule = self.cb_formats.currentText()
-        scpt = f"""
-        var resultFile = new File('{outputPath.replace(chr(92), "//")}');
-        var renderQueue = app.project.renderQueue;
-        app.activeViewer.setActive();
-        var sel = app.project.activeItem;
-        var render = renderQueue.items.add(sel);
-        render.outputModules[1].applyTemplate('{selectedOutputModule}');
-        render.outputModules[1].file = resultFile;
+    def _collectCompDependencies(self, comp):
+        """Return ``(block, missing_paths, error)`` for one composition."""
+        try:
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_comp_dependency_script(comp["id"])
+            )
+        except Exception as e:
+            return None, [], str(e)
 
-        // Get frame range from render queue item
-        var comp = sel;
-        var fps = comp.frameRate;
-        var frameDuration = comp.frameDuration;
-        var displayStartFrame = Math.round(comp.displayStartTime / frameDuration);
-        var startTime = render.timeSpanStart;
-        var duration = render.timeSpanDuration;
+        parsed, error = helixae_protocol.parse_comp_dependency_result(result)
+        if error:
+            return None, [], error
 
-        var startFrame = Math.round(startTime / frameDuration) + displayStartFrame;
-        var endFrame = Math.round((startTime + duration) / frameDuration - 1) + displayStartFrame;
+        try:
+            from footage_tracker.utils import FootageUtils
+            block, missing = helixae_render_deps.build_render_dependencies_block(
+                parsed["composition"],
+                parsed["footage"],
+                FootageUtils.detectFolderType,
+                os.path.exists,
+            )
+        except Exception as e:
+            return None, [], "could not classify dependencies: %s" % e
+        return block, missing, None
 
-        JSON.stringify({{
-            "startFrame": startFrame,
-            "endFrame": endFrame,
-            "fps": fps
-        }});
+    def _confirmDependencyProblem(self, title, text, details):
+        """Show a Continue/Stop dialog.  Returns True to continue."""
+        parent = self.dlg_export if hasattr(self, "dlg_export") else self.core.messageParent
+        box = QMessageBox(parent)
+        box.setIcon(QMessageBox.Warning)
+        box.setWindowTitle(title)
+        box.setText(text)
+        if details:
+            box.setInformativeText(details)
+        continue_button = box.addButton("Continue", QMessageBox.AcceptRole)
+        stop_button = box.addButton("Stop", QMessageBox.RejectRole)
+        box.setDefaultButton(stop_button)
+        box.exec_()
+        return box.clickedButton() is continue_button
+
+    def _prepareRenderDependencies(self):
+        """Collect comp metadata before queueing.
+
+        Returns ``(continue, block)``.  ``continue`` is False only when the
+        user chose Stop.  On a failed scan plus Continue, ``block`` is None
+        so the stale ``renderDependencies`` key is removed instead of writing
+        a misleading empty list.
         """
-        frameRangeResult = self.main.ae_core.executeAppleScript(scpt)
+        comp = getattr(self, "_render_comp", None)
+        if comp is None:
+            return True, None
 
-        # Get full entity data from current scene file
-        fileName = self.core.getCurrentFileName()
+        block, missing, error = self._collectCompDependencies(comp)
+        if error:
+            keep_going = self._confirmDependencyProblem(
+                "Dependency Scan Failed",
+                "Could not collect dependencies for '%s'." % comp["name"],
+                "%s\n\nContinue without renderDependencies metadata, or stop "
+                "before adding the render to the queue." % error,
+            )
+            return keep_going, None
+
+        if missing:
+            shown = "\n".join(missing[:10])
+            if len(missing) > 10:
+                shown += "\n... and %d more" % (len(missing) - 10)
+            keep_going = self._confirmDependencyProblem(
+                "Missing Source Files",
+                "%d source file(s) used by '%s' could not be found."
+                % (len(missing), comp["name"]),
+                "%s\n\nOn Continue, missing files are excluded from "
+                "renderDependencies." % shown,
+            )
+            if not keep_going:
+                return False, None
+
+        return True, block
+
+    def _addRenderQueueItem(self, outputPath, selectedOutputModule, comp_id=None):
+        """Add a specific comp (or the active comp) to the AE render queue.
+
+        Returns the confirmed acknowledgement dict (including frame range,
+        fps, and composition identity) or None when After Effects did not
+        confirm the queue item.  On failure a partial queue item is removed
+        by the AE script itself and the reason is shown to the user.
+        """
+        try:
+            result = self.main.ae_core.executeAppleScript(
+                helixae_protocol.build_add_to_render_queue(
+                    outputPath, selectedOutputModule, comp_id
+                )
+            )
+        except Exception as e:
+            self.core.popup(f"Could not add the render to the queue:\n{e}")
+            return None
+
+        data, error = helixae_protocol.parse_json_response(result)
+        if error:
+            self.core.popup(f"Could not add the render to the queue:\n{error}")
+            return None
+        if not data.get("result"):
+            self.core.popup(
+                "Could not add the render to the queue:\n%s"
+                % data.get("details", "unknown After Effects error")
+            )
+            return None
+        return data
+
+    def _writeExportMetadata(self, ack, outputPath, taskName, hVersion, fileName,
+                             render_dependencies=None):
+        """Persist versioninfo + dependency patch AFTER a confirmed queue add.
+
+        Returns ``(ok, error)``.  A failure here does not remove the queued
+        render, but the caller must report it instead of claiming full
+        success.
+        """
         fnameData = self.core.getScenefileData(fileName)
 
-        # Build full details like old Prism AE
         details = fnameData.copy()
         if "filename" in details:
             del details["filename"]
@@ -313,67 +418,120 @@ class HelixAE_Export:
         details["identifier"] = taskName
         details["comment"] = self.le_comment.text()
 
-        # Add frame range data from render queue
-        if frameRangeResult:
-            try:
-                import json as _json
-                frameRangeData = _json.loads(frameRangeResult)
-                if frameRangeData.get("startFrame") is not None:
-                    details["startframe"] = int(frameRangeData["startFrame"])
-                if frameRangeData.get("endFrame") is not None:
-                    details["endframe"] = int(frameRangeData["endFrame"])
-                if frameRangeData.get("fps"):
-                    details["fps"] = float(frameRangeData["fps"])
-            except Exception as e:
-                print(f"[HelixAE Export] Error parsing frame range: {e}")
+        if ack.get("startFrame") is not None:
+            details["startframe"] = int(ack["startFrame"])
+        if ack.get("endFrame") is not None:
+            details["endframe"] = int(ack["endFrame"])
+        if ack.get("fps"):
+            details["fps"] = float(ack["fps"])
 
-        self.core.saveVersionInfo(
-            filepath=os.path.dirname(outputPath),
-            details=details
+        try:
+            self.core.saveVersionInfo(
+                filepath=os.path.dirname(outputPath),
+                details=details
+            )
+        except Exception as e:
+            return False, "versioninfo.json could not be created: %s" % e
+
+        result = self._patchRenderVersionInfo(
+            outputPath, fileName, render_dependencies
         )
-        self._patchRenderVersionInfo(outputPath, fileName)
+        return result
 
-        self.core.popup(f"Render added to queue!\n\nOutput: {outputPath}")
+    def _reportMetadataFailure(self, error):
+        QMessageBox.warning(
+            self.core.messageParent,
+            "Metadata Not Saved",
+            "The render was added to the queue, but its metadata could not "
+            "be saved:\n\n%s" % error,
+        )
+
+    @err_catcher(name=__name__)
+    def saveExport(self):
+        """Execute export to render queue"""
+        taskName, currentFile = self._validateExportInputs()
+        if not taskName:
+            return False
+
+        oversion = "next" if self.chb_useNextVersion.isChecked() else self.cb_versions.currentText()
+        if not oversion:
+            QMessageBox.warning(self.core.messageParent, "Warning", "Invalid version")
+            return False
+
+        outputPath, outputDir, hVersion = self.exportGetOutputName(oversion)
+        if not outputPath:
+            self.core.popup("Could not determine the render output path.")
+            return False
+
+        # Check path length on Windows
+        if platform.system() == "Windows" and len(outputPath) > 255:
+            self.core.popup(
+                f"The outputpath is longer than 255 characters ({len(outputPath)}), "
+                "which is not supported on Windows."
+            )
+            return
+
+        # Collect comp-scoped dependencies before creating anything.
+        keep_going, render_dependencies = self._prepareRenderDependencies()
+        if not keep_going:
+            return False
+
+        # Create output directory
+        os.makedirs(outputDir, exist_ok=True)
+
+        comp = getattr(self, "_render_comp", None)
+        comp_id = comp["id"] if comp else None
+
+        # Add to render queue in AE first; metadata only on confirmed success
+        ack = self._addRenderQueueItem(
+            outputPath, self.cb_formats.currentText(), comp_id
+        )
+        if ack is None:
+            return False
+
+        metadata_ok, metadata_error = self._writeExportMetadata(
+            ack, outputPath, taskName, hVersion, currentFile, render_dependencies
+        )
+
+        if metadata_ok:
+            self.core.popup(f"Render added to queue!\n\nOutput: {outputPath}")
+        else:
+            self._reportMetadataFailure(metadata_error)
         self.dlg_export.close()
 
         return True
 
     @err_catcher(name=__name__)
     def renderAndSave(self):
-        """Save the project and add to render queue, then start rendering"""
+        """Save the project and add to render queue"""
 
-        taskName = self.le_task.text()
+        taskName, _ = self._validateExportInputs()
         if not taskName:
-            QMessageBox.warning(
-                self.core.messageParent,
-                "Warning",
-                "Please choose a taskname"
-            )
-            return
-
-        currentFile = self.core.getCurrentFileName()
-        projectPath = getattr(self.core, 'projectPath', self.core.prismRoot)
-
-        if not currentFile or not projectPath or not os.path.normpath(currentFile).lower().startswith(
-            os.path.normpath(projectPath).lower()
-        ):
-            QMessageBox.warning(
-                self.core.messageParent,
-                "Warning",
-                "The current file is not inside the Pipeline.\n"
-                "Use the Project Browser to create a file in the Pipeline."
-            )
             return False
 
-        # Save as new version (same as CEP Save Version button)
+        # Save as new version (same as CEP Save Version button). The
+        # ae_core save already shows a popup explaining any failure.
         try:
-            self.core.saveScene()
+            # Render metadata only needs the versions used in the comp.
+            self.main.ae_core._skip_version_scan_next = True
+            try:
+                saved = self.core.saveScene()
+            finally:
+                self.main.ae_core._skip_version_scan_next = False
         except Exception as e:
             QMessageBox.warning(
                 self.core.messageParent,
                 "Warning",
                 f"Save failed: {str(e)}\n\nRender cancelled."
             )
+            return False
+        if saved is False:
+            return False
+
+        # Re-read the scene path after saving: the save may create a new
+        # version, and sourceScene metadata must point at the saved file.
+        currentFile = self._currentPipelineFile()
+        if not currentFile:
             return False
 
         # Then proceed with export/render setup
@@ -383,6 +541,9 @@ class HelixAE_Export:
             return
 
         outputPath, outputDir, hVersion = self.exportGetOutputName(oversion)
+        if not outputPath:
+            self.core.popup("Could not determine the render output path.")
+            return False
 
         # Check path length on Windows
         if platform.system() == "Windows" and len(outputPath) > 255:
@@ -392,116 +553,81 @@ class HelixAE_Export:
             )
             return
 
+        # Collect comp-scoped dependencies before creating anything.
+        keep_going, render_dependencies = self._prepareRenderDependencies()
+        if not keep_going:
+            return False
+
         # Create output directory
         os.makedirs(outputDir, exist_ok=True)
 
-        # Add to render queue (don't auto-start - let user start from AE)
-        selectedOutputModule = self.cb_formats.currentText()
-        scpt = f"""
-        var resultFile = new File('{outputPath.replace(chr(92), "//")}');
-        var renderQueue = app.project.renderQueue;
-        app.activeViewer.setActive();
-        var sel = app.project.activeItem;
-        var render = renderQueue.items.add(sel);
-        render.outputModules[1].applyTemplate('{selectedOutputModule}');
-        render.outputModules[1].file = resultFile;
+        comp = getattr(self, "_render_comp", None)
+        comp_id = comp["id"] if comp else None
 
-        // Get frame range from render queue item (respects custom start/end)
-        var comp = sel;
-        var fps = comp.frameRate;
-        var frameDuration = comp.frameDuration;
-        var displayStartFrame = Math.round(comp.displayStartTime / frameDuration);
-        var renderStartTime = render.timeSpanStart;
-        var renderDuration = render.timeSpanDuration;
-
-        // Calculate actual render frame range
-        var startFrame = Math.round(renderStartTime / frameDuration) + displayStartFrame;
-        var endFrame = Math.round((renderStartTime + renderDuration) / frameDuration - 1) + displayStartFrame;
-
-        JSON.stringify({{
-            "startFrame": startFrame,
-            "endFrame": endFrame,
-            "fps": fps
-        }});
-        """
-        frameRangeResult = self.main.ae_core.executeAppleScript(scpt)
-
-        # Get full entity data from current scene file
-        fileName = self.core.getCurrentFileName()
-        fnameData = self.core.getScenefileData(fileName)
-
-        # Build full details like old Prism AE
-        details = fnameData.copy()
-        if "filename" in details:
-            del details["filename"]
-        if "extension" in details:
-            del details["extension"]
-
-        details["version"] = hVersion
-        details["sourceScene"] = fileName.replace("\\", "/")
-        details["identifier"] = taskName
-        details["comment"] = self.le_comment.text()
-
-        # Add frame range data from render queue
-        if frameRangeResult:
-            import json
-            try:
-                frameRangeData = json.loads(frameRangeResult)
-                if frameRangeData.get("startFrame") is not None:
-                    details["startframe"] = frameRangeData["startFrame"]
-                if frameRangeData.get("endFrame") is not None:
-                    details["endframe"] = frameRangeData["endFrame"]
-                if frameRangeData.get("fps"):
-                    details["fps"] = frameRangeData["fps"]
-            except:
-                pass
-
-        self.core.saveVersionInfo(
-            filepath=os.path.dirname(outputPath),
-            details=details
+        # Add to render queue (don't auto-start - let user start from AE);
+        # metadata only on confirmed success
+        ack = self._addRenderQueueItem(
+            outputPath, self.cb_formats.currentText(), comp_id
         )
-        self._patchRenderVersionInfo(outputPath, fileName)
+        if ack is None:
+            return False
 
+        metadata_ok, metadata_error = self._writeExportMetadata(
+            ack, outputPath, taskName, hVersion, currentFile, render_dependencies
+        )
+
+        if not metadata_ok:
+            self._reportMetadataFailure(metadata_error)
         self.dlg_export.close()
 
         return True
 
-    @err_catcher(name=__name__)
-    def _patchRenderVersionInfo(self, outputPath, sceneFile):
-        """Patch render versioninfo.json with dependencies/externalFiles from scene archiveinfo."""
+    def _patchRenderVersionInfo(self, outputPath, sceneFile, render_dependencies=None):
+        """Patch render versioninfo.json with scene and comp dependencies.
+
+        The top-level arrays stay scene-wide; ``renderDependencies`` is the
+        subset needed to reproduce the queued composition.  Passing ``None``
+        for ``render_dependencies`` removes a stale key (failed scan that the
+        user chose to continue through).  Returns ``(ok, error)``.
+        """
         try:
             import json
             versioninfo_path = os.path.join(os.path.dirname(outputPath), "versioninfo.json")
             archiveinfo_path = os.path.splitext(sceneFile)[0] + "_archiveinfo.json"
 
-            if not os.path.exists(versioninfo_path) or not os.path.exists(archiveinfo_path):
-                return
+            if not os.path.exists(versioninfo_path):
+                return False, "versioninfo.json was not created: %s" % versioninfo_path
 
-            with open(archiveinfo_path, 'r') as f:
-                archive = json.load(f)
             with open(versioninfo_path, 'r') as f:
                 vinfo = json.load(f)
 
-            source_paths = archive.get("source_paths", {})
-            dependencies = [
-                p.replace("\\", "/") for p in
-                source_paths.get("3d_renders", []) +
-                source_paths.get("2d_renders", [])
-            ]
-            external_files = [
-                p.replace("\\", "/") for p in
-                source_paths.get("resources", []) +
-                archive.get("external_paths", [])
-            ]
+            if os.path.exists(archiveinfo_path):
+                with open(archiveinfo_path, 'r') as f:
+                    archive = json.load(f)
+                source_paths = archive.get("source_paths", {})
+                if not isinstance(source_paths, dict):
+                    raise ValueError("archive source_paths is not an object")
 
-            vinfo["dependencies"] = dependencies
-            vinfo["externalFiles"] = external_files
+                def _normalized(values):
+                    if not isinstance(values, list):
+                        return []
+                    return [str(p).replace("\\", "/") for p in values]
 
-            with open(versioninfo_path, 'w') as f:
-                json.dump(vinfo, f, indent=2)
+                vinfo["dependencies"] = (
+                    _normalized(source_paths.get("3d_renders"))
+                    + _normalized(source_paths.get("2d_renders"))
+                )
+                vinfo["externalFiles"] = (
+                    _normalized(source_paths.get("resources"))
+                    + _normalized(archive.get("external_paths"))
+                )
+
+            helixae_render_deps.apply_render_dependencies(vinfo, render_dependencies)
+            helixae_render_deps.write_json_atomic(versioninfo_path, vinfo)
+            return True, None
 
         except Exception as e:
-            print(f"[HelixAE Export] Failed to patch render versioninfo.json: {e}")
+            return False, str(e)
 
     @err_catcher(name=__name__)
     def getCompositionFrameRange(self):
