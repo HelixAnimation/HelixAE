@@ -44,6 +44,8 @@ class AEFootageTracker(QObject):
         self.main = main
         self.core = main.core
         self.utils = FootageUtils()
+        # Available after background refresh and cached-tree restore too.
+        self.debugLog = []
 
         # Initialize Kitsu integration
         self.kitsu_integration = KitsuIntegration(main, self.core)

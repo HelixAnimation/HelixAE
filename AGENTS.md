@@ -1,10 +1,12 @@
 # HelixAE Agent Notes
 
-## Local Development and NAS Deployment
+## NAS Development and Production — Critical
 
-- Develop in `/mnt/storage/OpenCodeProjects/CG/HelixAE`. The production NAS checkout is `/volume1/Renders/Programs/PrismPlugins/HelixAE` on `ssh nassk`, exposed as `\\nassk\Renders\Programs\PrismPlugins\HelixAE`.
-- Production delivery is local verification, explicitly authorized commit/push, then a separately authorized pull in the NAS checkout. Do not automatically run `dev_sync.sh`, update the NAS, or commit/push/pull. The user controls when these operations happen.
-- Git history is maintained locally; deployment excludes `.git`. Preserve existing NAS-only files. Source removals/renames require deliberate cleanup of the corresponding old NAS files because deployment does not delete them.
+- Develop directly in `Z:\Users\Dimitar\Claude\Projects\AE_Plugin\HelixAE`, accessed through `ssh nassk` at `/volume1/Renders/Users/Dimitar/Claude/Projects/AE_Plugin/HelixAE`.
+- Do NOT create or edit plugin source in the Ubuntu checkout `/mnt/storage/OpenCodeProjects/CG/HelixAE` or a Windows-local snapshot. This NAS development location explicitly overrides the general server-native project convention for HelixAE.
+- Production is separate: `Z:\Programs\PrismPlugins\HelixAE`, accessed through `ssh nassk` at `/volume1/Renders/Programs/PrismPlugins/HelixAE`. Never apply development fixes directly there.
+- Workflow: edit and verify the NAS development version; when the user authorizes it, commit and push to GitHub; then, with authorization, pull into the NAS production checkout. Never automatically commit, push, pull, run `dev_sync.sh`, or deploy/copy development files into production.
+- Preserve existing work and NAS-only files. If runtime registration points to a Windows-local snapshot instead of NAS development, report it and obtain authorization before changing registration or installed files.
 - For panel changes, run `bash release_panel.sh` to sign `Integration/helixae.zip` on `ssh helix` before deployment. The deploy command checks Python/JS syntax, the signature, and ZIP/source parity, and verifies deployed file hashes. Never deploy an unsigned panel ZIP.
 - See `docs/development.md` for the workflow and reload requirements.
 
@@ -29,7 +31,7 @@
 - Keep AE protocol/decision logic in stdlib-only modules so it stays unit-testable without Prism/Qt; load them by file path in tests to skip the Qt-importing package `__init__`. Wire-format helpers live in `Scripts/helixae_bridge.py` (top level because `HelixAE_MenuTools.py` imports it before Prism is on `sys.path`); AE-response protocol helpers live under `Scripts/footage_tracker/`.
 - Both TCP bridges are framed via `Scripts/helixae_bridge.py`: 9888 requests and responses are null-terminated (one request per connection; premature EOF is a transport failure, never an empty result); 43210 commands are newline-terminated with ok/error acknowledgement and a `KNOWN_COMMANDS` allowlist. Panel JS and Python must be deployed together (reinstall the CEP integration through Prism after a bridge change).
 - `HelixAE_MenuTools.py` is launched standalone by `helixae.cmd` under Prism's embedded Python, which runs isolated (`python313._pth`: no site, script dir not on `sys.path`). It must insert its own Scripts directory into `sys.path` before importing sibling plugin modules.
-- Regression tests live in `tests/` (local only, never deployed to the NAS); run `python tests/run_tests.py` and add a focused test for every fixed bug.
+- Regression tests live in the development checkout's `tests/`; run `python tests/run_tests.py` and add a focused test for every fixed bug. Keep test artifacts out of the installed production runtime.
 - Windows verification is separate from local checks: prefer read-only `ssh helix` inspection (PowerShell via `-EncodedCommand` because remote cmd eats pipes) before any runtime smoke test, which needs AE + Prism open and a disposable project.
 - The improvement program is tracked in `docs/improvement-plan.md`; update its phase status table and phase notes when a phase advances.
 
