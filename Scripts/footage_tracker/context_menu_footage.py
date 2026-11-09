@@ -309,6 +309,66 @@ class ContextMenuFootage:
 
         self.tracker.tree_ops.shot_switcher.changeIdentifier(footage_items, parent_folder, folder_type)
 
+    @err_catcher(name=__name__)
+    def _addChangeAOVMenu_lazy(self, menu, footage_items):
+        """Lazy-load the Change AOV submenu with the identifier's AOVs."""
+        if menu.actions():
+            return
+
+        import time
+        t_start = time.perf_counter()
+
+        shot_switcher = self.tracker.tree_ops.shot_switcher
+        items = [item for item in footage_items if self._is3DRenderFootageItem(item)]
+
+        if not items:
+            noAction = QAction("No 3D render selected", menu)
+            noAction.setEnabled(False)
+            menu.addAction(noAction)
+            return
+
+        current_aovs = [shot_switcher.getAOVNameFromItem(item) for item in items]
+        unique_current = set(aov for aov in current_aovs if aov)
+        if len(unique_current) == 1:
+            current_label = next(iter(unique_current))
+        elif unique_current:
+            current_label = f"{len(unique_current)} AOVs"
+        else:
+            current_label = "Unknown"
+
+        currentAction = QAction(f"Current ({current_label})", menu)
+        currentAction.setEnabled(False)
+        menu.addAction(currentAction)
+        menu.addSeparator()
+
+        available = shot_switcher.getAvailableAOVsForItems(items) or []
+
+        # Hide AOVs that are already current on every selected item.
+        common_current = {aov.lower() for aov in unique_current}
+        for aov in current_aovs:
+            common_current &= {aov.lower()}
+        choices = [aov for aov in available if aov.lower() not in common_current]
+
+        if not choices:
+            noAction = QAction("No other AOVs found", menu)
+            noAction.setEnabled(False)
+            menu.addAction(noAction)
+        else:
+            for aov in choices:
+                action = QAction(aov, menu)
+                action.triggered.connect(
+                    lambda checked=False, aov=aov: self.onChangeAOVClicked(items, aov)
+                )
+                menu.addAction(action)
+
+        t_end = time.perf_counter()
+        if t_end - t_start > 0.01:
+            print(f"[DEBUG MENU] Change AOV menu (lazy) took {t_end-t_start:.4f}s")
+
+    def onChangeAOVClicked(self, footage_items, new_aov):
+        """Handle 'Change AOV' menu click"""
+        self.tracker.tree_ops.shot_switcher.changeAOV(footage_items, new_aov)
+
     def onChangeIdentifierCustomClicked(self, footage_items, render_type='2d'):
         """Handle 'Change Identifier > Custom' - scans and shows dialog with all identifiers"""
         shots = set()

@@ -24,12 +24,17 @@ If multiple items are outdated:
 
 ---
 
-## Changing Shot or Identifier Manually
+## Changing Shot, Identifier or AOV Manually
 
-You can manually reassign footage to a different shot or task:
+You can manually reassign footage to a different shot, task or pass:
 
 - Right-click → **Change Shot** → pick from the list or choose **Custom...**
 - Right-click → **Change 2D/3D Identifier** → pick or type a custom name
+- Right-click → **Change AOV** (3D renders only) → pick another pass of the same identifier
+
+**Change AOV** keeps the footage's current version when that version contains
+the chosen pass; otherwise it uses the newest version that does. The current
+AOV is shown at the top of the submenu and is not offered as a target.
 
 !!! warning
-    After changing shot or identifier, the tracker will look for the matching render in the new location. Make sure the target render exists before changing.
+    After changing shot, identifier or AOV, the tracker will look for the matching render in the new location. Make sure the target render exists before changing.

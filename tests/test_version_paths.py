@@ -7,6 +7,7 @@ footage_tracker package __init__ is never triggered.
 
 import importlib.util
 import os
+import tempfile
 import unittest
 
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -217,6 +218,86 @@ class TestSortedListing(unittest.TestCase):
         # sorted_listing needs a directory; verify OSError safety via a
         # guaranteed-missing path.
         self.assertEqual(vp.sorted_listing("/nonexistent/helixae/path"), [])
+
+
+class TestRenderIdentifierDirectory(unittest.TestCase):
+    def test_3d_path(self):
+        path = (
+            "Z:\\proj\\03_Production\\Shots\\SQ01\\SH010\\Renders\\3dRender"
+            "\\Lighting\\v0003\\beauty\\beauty.1001.exr"
+        )
+        self.assertEqual(
+            vp.render_identifier_directory(path),
+            "Z:/proj/03_Production/Shots/SQ01/SH010/Renders/3dRender/Lighting",
+        )
+
+    def test_no_version_folder(self):
+        self.assertIsNone(vp.render_identifier_directory("Z:/proj/Lighting/beauty.mov"))
+
+    def test_empty_and_non_string(self):
+        self.assertIsNone(vp.render_identifier_directory(""))
+        self.assertIsNone(vp.render_identifier_directory(None))
+        self.assertIsNone(vp.render_identifier_directory(b""))
+
+
+class TestAOVDiscovery(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.identifier = os.path.join(self._tmp.name, "Lighting")
+        files = [
+            "v0002/beauty/beauty.1001.exr",
+            "v0002/diffuse/diffuse.1001.exr",
+            "v0003/beauty/beauty.1001.exr",
+            "v0003/diffuse/notes.txt",
+            "v0003/empty/readme.md",
+            "v0009/depth/depth.1001.exr",
+            "v0010/beauty/beauty.1001.exr",
+        ]
+        for relative in files:
+            path = os.path.join(self.identifier, relative)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w"):
+                pass
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_list_aovs_union_of_versions(self):
+        # diffuse only has media in v0002; it must still be listed.
+        # Empty folders and metadata-only folders are excluded.
+        self.assertEqual(vp.list_aovs(self.identifier), ["beauty", "depth", "diffuse"])
+
+    def test_list_aovs_missing_directory(self):
+        self.assertEqual(vp.list_aovs("/nonexistent/helixae/aovs"), [])
+
+    def test_find_prefers_current_version(self):
+        version, path = vp.find_aov_path(self.identifier, "diffuse", "v0003")
+        self.assertEqual(version, "v0002")
+        self.assertTrue(path.endswith("diffuse.1001.exr"))
+
+    def test_find_uses_newest_when_no_preference(self):
+        version, _ = vp.find_aov_path(self.identifier, "beauty")
+        self.assertEqual(version, "v0010")  # numeric, not lexicographic
+
+    def test_find_honours_valid_preference(self):
+        version, _ = vp.find_aov_path(self.identifier, "beauty", "v0003")
+        self.assertEqual(version, "v0003")
+
+    def test_find_ignores_invalid_preference(self):
+        version, _ = vp.find_aov_path(self.identifier, "beauty", "garbage")
+        self.assertEqual(version, "v0010")
+
+    def test_find_is_case_insensitive(self):
+        version, path = vp.find_aov_path(self.identifier, "BEAUTY")
+        self.assertEqual(version, "v0010")
+        self.assertTrue(path.endswith(os.path.join("beauty", "beauty.1001.exr")))
+
+    def test_find_missing_aov(self):
+        self.assertIsNone(vp.find_aov_path(self.identifier, "missing"))
+
+    def test_find_requires_identifier(self):
+        self.assertIsNone(vp.find_aov_path(None, "beauty"))
+        self.assertIsNone(vp.find_aov_path(self.identifier, ""))
 
 
 class TestProtocolBuildersPhase4(unittest.TestCase):

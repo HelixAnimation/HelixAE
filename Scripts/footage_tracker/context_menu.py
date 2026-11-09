@@ -182,6 +182,11 @@ class ContextMenu(
                         self._addChangeIdentifierMenu_lazy(menu, items, '3d'))
                     menu.addSeparator()
 
+                    changeAovMenu = menu.addMenu("Change AOV")
+                    changeAovMenu.aboutToShow.connect(lambda menu=changeAovMenu, items=footage_3d_items:
+                        self._addChangeAOVMenu_lazy(menu, items))
+                    menu.addSeparator()
+
                 syncMenu = menu.addMenu("Sync")
                 syncMenu.aboutToShow.connect(lambda: self._addSyncMenu_lazy(syncMenu, footage_items, position))
                 menu.addSeparator()

@@ -8,6 +8,7 @@ import os
 import re
 
 import helixae_protocol
+from footage_tracker import version_paths
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
@@ -3504,3 +3505,163 @@ class ShotSwitcher:
             layout.addWidget(close_btn)
 
             dlg.exec_()
+
+    @err_catcher(name=__name__)
+    def getAvailableAOVsForItems(self, footage_items):
+        """Return the sorted union of AOVs available for the selected 3D items."""
+        aovs = set()
+        scanned = {}
+        for item in footage_items:
+            userData = item.data(0, Qt.UserRole) or {}
+            identifier_dir = version_paths.render_identifier_directory(
+                userData.get('path', ''))
+            if identifier_dir:
+                if identifier_dir not in scanned:
+                    scanned[identifier_dir] = version_paths.list_aovs(identifier_dir)
+                if scanned[identifier_dir]:
+                    aovs.update(scanned[identifier_dir])
+                    continue
+            aovs.update(self.getAvailableAOVs(item) or [])
+        return sorted(aovs)
+
+    @err_catcher(name=__name__)
+    def getAvailableAOVs(self, footage_item):
+        """List AOV names available for a 3D render item's identifier.
+
+        The identifier folder on disk is authoritative (all versions are
+        considered).  When the media location is offline, fall back to the
+        AOVs already loaded in the tree hierarchy.
+        """
+        userData = footage_item.data(0, Qt.UserRole) or {}
+        identifier_dir = version_paths.render_identifier_directory(
+            userData.get('path', ''))
+        if identifier_dir:
+            aovs = version_paths.list_aovs(identifier_dir)
+            if aovs:
+                return aovs
+
+        shot_name = self.tracker.getShotNameFromItem(footage_item)
+        identifier = userData.get('identifier', '')
+        hierarchy = getattr(self.tracker, '_stored_hierarchy', {})
+        try:
+            return sorted(hierarchy['3D Renders'][shot_name][identifier].keys())
+        except (KeyError, AttributeError, TypeError):
+            return []
+
+    @err_catcher(name=__name__)
+    def changeAOV(self, footage_items, new_aov):
+        """Switch selected 3D render footage to another AOV.
+
+        The AOV is resolved at the footage's current version when that
+        version contains it; otherwise the newest version containing the
+        AOV is used, so passes are not silently mixed across versions
+        unless the preferred version has no such pass.
+        """
+        try:
+            items = []
+            for item in footage_items:
+                userData = item.data(0, Qt.UserRole) or {}
+                if (userData.get('type') == 'footage'
+                        and userData.get('group') == '3D Renders'):
+                    items.append(item)
+
+            if not items:
+                self.core.popup("No 3D render footage selected.")
+                return
+
+            if len(items) > 1:
+                reply = QMessageBox.question(
+                    self.tracker.dlg_footage,
+                    "Change AOV - Multiple Footage Items",
+                    f"Switch {len(items)} footage item(s) to AOV '{new_aov}'?\n\n"
+                    f"Each item keeps its current version when that version "
+                    f"contains the AOV; otherwise the newest version with "
+                    f"the AOV is used.\n\n"
+                    f"This will replace the footage source in After Effects.",
+                    QMessageBox.Yes | QMessageBox.No
+                )
+                if reply == QMessageBox.No:
+                    return
+
+            success_count = 0
+            skipped_count = 0
+            failed_count = 0
+            failed_items = []
+            switched_versions = set()
+
+            for item in items:
+                try:
+                    userData = item.data(0, Qt.UserRole) or {}
+                    current_aov = self.getAOVNameFromItem(item)
+                    if current_aov.lower() == new_aov.lower():
+                        skipped_count += 1
+                        continue
+
+                    identifier_dir = version_paths.render_identifier_directory(
+                        userData.get('path', ''))
+                    if not identifier_dir:
+                        failed_count += 1
+                        failed_items.append(
+                            f"{item.text(0)}: Could not determine identifier folder")
+                        continue
+
+                    match = version_paths.find_aov_path(
+                        identifier_dir, new_aov,
+                        preferred_version=userData.get('currentVersion'))
+                    if not match:
+                        failed_count += 1
+                        failed_items.append(
+                            f"{item.text(0)}: No media found for AOV '{new_aov}'")
+                        continue
+
+                    version, file_path = match
+                    result = self.tracker.ae_ops.replaceFootage(
+                        userData.get('id'), file_path)
+                    if result.get('success'):
+                        success_count += 1
+                        switched_versions.add(version)
+                    else:
+                        failed_count += 1
+                        failed_items.append(
+                            f"{item.text(0)}: "
+                            f"{result.get('error', 'Unknown error')}")
+                except Exception as e:
+                    failed_count += 1
+                    failed_items.append(f"{item.text(0)}: {str(e)}")
+
+            if failed_count:
+                error_msg = "\n".join(failed_items[:10])
+                if len(failed_items) > 10:
+                    error_msg += f"\n... and {len(failed_items) - 10} more"
+                self.tracker.showSelectableMessage(
+                    "Change AOV Complete with Errors",
+                    f"Successfully changed: {success_count}\n"
+                    f"Skipped (already current): {skipped_count}\n"
+                    f"Failed: {failed_count}\n\n"
+                    f"Errors:\n{error_msg}"
+                )
+            else:
+                if success_count == 0 and skipped_count:
+                    status = f"Already using AOV {new_aov}"
+                else:
+                    suffix = ""
+                    if len(switched_versions) == 1:
+                        suffix = f" ({next(iter(switched_versions))})"
+                    status = f"Changed {success_count} item(s) to {new_aov}{suffix}"
+                self.tracker.dlg_footage.statusBar.setText(status)
+                QTimer.singleShot(
+                    2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
+
+            if success_count:
+                QTimer.singleShot(100, lambda: self.tracker.loadFootageData())
+
+        except Exception as e:
+            import traceback
+            self.core.popup(f"Error changing AOV:\n{str(e)}\n\n{traceback.format_exc()}")
+
+    def getAOVNameFromItem(self, item):
+        """AOV label from a 3D tree item, without a duplicate suffix."""
+        text = item.text(0).strip()
+        if text.endswith(')') and text.count(' (') == 1:
+            return text.split(' (')[0]
+        return text
