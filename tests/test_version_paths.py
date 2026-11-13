@@ -290,7 +290,10 @@ class TestAOVDiscovery(unittest.TestCase):
     def test_find_is_case_insensitive(self):
         version, path = vp.find_aov_path(self.identifier, "BEAUTY")
         self.assertEqual(version, "v0010")
-        self.assertTrue(path.endswith(os.path.join("beauty", "beauty.1001.exr")))
+        # Windows may preserve the requested AOV casing; verify the file,
+        # not its spelling on a case-insensitive filesystem.
+        expected = os.path.join(self.identifier, "v0010", "beauty", "beauty.1001.exr")
+        self.assertTrue(os.path.samefile(path, expected))
 
     def test_find_missing_aov(self):
         self.assertIsNone(vp.find_aov_path(self.identifier, "missing"))
@@ -342,7 +345,7 @@ class TestChangeTargetPaths(unittest.TestCase):
     def test_shot_root_from_path(self):
         self.assertEqual(
             vp.shot_root_from_path(self.source_3d),
-            os.path.join(self.root, "Shots/SQ01/SH010"),
+            os.path.join(self.root, "Shots/SQ01/SH010").replace("\\", "/"),
         )
         self.assertEqual(
             vp.shot_root_from_path("Z:/proj/Shots/SH010/Renders/3dRender/Lighting/v0001/beauty/b.exr"),
@@ -357,25 +360,25 @@ class TestChangeTargetPaths(unittest.TestCase):
         source_root = os.path.join(self.root, "Shots/SQ01/SH010")
         self.assertEqual(
             vp.build_target_shot_root(source_root, "SQ02-SH020"),
-            os.path.join(self.root, "Shots/SQ02/SH020"),
+            os.path.join(self.root, "Shots/SQ02/SH020").replace("\\", "/"),
         )
         self.assertEqual(
             vp.build_target_shot_root(source_root, "SH020"),
-            os.path.join(self.root, "Shots/SQ01/SH020"),
+            os.path.join(self.root, "Shots/SQ01/SH020").replace("\\", "/"),
         )
 
     def test_build_target_identifier_parent_preserves_render_folder(self):
         target_root = os.path.join(self.root, "Shots/SQ02/SH020")
         self.assertEqual(
             vp.build_target_identifier_parent(self.source_3d, target_root),
-            os.path.join(target_root, "Renders/3dRender"),
+            os.path.join(target_root, "Renders/3dRender").replace("\\", "/"),
         )
         rendering_source = os.path.join(
             self.root, "Shots/SQ01/SH010/Rendering/3dRender/Lighting/v0002/beauty/beauty.1001.exr"
         )
         self.assertEqual(
             vp.build_target_identifier_parent(rendering_source, target_root),
-            os.path.join(target_root, "Rendering/3dRender"),
+            os.path.join(target_root, "Rendering/3dRender").replace("\\", "/"),
         )
 
     def test_list_identifiers(self):

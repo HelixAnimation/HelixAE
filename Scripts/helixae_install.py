@@ -18,9 +18,11 @@ def archive_files(archive):
     seen = set()
     with zipfile.ZipFile(archive) as package:
         for entry in package.infolist():
-            name = entry.filename
+            # ZipInfo normalizes backslashes on Windows and truncates NULs.
+            # Validate the original archive spelling before trusting either.
+            name = entry.orig_filename
             parts = name.rstrip("/").split("/")
-            if (not name or "\\" in name or ":" in name
+            if (not name or "\x00" in name or "\\" in name or ":" in name
                     or any(part in ("", ".", "..") for part in parts)
                     or stat.S_ISLNK(entry.external_attr >> 16)):
                 raise ValueError("Unsafe panel archive member: %s" % name)

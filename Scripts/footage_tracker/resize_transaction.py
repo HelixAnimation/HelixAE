@@ -95,7 +95,8 @@ def replace_image(source, backup_folder, render):
             raise RuntimeError('Resized output is empty')
         if _digest(source) != fingerprint:
             raise RuntimeError('Source changed during resizing; replacement aborted')
-        with open(temporary, 'rb') as stream:
+        # Windows fsync requires a writable handle; do not truncate the render.
+        with open(temporary, 'r+b') as stream:
             os.fsync(stream.fileno())
         os.replace(temporary, source)
         return True, None

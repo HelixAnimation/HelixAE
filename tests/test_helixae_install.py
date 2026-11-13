@@ -41,7 +41,12 @@ class InstallationTests(unittest.TestCase):
             for name, data in self.files.items():
                 package.writestr(name, data)
             if extra:
-                package.writestr(*extra)
+                name, data = extra
+                entry = zipfile.ZipInfo("fixture")
+                # Bypass ZipInfo constructor normalization so the ZIP really
+                # contains the unsafe spelling, including on Windows.
+                entry.filename = name
+                package.writestr(entry, data)
 
     def install(self):
         return installer.install(self.archive, self.template, str(self.dest), str(self.prism), str(self.plugin))
@@ -54,7 +59,8 @@ class InstallationTests(unittest.TestCase):
         self.assertTrue(self.install())
         installer.verify_files(str(self.dest / "helixae"), self.files)
         launcher = (self.dest / "helixae.cmd").read_bytes().decode("utf-8")
-        self.assertIn(str(self.plugin), launcher)
+        self.assertIn(str(self.plugin).replace("\\", "/"), launcher)
+        self.assertIn(str(self.prism).replace("\\", "/"), launcher)
         self.assertIn("DisableDelayedExpansion", launcher)
         self.assertNotIn("PLUGINROOT", launcher)
         self.assertFalse(list(self.dest.glob(".helixae-install-*")))
@@ -79,9 +85,12 @@ class InstallationTests(unittest.TestCase):
         self.assert_old()
 
     def test_unsafe_members_preserve_old(self):
-        for member in ("../escape", "/absolute", "C:/absolute", "js\\escape", "JS/main.js"):
+        for member in ("../escape", "/absolute", "C:/absolute", "js\\escape",
+                       "JS/main.js", "js/main.js\x00ignored"):
             with self.subTest(member=member):
                 self.write_archive((member, b"bad"))
+                with zipfile.ZipFile(self.archive) as package:
+                    self.assertEqual(package.infolist()[-1].orig_filename, member)
                 with self.assertRaises(ValueError):
                     self.install()
                 self.assert_old()

@@ -44,6 +44,36 @@ class ResizeTransactionTests(unittest.TestCase):
         self.assertEqual(self.read(os.path.join(self.backups, 'image.exr')), b'original')
         self.assertFalse(any(name.startswith('.helixae') for name in os.listdir(self.directory.name)))
 
+    def test_fsync_handles_are_writable_without_truncating_output(self):
+        original_fsync = transaction.os.fsync
+        flushed = []
+        def require_writable(fd):
+            # This rejects a read-only handle on both POSIX and Windows.
+            os.write(fd, b'')
+            original_fsync(fd)
+            flushed.append(fd)
+        with patch.object(transaction.os, 'fsync', side_effect=require_writable):
+            self.assertEqual(transaction.replace_image(
+                self.source, self.backups, self.render), (True, None))
+        self.assertEqual(len(flushed), 2)  # Backup and completed render.
+        self.assertEqual(self.read(self.source), b'resized')
+
+    def test_output_flush_failure_preserves_source_and_backup(self):
+        original_fsync = transaction.os.fsync
+        flushed = []
+        def fail_output_flush(fd):
+            flushed.append(fd)
+            if len(flushed) == 2:
+                raise OSError('output flush failed')
+            original_fsync(fd)
+        with patch.object(transaction.os, 'fsync', side_effect=fail_output_flush):
+            ok, reason = transaction.replace_image(self.source, self.backups, self.render)
+        self.assertFalse(ok)
+        self.assertIn('output flush failed', reason)
+        self.assertEqual(self.read(self.source), b'original')
+        self.assertEqual(self.read(os.path.join(self.backups, 'image.exr')), b'original')
+        self.assertFalse(any(name.startswith('.helixae') for name in os.listdir(self.directory.name)))
+
     def test_partial_write_validation_failure_preserves_original(self):
         def failed(source, target):
             self.write(target, b'partial')
