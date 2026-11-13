@@ -17,6 +17,15 @@ Kitsu is the studio's hub for shot management, task tracking, reviews, and feedb
 
 ---
 
+## Shot FPS
+
+FPS checks and **Sync → FPS** use each shot's Kitsu custom metadata field
+`data.fps` (or a top-level shot `fps` when provided). Shots without a valid FPS
+inherit the Kitsu project FPS, then Prism project FPS, then **25 FPS**.
+Empty, malformed, zero, negative, or non-finite values are ignored.
+The shot-loading dialog uses the same rules. Refresh **Kitsu** after changing
+shot FPS; refreshing footage alone retains cached Kitsu values.
+
 ## Status Colours
 
 Each footage item in the tracker can show a colour from Kitsu representing the task's current status (e.g. In Progress, Pending Review, Done). These colours come directly from your Kitsu project configuration.

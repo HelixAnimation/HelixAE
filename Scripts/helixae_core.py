@@ -24,7 +24,7 @@ class HelixAECore:
         self.win = platform.system() == "Windows"
 
     @err_catcher(name=__name__)
-    def executeAppleScript(self, script):
+    def executeAppleScript(self, script, timeout=120.0):
         """
         Send ExtendScript to After Effects via a fresh socket connection per call.
 
@@ -34,6 +34,10 @@ class HelixAECore:
         connection that closes before the response terminator is never treated
         as a valid (empty) response.
         """
+        return self._execute_script(script, timeout=timeout)
+
+    def _execute_script(self, script, timeout=120.0):
+        """Raw transport: let operation-specific handlers see failures."""
         # Prepend JSON polyfill if the script uses JSON (json2, ExtendScript
         # has no native JSON — see Scripts/helixae_protocol.py)
         script = helixae_protocol.ensure_json_polyfill(script)
@@ -42,7 +46,7 @@ class HelixAECore:
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
-                s.settimeout(120.0)  # 120s — imports can take a long time
+                s.settimeout(timeout)  # callers may allow longer for scene opening
                 s.connect(('127.0.0.1', 9888))
             except Exception as e:
                 raise Exception("Cannot connect to After Effects on 127.0.0.1:9888 (%s)" % e)
@@ -331,7 +335,12 @@ class HelixAECore:
         if not filepath.endswith(".aep"):
             return False
         try:
-            result = self.executeAppleScript(helixae_protocol.build_open_scene(filepath))
+            # Opening large NAS projects can exceed the normal two-minute limit.
+            # Use the undecorated transport so Prism cannot swallow a timeout
+            # before this operation can explain its uncertain outcome.
+            result = self._execute_script(
+                helixae_protocol.build_open_scene(filepath), timeout=600.0
+            )
             data, error = helixae_protocol.parse_json_response(result)
             if error:
                 raise Exception(error)
@@ -343,6 +352,13 @@ class HelixAECore:
             if preparation:
                 preparation.scene_opened()
             return True
+        except socket.timeout:
+            self.core.popup(
+                "After Effects has not confirmed opening the project after 10 minutes.\n"
+                "It may still be loading or waiting for a dialog. Check After Effects "
+                "before trying again; the open request has not been cancelled."
+            )
+            return False
         except Exception as e:
             self.core.popup(f"Opening in After Effects failed:\n{str(e)}")
             return False

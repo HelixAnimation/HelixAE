@@ -1,0 +1,115 @@
+{
+  "target": "/volume1/Renders/X/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0001/versioninfo.json",
+  "source_scene_sha256": "aaf05b15f3cefd63680acc13454275ecd9089655cd9cc64a326161b33bd17e4e",
+  "scene_size": 2815811,
+  "scene_mtime_ns": 1782156849856548523,
+  "movie_size": 552527876,
+  "movie_mtime_ns": 1782157627246235696,
+  "movie_moov_sha256": "5b3b2edf1a9bc513bc8f013d8990f5b07dc04bfc2032b6e5f5562ff714509a0a",
+  "movie_project_link": {
+    "compositionID": "17",
+    "renderQueueItemID": "23",
+    "renderOutputModuleIndex": "0",
+    "fullPath": "X:\\Cytonics_CYT108\\03_Production\\Shots\\SQ020\\SH020\\Scenefiles\\LookDev\\LowRes\\SQ020-SH020_LowRes_v0007.aep"
+  },
+  "scene_metadata": {
+    "project_path": "X:\\Cytonics_CYT108",
+    "sequence": "SQ020",
+    "shot": "SH020",
+    "department": "LookDev",
+    "task": "LowRes",
+    "version": "v0007",
+    "type": "shot",
+    "locations": {
+      "global": "X:\\Cytonics_CYT108\\03_Production\\Shots\\SQ020\\SH020\\Scenefiles\\LookDev\\LowRes\\SQ020-SH020_LowRes_v0007.aep"
+    },
+    "comment": "",
+    "hierarchy": "SQ020/SH020",
+    "itemType": "shot",
+    "project_name": "Cytonics_CYT108",
+    "dependencies": [
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/beauty/SQ020-SH020_Lighting_Beauty_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/volume/SQ020-SH020_Lighting_Beauty_v0001_volume.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0001/beauty/SQ020-SH020_Lighting_Core_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0001/cryptomatte/SQ020-SH020_Lighting_Matte_v0001_cryptomatte.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/beauty/SQ020-SH020_Rusty_Clouds_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0001/Light_Mask/SQ020-SH020_Rusty_Hero_v0001_Light_Mask.1390.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0001/beauty/SQ020-SH020_Rusty_Hero_v0001_beauty.1390.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0001/beauty/SQ020-SH020_Rusty_Microphage_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0001/beauty/SQ020-SH020_Rusty_Ribbons_v0001_beauty.1390.exr"
+    ],
+    "username": "Goran Dimov",
+    "user": "gdi"
+  },
+  "scene_dependencies": [
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/beauty/SQ020-SH020_Lighting_Beauty_v0001_beauty.1001.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/volume/SQ020-SH020_Lighting_Beauty_v0001_volume.1001.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0001/beauty/SQ020-SH020_Lighting_Core_v0001_beauty.1001.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0001/cryptomatte/SQ020-SH020_Lighting_Matte_v0001_cryptomatte.1001.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/beauty/SQ020-SH020_Rusty_Clouds_v0001_beauty.1001.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0001/Light_Mask/SQ020-SH020_Rusty_Hero_v0001_Light_Mask.1390.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0001/beauty/SQ020-SH020_Rusty_Hero_v0001_beauty.1390.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0001/beauty/SQ020-SH020_Rusty_Microphage_v0001_beauty.1001.exr",
+    "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0001/beauty/SQ020-SH020_Rusty_Ribbons_v0001_beauty.1390.exr"
+  ],
+  "scene_external": [],
+  "fps": 24.0,
+  "status": "reconstructed",
+  "version": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0001",
+  "source": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/LowRes/SQ020-SH020_LowRes_v0007.aep",
+  "movie": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0001/SQ020-SH020_BG_v0001.mov",
+  "metadata": {
+    "project_path": "X:\\Cytonics_CYT108",
+    "sequence": "SQ020",
+    "shot": "SH020",
+    "department": "LookDev",
+    "task": "LowRes",
+    "type": "shot",
+    "hierarchy": "SQ020/SH020",
+    "itemType": "shot",
+    "project_name": "Cytonics_CYT108",
+    "version": "v0001",
+    "identifier": "BG",
+    "sourceScene": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/LowRes/SQ020-SH020_LowRes_v0007.aep",
+    "locations": {
+      "global": "."
+    },
+    "fps": 24.0,
+    "dependencies": [
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/beauty/SQ020-SH020_Lighting_Beauty_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/volume/SQ020-SH020_Lighting_Beauty_v0001_volume.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0001/beauty/SQ020-SH020_Lighting_Core_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0001/cryptomatte/SQ020-SH020_Lighting_Matte_v0001_cryptomatte.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/beauty/SQ020-SH020_Rusty_Clouds_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0001/Light_Mask/SQ020-SH020_Rusty_Hero_v0001_Light_Mask.1390.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0001/beauty/SQ020-SH020_Rusty_Hero_v0001_beauty.1390.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0001/beauty/SQ020-SH020_Rusty_Microphage_v0001_beauty.1001.exr",
+      "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0001/beauty/SQ020-SH020_Rusty_Ribbons_v0001_beauty.1390.exr"
+    ],
+    "externalFiles": [],
+    "renderDependencies": {
+      "context": {
+        "application": "aftereffects",
+        "type": "composition",
+        "identifier": "17",
+        "name": "SQ020-SH020_BG_v0001"
+      },
+      "dependencies": [
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/beauty/SQ020-SH020_Lighting_Beauty_v0001_beauty.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0001/volume/SQ020-SH020_Lighting_Beauty_v0001_volume.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0001/beauty/SQ020-SH020_Lighting_Core_v0001_beauty.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0001/cryptomatte/SQ020-SH020_Lighting_Matte_v0001_cryptomatte.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/beauty/SQ020-SH020_Rusty_Clouds_v0001_beauty.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0001/beauty/SQ020-SH020_Rusty_Microphage_v0001_beauty.1001.exr"
+      ],
+      "externalFiles": []
+    }
+  },
+  "missing": [],
+  "dependency_scope": "AE composition 17 from the movie project link; scene-wide top-level fallback",
+  "exporter_identity": "unknown; scene artist is not asserted as render user",
+  "backup": null,
+  "backup_reason": "No original versioninfo.json existed",
+  "new_sha256": "2791673d6502bb969b3fe0ff18da363401d6db980a093dab1a0b0cce8987a39b",
+  "reconstructed_utc": "2026-10-19T21:39:09.020040+00:00"
+}

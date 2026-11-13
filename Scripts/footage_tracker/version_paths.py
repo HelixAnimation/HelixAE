@@ -275,6 +275,235 @@ def find_aov_path(identifier_dir, aov, preferred_version=None):
     return None
 
 
+_SHOT_FOLDER_RE = re.compile(r"^(sh|sq|ch|ep)\d+", re.IGNORECASE)
+_RENDER_TYPE_NAMES = {
+    "3drender": "3dRender",
+    "2drender": "2dRender",
+    "playblasts": "Playblasts",
+}
+
+
+def render_type_from_path(file_path):
+    """Return ``3dRender``, ``2dRender``, ``Playblasts`` or ``None``."""
+    if isinstance(file_path, bytes):
+        file_path = file_path.decode("utf-8")
+    if not isinstance(file_path, str) or not file_path.strip():
+        return None
+    for part in file_path.replace("\\", "/").split("/"):
+        canonical = _RENDER_TYPE_NAMES.get(part.lower())
+        if canonical:
+            return canonical
+    return None
+
+
+def shot_root_from_path(file_path):
+    """Return the shot folder path for a render path, or ``None``.
+
+    Handles ``.../Shots/SQ01/SH010/...`` (sequence and shot), a plain
+    ``.../Shots/SH010/...``, and the single-folder fallback
+    ``.../Shots/<shot-name>/...``.  Output uses forward slashes.
+    """
+    if isinstance(file_path, bytes):
+        file_path = file_path.decode("utf-8")
+    if not isinstance(file_path, str) or not file_path.strip():
+        return None
+
+    parts = file_path.replace("\\", "/").split("/")
+    shots_index = -1
+    for i, part in enumerate(parts):
+        if part.lower() == "shots":
+            shots_index = i
+            break
+
+    if shots_index >= 0:
+        start = shots_index + 1
+        for i in range(start, len(parts)):
+            if _SHOT_FOLDER_RE.match(parts[i]):
+                end = i
+                if i + 1 < len(parts) and _SHOT_FOLDER_RE.match(parts[i + 1]):
+                    end = i + 1
+                return "/".join(parts[:end + 1])
+        if start < len(parts):
+            return "/".join(parts[:start + 1])
+        return None
+
+    for i, part in enumerate(parts):
+        if i > 0 and _SHOT_FOLDER_RE.match(part):
+            return "/".join(parts[:i + 1])
+    return None
+
+
+def build_target_shot_root(source_shot_root, target_shot):
+    """Build the target shot folder from an existing shot root and name.
+
+    ``.../Shots/SQ01/SH010`` + ``SQ02-SH020`` -> ``.../Shots/SQ02/SH020``.
+    A bare ``SH020`` keeps the current sequence folder.
+    """
+    if not source_shot_root or not target_shot:
+        return None
+
+    source = source_shot_root.replace("\\", "/").rstrip("/")
+    target = target_shot.strip().replace("\\", "/").strip("/")
+    if not target:
+        return None
+
+    parts = source.split("/")
+    sequence = None
+    if (len(parts) >= 2
+            and _SHOT_FOLDER_RE.match(parts[-1])
+            and _SHOT_FOLDER_RE.match(parts[-2])):
+        sequence = parts[-2]
+        base_parts = parts[:-2]
+    else:
+        base_parts = parts[:-1]
+    if not base_parts:
+        return None
+    base = "/".join(base_parts)
+
+    if "-" in target:
+        seq, shot = target.split("-", 1)
+        if _SHOT_FOLDER_RE.match(seq) and _SHOT_FOLDER_RE.match(shot):
+            return base + "/" + seq + "/" + shot
+
+    if sequence:
+        return base + "/" + sequence + "/" + target
+    return base + "/" + target
+
+
+def build_target_identifier_parent(source_path, target_shot_root):
+    """Return the render-type parent for a target shot.
+
+    ``.../SH010/Renders/3dRender/Lighting/v0003/beauty/f.exr`` with the
+    target shot root ``.../SH020`` becomes ``.../SH020/Renders/3dRender``.
+    The render folder name (``Renders``/``Rendering``/``Playblasts``) is
+    preserved from the source path.
+    """
+    identifier_dir = render_identifier_directory(source_path)
+    source_shot_root = shot_root_from_path(source_path)
+    if not identifier_dir or not source_shot_root or not target_shot_root:
+        return None
+
+    identifier_dir = identifier_dir.replace("\\", "/")
+    source_shot_root = source_shot_root.replace("\\", "/").rstrip("/")
+    prefix = source_shot_root + "/"
+    if not identifier_dir.startswith(prefix):
+        return None
+
+    render_parent = identifier_dir.rsplit("/", 1)[0]
+    relative_parent = render_parent[len(prefix):].strip("/")
+    target = target_shot_root.replace("\\", "/").rstrip("/")
+    if relative_parent:
+        return target + "/" + relative_parent
+    return target
+
+
+def _identifier_has_media(identifier_dir):
+    """True when a version folder directly contains a footage file."""
+    for version in sorted_listing(identifier_dir):
+        if not _VERSION_FOLDER_RE.match(version):
+            continue
+        version_dir = os.path.join(identifier_dir, version)
+        if os.path.isdir(version_dir) and _first_media_file(version_dir):
+            return True
+    return False
+
+
+def list_identifiers(render_parent, require_aovs=False):
+    """Sorted identifier folders under a render-type parent.
+
+    ``require_aovs`` selects the 3D layout (media inside AOV folders);
+    otherwise media directly inside a version folder is enough.
+    """
+    identifiers = []
+    for child in sorted_listing(render_parent):
+        child_dir = os.path.join(render_parent, child)
+        if not os.path.isdir(child_dir):
+            continue
+        if require_aovs:
+            has_media = bool(list_aovs(child_dir))
+        else:
+            has_media = _identifier_has_media(child_dir)
+        if has_media:
+            identifiers.append(child)
+    return identifiers
+
+
+def find_latest_media_path(identifier_dir, preferred_version=None):
+    """Locate media for a non-AOV identifier (2D render/playblast).
+
+    Returns ``(version, file_path)`` preferring ``preferred_version``,
+    then the newest version containing media.  ``None`` when empty.
+    """
+    if not identifier_dir:
+        return None
+
+    versions = [
+        name for name in sorted_listing(identifier_dir)
+        if _VERSION_FOLDER_RE.match(name)
+        and os.path.isdir(os.path.join(identifier_dir, name))
+    ]
+    versions.sort(key=lambda name: int(name[1:]), reverse=True)
+
+    preferred = None
+    if preferred_version:
+        try:
+            preferred = extract_version_token(preferred_version)
+        except (TypeError, ValueError):
+            preferred = None
+    if preferred in versions:
+        versions.remove(preferred)
+        versions.insert(0, preferred)
+
+    for version in versions:
+        media = _first_media_file(os.path.join(identifier_dir, version))
+        if media:
+            return version, media
+    return None
+
+
+def resolve_target_path(source_path, target_shot, target_identifier,
+                        target_aov=None, is_3d=True,
+                        preferred_version=None,
+                        target_identifier_parent=None):
+    """Resolve a shot/identifier/AOV target to a concrete media path.
+
+    Returns ``{"version", "path", "identifier_dir"}`` or ``None`` when
+    the target has no media.  ``target_identifier_parent`` is used when
+    the caller already knows the render-type folder (for example a
+    ``[PB]`` choice in a 2D identifier list).
+    """
+    if not source_path or not target_shot or not target_identifier:
+        return None
+
+    source_shot_root = shot_root_from_path(source_path)
+    if not source_shot_root:
+        return None
+
+    target_shot_root = build_target_shot_root(source_shot_root, target_shot)
+    if not target_shot_root:
+        return None
+
+    parent = target_identifier_parent or build_target_identifier_parent(
+        source_path, target_shot_root)
+    if not parent:
+        return None
+
+    identifier_dir = parent.rstrip("/") + "/" + target_identifier
+    if is_3d:
+        found = find_aov_path(identifier_dir, target_aov, preferred_version)
+    else:
+        found = find_latest_media_path(identifier_dir, preferred_version)
+    if not found:
+        return None
+
+    version, file_path = found
+    return {
+        "version": version,
+        "path": file_path,
+        "identifier_dir": identifier_dir,
+    }
+
+
 __all__ = [
     "extract_version_token",
     "version_folder_index",
@@ -287,4 +516,11 @@ __all__ = [
     "render_identifier_directory",
     "list_aovs",
     "find_aov_path",
+    "render_type_from_path",
+    "shot_root_from_path",
+    "build_target_shot_root",
+    "build_target_identifier_parent",
+    "list_identifiers",
+    "find_latest_media_path",
+    "resolve_target_path",
 ]

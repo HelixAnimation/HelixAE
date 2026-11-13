@@ -1,0 +1,5708 @@
+# Cytonics — two sample renders, recursive dependency audit
+
+AE queue/comp scans performed 2026-10-19. No production metadata was changed.
+
+## Interpretation
+
+- AE nodes use completed render-queue output matches and recursive comp walks.
+- Houdini/Maya/export nodes use their existing publish metadata. Most are scene-wide:
+  this portion is a conservative recorded graph, not proven output-scoped inputs.
+- All reachable recorded edges are followed with cycle protection; no depth cutoff.
+- Missing versioninfo records leave unresolved branches. This is not a certified complete archive.
+- Sequence listings enumerate matching files on the NAS, with counts, frame spans and internal gaps.
+  They do not validate frame contents or prove that the expected frame range is complete.
+- Source scenes are collected as files. Their runtime contents were not inspected in Houdini/Maya.
+- Missing representative frames remain visible in this diagnostic report; production AE metadata
+  excludes missing paths, so this report must not be copied verbatim into renderDependencies.
+
+## Unresolved branches
+
+- X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0013: missing versioninfo.json
+- X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001: missing versioninfo.json
+
+## Sample: X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0015/SQ020-SH020_HighRes_v0015.mov
+
+- Reachable publish versions: 152
+- Deepest shortest publish distance: 10 (root = level 0)
+- Distinct referenced paths (including the root representative): 734
+- Distinct source scenes: 64
+- Sequence patterns: 193; matching sequence files: 74198
+- Missing referenced/source paths: 256
+
+### Publish versions by shortest dependency level
+
+
+#### Level 0
+
+- **P113** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0015` — AE completed queue + composition walk
+
+#### Level 1
+
+- **P111** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014` — AE completed queue + composition walk
+- **P112** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0013` — AE completed queue + composition walk
+- **P120** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006` — publish scene-wide metadata
+- **P122** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006` — publish scene-wide metadata
+
+#### Level 2
+
+- **P051** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002` — publish scene-wide metadata
+- **P054** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002` — publish scene-wide metadata
+- **P066** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012` — publish scene-wide metadata
+- **P067** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002` — publish scene-wide metadata
+- **P072** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003` — publish scene-wide metadata
+- **P080** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008` — publish scene-wide metadata
+- **P083** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001` — publish scene-wide metadata
+- **P089** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006` — publish scene-wide metadata
+- **P095** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012` — publish scene-wide metadata
+- **P096** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001` — publish scene-wide metadata
+- **P100** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001` — publish scene-wide metadata
+- **P104** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002` — publish scene-wide metadata
+- **P110** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0013` — UNRESOLVED: missing versioninfo.json
+- **P114** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018` — publish scene-wide metadata
+- **P115** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0014` — publish scene-wide metadata
+- **P116** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022` — publish scene-wide metadata
+- **P117** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0016` — publish scene-wide metadata
+- **P118** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009` — publish scene-wide metadata
+- **P119** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001` — publish scene-wide metadata
+- **P121** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0012` — publish scene-wide metadata
+- **P152** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003` — publish scene-wide metadata
+
+#### Level 3
+
+- **P007** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005` — publish scene-wide metadata
+- **P021** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001` — publish scene-wide metadata
+- **P023** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002` — publish scene-wide metadata
+- **P024** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003` — publish scene-wide metadata
+- **P025** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004` — publish scene-wide metadata
+- **P040** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001` — publish scene-wide metadata
+- **P043** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003` — publish scene-wide metadata
+- **P048** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003` — publish scene-wide metadata
+- **P050** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P052** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003` — publish scene-wide metadata
+- **P053** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001` — publish scene-wide metadata
+- **P063** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009` — publish scene-wide metadata
+- **P065** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011` — publish scene-wide metadata
+- **P068** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003` — publish scene-wide metadata
+- **P070** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001` — publish scene-wide metadata
+- **P071** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0002` — publish scene-wide metadata
+- **P076** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004` — publish scene-wide metadata
+- **P079** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0007` — publish scene-wide metadata
+- **P082** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010` — publish scene-wide metadata
+- **P086** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003` — publish scene-wide metadata
+- **P087** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0004` — publish scene-wide metadata
+- **P088** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005` — publish scene-wide metadata
+- **P094** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0011` — publish scene-wide metadata
+- **P101** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001` — publish scene-wide metadata
+- **P102** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001` — publish scene-wide metadata
+- **P103** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001` — publish scene-wide metadata
+- **P105** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001` — publish scene-wide metadata
+- **P106** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001` — publish scene-wide metadata
+- **P107** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001` — publish scene-wide metadata
+- **P108** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001` — publish scene-wide metadata
+- **P128** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006` — publish scene-wide metadata
+- **P131** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002` — publish scene-wide metadata
+- **P132** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003` — publish scene-wide metadata
+- **P135** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007` — publish scene-wide metadata
+- **P136** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008` — publish scene-wide metadata
+- **P137** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009` — publish scene-wide metadata
+- **P140** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003` — publish scene-wide metadata
+- **P141** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004` — publish scene-wide metadata
+- **P147** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004` — publish scene-wide metadata
+- **P148** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P149** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005` — publish scene-wide metadata
+- **P151** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0002` — publish scene-wide metadata
+
+#### Level 4
+
+- **P003** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001` — publish scene-wide metadata
+- **P006** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0004` — publish scene-wide metadata
+- **P015** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001` — publish scene-wide metadata
+- **P017** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001` — publish scene-wide metadata
+- **P019** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003` — publish scene-wide metadata
+- **P020** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001` — publish scene-wide metadata
+- **P022** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001` — publish scene-wide metadata
+- **P028** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003` — publish scene-wide metadata
+- **P038** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P039** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001` — publish scene-wide metadata
+- **P042** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002` — publish scene-wide metadata
+- **P045** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002` — publish scene-wide metadata
+- **P047** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002` — publish scene-wide metadata
+- **P049** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/Layout_FG_fibers/v0001` — publish scene-wide metadata
+- **P062** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008` — publish scene-wide metadata
+- **P064** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010` — publish scene-wide metadata
+- **P069** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0004` — publish scene-wide metadata
+- **P075** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0003` — publish scene-wide metadata
+- **P078** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006` — publish scene-wide metadata
+- **P081** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0009` — publish scene-wide metadata
+- **P085** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002` — publish scene-wide metadata
+- **P091** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008` — publish scene-wide metadata
+- **P093** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0010` — publish scene-wide metadata
+- **P099** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005` — publish scene-wide metadata
+- **P109** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Playblasts/Animation/v0004` — publish scene-wide metadata
+- **P123** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001` — UNRESOLVED: missing versioninfo.json
+- **P125** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003` — publish scene-wide metadata
+- **P126** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004` — publish scene-wide metadata
+- **P127** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005` — publish scene-wide metadata
+- **P129** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001` — publish scene-wide metadata
+- **P130** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001` — publish scene-wide metadata
+- **P133** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005` — publish scene-wide metadata
+- **P134** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006` — publish scene-wide metadata
+- **P139** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002` — publish scene-wide metadata
+- **P143** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002` — publish scene-wide metadata
+- **P145** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/FX_Export_for_camera/v0001` — publish scene-wide metadata
+- **P150** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0001` — publish scene-wide metadata
+
+#### Level 5
+
+- **P002** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0002` — publish scene-wide metadata
+- **P004** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002` — publish scene-wide metadata
+- **P005** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003` — publish scene-wide metadata
+- **P009** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0002` — publish scene-wide metadata
+- **P016** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002` — publish scene-wide metadata
+- **P018** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0002` — publish scene-wide metadata
+- **P027** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0002` — publish scene-wide metadata
+- **P030** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0002` — publish scene-wide metadata
+- **P037** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001` — publish scene-wide metadata
+- **P041** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001` — publish scene-wide metadata
+- **P044** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001` — publish scene-wide metadata
+- **P046** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0001` — publish scene-wide metadata
+- **P058** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004` — publish scene-wide metadata
+- **P061** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0007` — publish scene-wide metadata
+- **P074** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002` — publish scene-wide metadata
+- **P077** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0005` — publish scene-wide metadata
+- **P084** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001` — publish scene-wide metadata
+- **P090** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0007` — publish scene-wide metadata
+- **P092** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0009` — publish scene-wide metadata
+- **P098** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004` — publish scene-wide metadata
+- **P124** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002` — publish scene-wide metadata
+- **P138** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0001` — publish scene-wide metadata
+- **P144** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P146** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/Layout/v0001` — publish scene-wide metadata
+
+#### Level 6
+
+- **P008** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001` — publish scene-wide metadata
+- **P010** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001` — publish scene-wide metadata
+- **P014** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004` — publish scene-wide metadata
+- **P026** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001` — publish scene-wide metadata
+- **P029** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0001` — publish scene-wide metadata
+- **P031** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001` — publish scene-wide metadata
+- **P036** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0005` — publish scene-wide metadata
+- **P057** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0003` — publish scene-wide metadata
+- **P060** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0006` — publish scene-wide metadata
+- **P073** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001` — publish scene-wide metadata
+- **P097** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003` — publish scene-wide metadata
+- **P142** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0001` — publish scene-wide metadata
+
+#### Level 7
+
+- **P001** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0001` — publish scene-wide metadata
+- **P013** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0003` — publish scene-wide metadata
+- **P035** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0004` — publish scene-wide metadata
+- **P056** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0002` — publish scene-wide metadata
+- **P059** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0005` — publish scene-wide metadata
+
+#### Level 8
+
+- **P012** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002` — publish scene-wide metadata
+- **P034** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0003` — publish scene-wide metadata
+- **P055** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0001` — publish scene-wide metadata
+
+#### Level 9
+
+- **P011** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0001` — publish scene-wide metadata
+- **P033** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0002` — publish scene-wide metadata
+
+#### Level 10
+
+- **P032** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001` — publish scene-wide metadata
+
+### Missing paths for this sample
+
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1071.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_abc/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_bgeo/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/galleries/Knee_Modeling_v0001.Knee_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling_LowPoly/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/galleries/Receptor_Modeling_v0003.FX_Modeling/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/SQ010-SH010_Layout_v0001.1484.jpg`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1078.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1084.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1090.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1120.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1690.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1792.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1690.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1792.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/SQ010-SH010_Layout_v0004.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/galleries/SQ010-SH010_Layout_v0004.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1792.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1920.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1254.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1690.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1353.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.taskgraph.1284.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0001.FX_Layout_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Fibers_and_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Layout_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Back_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Fibers_and_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0005.FX_Export_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.mops_noise/v1/SQ020-SH010_FX_v0001.mops_noise_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.strings_test/v1/SQ020-SH010_FX_v0001.strings_test_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.mops_noise/v1/SQ020-SH010_FX_v0002.mops_noise_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.strings_test/v1/SQ020-SH010_FX_v0002.strings_test_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0003.recovery_test_sim_vellum/v1/SQ020-SH010_FX_v0003.recovery_test_sim_vellum_v1.3000.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1143.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1179.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1198.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1246.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1284.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1353.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1391.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1511.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1591.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1612.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1641.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1667.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1697.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1716.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1773.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1793.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1812.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1284.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0006.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0011.Layout_FG_fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0013/SQ020-SH020_BG_v0013_00000.png`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0005.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0009.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1158.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1590.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0005.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0006.Layout_macrophage/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0009.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Anim_heroCYT/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1179.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1198.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1612.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1793.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1143.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1246.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1391.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1511.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1591.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1641.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1667.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1697.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1716.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1773.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1812.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1086.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1216.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1331.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1358.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1743.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1040.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1094.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1314.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.taskgraph.1303.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.taskgraph.1543.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1089.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1465.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Macrophage/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Rusty_Fog/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Extra_Fiber/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Hero_CYT/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Extra_A2M/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0006.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0007.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0009.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0027.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0045.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0071.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.taskgraph.1200.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0087.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0027.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0045.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0065.Filecache1/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0070.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0071.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0079.Filecache1/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0087.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1591.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1612.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1641.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1667.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1697.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1716.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1743.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1773.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1793.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1812.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1806.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1743.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1847.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1590.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1591.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1629.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1641.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1667.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1697.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1716.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1743.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1773.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1793.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1812.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1865.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1847.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1141.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1147.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1360.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1409.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.taskgraph.1091.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/galleries/SQ030-SH010_FX_v0002.FX_Export_for_camera/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.1091.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.1091.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/SQ030-SH010_Layout_houdini_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/galleries/SQ030-SH010_Layout_houdini_v0006.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1200.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1506.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1098.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/galleries/SQ040-SH010_FX_v0001.FX_Export/rendergallery.db`
+
+## Sample: X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014/SQ020-SH020_BG_v0014_01001.png
+
+- Reachable publish versions: 147
+- Deepest shortest publish distance: 10 (root = level 0)
+- Distinct referenced paths (including the root representative): 700
+- Distinct source scenes: 60
+- Sequence patterns: 183; matching sequence files: 70849
+- Missing referenced/source paths: 250
+
+### Publish versions by shortest dependency level
+
+
+#### Level 0
+
+- **P111** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014` — AE completed queue + composition walk
+
+#### Level 1
+
+- **P114** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018` — publish scene-wide metadata
+- **P115** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0014` — publish scene-wide metadata
+- **P116** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022` — publish scene-wide metadata
+- **P117** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0016` — publish scene-wide metadata
+- **P118** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009` — publish scene-wide metadata
+- **P119** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001` — publish scene-wide metadata
+- **P121** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0012` — publish scene-wide metadata
+
+#### Level 2
+
+- **P007** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005` — publish scene-wide metadata
+- **P050** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P052** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003` — publish scene-wide metadata
+- **P054** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002` — publish scene-wide metadata
+- **P063** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009` — publish scene-wide metadata
+- **P066** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012` — publish scene-wide metadata
+- **P068** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003` — publish scene-wide metadata
+- **P072** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003` — publish scene-wide metadata
+- **P076** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004` — publish scene-wide metadata
+- **P082** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010` — publish scene-wide metadata
+- **P083** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001` — publish scene-wide metadata
+- **P087** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0004` — publish scene-wide metadata
+- **P095** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012` — publish scene-wide metadata
+- **P096** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001` — publish scene-wide metadata
+- **P100** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001` — publish scene-wide metadata
+- **P104** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002` — publish scene-wide metadata
+- **P132** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003` — publish scene-wide metadata
+- **P152** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003` — publish scene-wide metadata
+
+#### Level 3
+
+- **P003** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001` — publish scene-wide metadata
+- **P006** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0004` — publish scene-wide metadata
+- **P017** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001` — publish scene-wide metadata
+- **P021** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001` — publish scene-wide metadata
+- **P023** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002` — publish scene-wide metadata
+- **P024** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003` — publish scene-wide metadata
+- **P025** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004` — publish scene-wide metadata
+- **P040** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001` — publish scene-wide metadata
+- **P043** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003` — publish scene-wide metadata
+- **P048** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003` — publish scene-wide metadata
+- **P051** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002` — publish scene-wide metadata
+- **P053** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001` — publish scene-wide metadata
+- **P062** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008` — publish scene-wide metadata
+- **P065** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011` — publish scene-wide metadata
+- **P067** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002` — publish scene-wide metadata
+- **P069** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0004` — publish scene-wide metadata
+- **P070** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001` — publish scene-wide metadata
+- **P071** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0002` — publish scene-wide metadata
+- **P075** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0003` — publish scene-wide metadata
+- **P080** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008` — publish scene-wide metadata
+- **P081** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0009` — publish scene-wide metadata
+- **P086** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003` — publish scene-wide metadata
+- **P089** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006` — publish scene-wide metadata
+- **P094** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0011` — publish scene-wide metadata
+- **P101** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001` — publish scene-wide metadata
+- **P102** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001` — publish scene-wide metadata
+- **P103** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001` — publish scene-wide metadata
+- **P105** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001` — publish scene-wide metadata
+- **P106** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001` — publish scene-wide metadata
+- **P107** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001` — publish scene-wide metadata
+- **P108** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001` — publish scene-wide metadata
+- **P123** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001` — UNRESOLVED: missing versioninfo.json
+- **P125** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003` — publish scene-wide metadata
+- **P128** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006` — publish scene-wide metadata
+- **P129** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001` — publish scene-wide metadata
+- **P131** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002` — publish scene-wide metadata
+- **P135** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007` — publish scene-wide metadata
+- **P136** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008` — publish scene-wide metadata
+- **P137** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009` — publish scene-wide metadata
+- **P140** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003` — publish scene-wide metadata
+- **P141** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004` — publish scene-wide metadata
+- **P143** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002` — publish scene-wide metadata
+- **P147** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004` — publish scene-wide metadata
+- **P148** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P149** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005` — publish scene-wide metadata
+- **P151** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0002` — publish scene-wide metadata
+
+#### Level 4
+
+- **P002** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0002` — publish scene-wide metadata
+- **P004** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002` — publish scene-wide metadata
+- **P005** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003` — publish scene-wide metadata
+- **P015** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001` — publish scene-wide metadata
+- **P016** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002` — publish scene-wide metadata
+- **P019** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003` — publish scene-wide metadata
+- **P020** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001` — publish scene-wide metadata
+- **P022** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001` — publish scene-wide metadata
+- **P028** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003` — publish scene-wide metadata
+- **P038** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P039** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001` — publish scene-wide metadata
+- **P042** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002` — publish scene-wide metadata
+- **P045** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002` — publish scene-wide metadata
+- **P047** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002` — publish scene-wide metadata
+- **P049** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/Layout_FG_fibers/v0001` — publish scene-wide metadata
+- **P061** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0007` — publish scene-wide metadata
+- **P064** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010` — publish scene-wide metadata
+- **P074** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002` — publish scene-wide metadata
+- **P078** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006` — publish scene-wide metadata
+- **P079** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0007` — publish scene-wide metadata
+- **P085** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002` — publish scene-wide metadata
+- **P088** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005` — publish scene-wide metadata
+- **P091** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008` — publish scene-wide metadata
+- **P093** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0010` — publish scene-wide metadata
+- **P099** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005` — publish scene-wide metadata
+- **P109** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Playblasts/Animation/v0004` — publish scene-wide metadata
+- **P126** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004` — publish scene-wide metadata
+- **P127** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005` — publish scene-wide metadata
+- **P130** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001` — publish scene-wide metadata
+- **P133** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005` — publish scene-wide metadata
+- **P134** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006` — publish scene-wide metadata
+- **P139** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002` — publish scene-wide metadata
+- **P145** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/FX_Export_for_camera/v0001` — publish scene-wide metadata
+- **P150** `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0001` — publish scene-wide metadata
+
+#### Level 5
+
+- **P009** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0002` — publish scene-wide metadata
+- **P014** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004` — publish scene-wide metadata
+- **P018** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0002` — publish scene-wide metadata
+- **P027** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0002` — publish scene-wide metadata
+- **P030** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0002` — publish scene-wide metadata
+- **P037** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001` — publish scene-wide metadata
+- **P041** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001` — publish scene-wide metadata
+- **P044** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001` — publish scene-wide metadata
+- **P046** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0001` — publish scene-wide metadata
+- **P058** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004` — publish scene-wide metadata
+- **P060** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0006` — publish scene-wide metadata
+- **P073** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001` — publish scene-wide metadata
+- **P077** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0005` — publish scene-wide metadata
+- **P084** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001` — publish scene-wide metadata
+- **P090** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0007` — publish scene-wide metadata
+- **P092** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0009` — publish scene-wide metadata
+- **P098** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004` — publish scene-wide metadata
+- **P124** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002` — publish scene-wide metadata
+- **P138** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0001` — publish scene-wide metadata
+- **P144** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/_ShotCam/v0001` — publish scene-wide metadata
+- **P146** `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/Layout/v0001` — publish scene-wide metadata
+
+#### Level 6
+
+- **P008** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001` — publish scene-wide metadata
+- **P010** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001` — publish scene-wide metadata
+- **P013** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0003` — publish scene-wide metadata
+- **P026** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001` — publish scene-wide metadata
+- **P029** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0001` — publish scene-wide metadata
+- **P031** `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001` — publish scene-wide metadata
+- **P036** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0005` — publish scene-wide metadata
+- **P057** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0003` — publish scene-wide metadata
+- **P059** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0005` — publish scene-wide metadata
+- **P097** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003` — publish scene-wide metadata
+- **P142** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0001` — publish scene-wide metadata
+
+#### Level 7
+
+- **P001** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0001` — publish scene-wide metadata
+- **P012** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002` — publish scene-wide metadata
+- **P035** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0004` — publish scene-wide metadata
+- **P056** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0002` — publish scene-wide metadata
+
+#### Level 8
+
+- **P011** `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0001` — publish scene-wide metadata
+- **P034** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0003` — publish scene-wide metadata
+- **P055** `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0001` — publish scene-wide metadata
+
+#### Level 9
+
+- **P033** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0002` — publish scene-wide metadata
+
+#### Level 10
+
+- **P032** `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001` — publish scene-wide metadata
+
+### Missing paths for this sample
+
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1071.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_abc/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_bgeo/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/galleries/Knee_Modeling_v0001.Knee_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling_LowPoly/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/galleries/Receptor_Modeling_v0003.FX_Modeling/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/SQ010-SH010_Layout_v0001.1484.jpg`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1078.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1084.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1090.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1120.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1690.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1792.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1690.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1792.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/SQ010-SH010_Layout_v0004.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/galleries/SQ010-SH010_Layout_v0004.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1792.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1920.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1254.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1690.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1353.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.taskgraph.1284.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0001.FX_Layout_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Fibers_and_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Layout_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Back_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Fibers_and_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0005.FX_Export_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.mops_noise/v1/SQ020-SH010_FX_v0001.mops_noise_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.strings_test/v1/SQ020-SH010_FX_v0001.strings_test_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.mops_noise/v1/SQ020-SH010_FX_v0002.mops_noise_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.strings_test/v1/SQ020-SH010_FX_v0002.strings_test_v1.1920.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0003.recovery_test_sim_vellum/v1/SQ020-SH010_FX_v0003.recovery_test_sim_vellum_v1.3000.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1143.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1179.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1198.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1246.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1284.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1353.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1391.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1511.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1591.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1612.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1641.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1667.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1697.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1716.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1773.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1793.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1812.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1284.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1254.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0006.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0011.Layout_FG_fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0005.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0009.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1158.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1590.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0005.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0006.Layout_macrophage/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0009.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Anim_heroCYT/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1179.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1198.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1612.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1793.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1143.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1246.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1391.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1511.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1591.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1641.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1667.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1697.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1716.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1773.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1812.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1086.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1216.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1331.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1358.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1743.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1040.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1094.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1314.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.taskgraph.1303.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.taskgraph.1543.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.taskgraph.1867.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1089.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1465.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Chondrocytes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Macrophage/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Rusty_Fog/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Extra_Fiber/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Hero_CYT/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Extra_A2M/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0006.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0007.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0009.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Fibers/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Proteases/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1001.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0027.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0071.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.taskgraph.1200.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0027.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0065.Filecache1/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0070.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0071.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0079.Filecache1/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1591.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1612.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1641.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1667.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1697.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1716.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1743.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1773.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1793.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1812.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1806.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1743.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1847.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1590.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1591.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1629.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1641.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1667.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1697.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1716.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1743.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1773.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1793.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1812.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1865.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1543.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1847.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1867.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1141.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1147.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1360.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1409.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.taskgraph.1091.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/galleries/SQ030-SH010_FX_v0002.FX_Export_for_camera/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.1091.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.1091.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/SQ030-SH010_Layout_houdini_v0006.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/galleries/SQ030-SH010_Layout_houdini_v0006.Director/rendergallery.db`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1200.bgeo.sc`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.checkpoint.json`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1001.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1098.py`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/galleries/SQ040-SH010_FX_v0001.FX_Export/rendergallery.db`
+
+## Publish details — every recorded outgoing edge
+
+IDs link repeated versions without duplicating whole subtrees. A path can be a sequence
+representative, a loose file, or an input to another publish listed here.
+
+
+### P001 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v0002.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v0003.abc` — exists; publish P005
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002/CYT108_Modeling_FX_LowPoly_v0002.abc` — exists; publish P012
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v0002.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v####.ma`: 3 files, frames 1–3; internal gaps: []
+
+### P002 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v0003.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v0003.abc` — exists; publish P005
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v0004.abc` — exists; publish P014
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v0003.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v####.ma`: 3 files, frames 1–3; internal gaps: []
+
+### P003 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v0001.abc` — exists; publish P123
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v####.abc`: 1 files, frames 1–1; internal gaps: []
+
+### P004 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v0001.abc` — exists; publish P003
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v0001.abc` — exists; publish P123
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v####.abc`: 1 files, frames 1–1; internal gaps: []
+
+### P005 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v0001.abc` — exists; publish P003
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002/CYT108_Modeling_FX_v0002.abc` — exists; publish P004
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002/CYT108_Modeling_FX_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v0001.abc` — exists; publish P123
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v####.abc`: 1 files, frames 1–1; internal gaps: []
+
+### P006 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v0001.abc` — exists; publish P003
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v0003.abc` — exists; publish P005
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1071.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v0001.abc` — exists; publish P123
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v####.abc`: 1 files, frames 1–1; internal gaps: []
+
+### P007 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v0001.abc` — exists; publish P003
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0004/CYT108_Modeling_FX_v0004.abc` — exists; publish P006
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0004/CYT108_Modeling_FX_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1071.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v0001.abc` — exists; publish P123
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/SQ020-SH021_Animation_v####.abc`: 1 files, frames 1–1; internal gaps: []
+
+### P008 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v0004.abc` — exists; publish P014
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v0001.abc` — exists; publish P008
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/CYT108_Modeling_FX_bgeo_v0001.bgeo.sc` — exists; publish P010
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/CYT108_Modeling_FX_bgeo_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_abc/rendergallery.db` — MISSING; loose file
+
+### P009 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v0004.abc` — exists; publish P014
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v0001.abc` — exists; publish P008
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/CYT108_Modeling_FX_bgeo_v0001.bgeo.sc` — exists; publish P010
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/CYT108_Modeling_FX_bgeo_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_abc/rendergallery.db` — MISSING; loose file
+
+### P010 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v0004.abc` — exists; publish P014
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v0001.abc` — exists; publish P008
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/CYT108_Modeling_FX_bgeo_v0001.bgeo.sc` — exists; publish P010
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_bgeo/v0001/CYT108_Modeling_FX_bgeo_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_bgeo/rendergallery.db` — MISSING; loose file
+
+### P011 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v0001.abc` — exists; publish P003
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P012 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v0001.abc` — exists; publish P003
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0001/CYT108_Modeling_FX_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0001/CYT108_Modeling_FX_LowPoly_v0001.bgeo.sc` — exists; publish P011
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0001/CYT108_Modeling_FX_LowPoly_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P013 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002/CYT108_Modeling_FX_LowPoly_v0002.abc` — exists; publish P012
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0002/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P014 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0003/CYT108_Modeling_FX_LowPoly_v0003.abc` — exists; publish P013
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_LowPoly/v0003/CYT108_Modeling_FX_LowPoly_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v0001.abc` — exists; publish P017
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/CYT108_Rigging1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P015 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0003.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0003.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v####.ma`: 8 files, frames 1–8; internal gaps: []
+
+### P016 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0005.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v0003.abc` — exists; publish P005
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0005.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v####.ma`: 8 files, frames 1–8; internal gaps: []
+
+### P017 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0004.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002/CYT108_Modeling_FX_v0002.abc` — exists; publish P004
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0002/CYT108_Modeling_FX_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0004.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v####.ma`: 8 files, frames 1–8; internal gaps: []
+
+### P018 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0007.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v0003.abc` — exists; publish P005
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v0001.abc` — exists; publish P008
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0001/CYT108_Modeling_FX_abc_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0007.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v####.ma`: 8 files, frames 1–8; internal gaps: []
+
+### P019 — X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0008.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v0003.abc` — exists; publish P005
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0003/CYT108_Modeling_FX_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0002/CYT108_Modeling_FX_abc_v0002.abc` — exists; publish P009
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX_abc/v0002/CYT108_Modeling_FX_abc_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0008.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v####.ma`: 8 files, frames 1–8; internal gaps: []
+
+### P020 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v0001.bgeo.sc` — exists; publish P020
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Bones_V01.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/galleries/Knee_Modeling_v0001.Knee_Export/rendergallery.db` — MISSING; loose file
+
+### P021 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Scenefiles/Modeling/Modeling/Macrophage_Modeling_v0002.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Scenefiles/Modeling/Modeling/Macrophage_Modeling_v0002.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Scenefiles/Modeling/Modeling/Macrophage_Modeling_v####.ma`: 2 files, frames 1–2; internal gaps: []
+
+### P022 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0002.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0002.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v####.ma`: 2 files, frames 1–2; internal gaps: []
+
+### P023 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v0001.abc` — exists; publish P022
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling/rendergallery.db` — MISSING; loose file
+
+### P024 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v0001.abc` — exists; publish P022
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003/Protease_Modeling_LowPoly_v0003.abc` — exists; publish P028
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003/Protease_Modeling_LowPoly_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling/rendergallery.db` — MISSING; loose file
+
+### P025 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v0001.abc` — exists; publish P022
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling/rendergallery.db` — MISSING; loose file
+
+### P026 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v0001.abc` — exists; publish P022
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P027 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v0001.abc` — exists; publish P022
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001/Protease_Modeling_LowPoly_v0001.abc` — exists; publish P026
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001/Protease_Modeling_LowPoly_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P028 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v0001.abc` — exists; publish P022
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0001/Protease_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0002/Protease_Modeling_LowPoly_v0002.abc` — exists; publish P027
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0002/Protease_Modeling_LowPoly_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling_LowPoly/rendergallery.db` — MISSING; loose file
+
+### P029 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v0001.abc` — exists; publish P031
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/galleries/Receptor_Modeling_v0003.FX_Modeling/rendergallery.db` — MISSING; loose file
+
+### P030 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.hip`
+- `C:/Users/User/Desktop/receptor.obj` — existence unverified; loose file
+- `C:/Users/User/Desktop/receptor_uv.obj` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0001/Receptor_FX_Modeling_v0001.bgeo.sc` — exists; publish P029
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0001/Receptor_FX_Modeling_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v0001.abc` — exists; publish P031
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/galleries/Receptor_Modeling_v0003.FX_Modeling/rendergallery.db` — MISSING; loose file
+
+### P031 — X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0002.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0002.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v####.ma`: 2 files, frames 1–2; internal gaps: []
+
+### P032 — X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001/SQ010-SH010_FX_Export_v0001.1001.bgeo.sc` — exists; publish P032
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001/SQ010-SH010_FX_Export_v0001.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/Knee_Bones_V01.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1078.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1078.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1078.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+
+### P033 — X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001/SQ010-SH010_FX_Export_v0001.1001.bgeo.sc` — exists; publish P032
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0001/SQ010-SH010_FX_Export_v0001.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/Knee_Bones_V01.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1084.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1084.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1084.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1084.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+
+### P034 — X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0002/SQ010-SH010_FX_Export_v0002.1001.bgeo.sc` — exists; publish P033
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0002/SQ010-SH010_FX_Export_v0002.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/Knee_Bones_V01.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1120.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+
+### P035 — X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0003/SQ010-SH010_FX_Export_v0003.1001.bgeo.sc` — exists; publish P034
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0003/SQ010-SH010_FX_Export_v0003.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/Knee_Bones_V01.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1090.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1090.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1090.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1090.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+
+### P036 — X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0004/SQ010-SH010_FX_Export_v0004.1001.bgeo.sc` — exists; publish P035
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0004/SQ010-SH010_FX_Export_v0004.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/Knee_Bones_V01.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1120.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers_v2/fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers_v2/fibers_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers_v2/fibers_v2.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers_v2/fibers_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1120.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+
+### P037 — X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/SQ010-SH010_Layout_v0004.hip`
+- `X:/Cytonics_CYT108/02_Designs/Storyboard/Cytonics Drawings for animatic/01.jpg` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0005/SQ010-SH010_FX_Export_v0005.1063.bgeo.sc` — exists; publish P036
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Export/FX_Export/v0005/SQ010-SH010_FX_Export_v0005.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/SQ010-SH010_Layout_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/galleries/SQ010-SH010_Layout_v0004.Director/rendergallery.db` — MISSING; loose file
+
+### P038 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0006.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/SQ010-SH010_Layout_v0001.1484.jpg` — MISSING; publish P037
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/SQ010-SH010_Layout_v0001.####.jpg`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002/SQ020-SH010_FX_Layout_Export_v0002.bgeo.sc` — exists; publish P047
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0006.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0006.Director/rendergallery.db` — MISSING; loose file
+
+### P039 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.1001.bgeo.sc` — exists; publish P045
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1353.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Back_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1353.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1353.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1353.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P040 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001/SQ020-SH010_FX_Export_Back_Fibers_v0001.1001.bgeo.sc` — exists; publish P039
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001/SQ020-SH010_FX_Export_Back_Fibers_v0001.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.1001.bgeo.sc` — exists; publish P045
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/Layout_FG_fibers/v0001/SQ020-SH010_Layout_FG_fibers_v0001.bgeo.sc` — exists; publish P049
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/Layout_FG_fibers/v0001/SQ020-SH010_Layout_FG_fibers_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.taskgraph.1284.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0005.FX_Export_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0003.recovery_test_sim_vellum/v1/SQ020-SH010_FX_v0003.recovery_test_sim_vellum_v1.3000.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1284.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1284.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1284.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1284.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1284.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P041 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1254.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Fibers_and_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.####.bgeo.sc`: 250 files, frames 1001–1250; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1254.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.####.bgeo.sc`: 250 files, frames 1001–1250; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1254.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P042 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0001.1001.bgeo.sc` — exists; publish P041
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0001.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001/SQ020-SH010_FX_Export_Proteases_v0001.1001.bgeo.sc` — exists; publish P044
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001/SQ020-SH010_FX_Export_Proteases_v0001.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Fibers_and_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P043 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0002.1001.bgeo.sc` — exists; publish P042
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0002.####.bgeo.sc`: 11 files, frames 1001–1011; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.1001.bgeo.sc` — exists; publish P045
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Fibers_and_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P044 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0001.1001.bgeo.sc` — exists; publish P041
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0001/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0001.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1254.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.####.bgeo.sc`: 250 files, frames 1001–1250; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1254.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.####.bgeo.sc`: 250 files, frames 1001–1250; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1254.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1254.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P045 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0002.1001.bgeo.sc` — exists; publish P042
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0002/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0002.####.bgeo.sc`: 11 files, frames 1001–1011; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001/SQ020-SH010_FX_Export_Proteases_v0001.1001.bgeo.sc` — exists; publish P044
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0001/SQ020-SH010_FX_Export_Proteases_v0001.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.####.bgeo.sc`: 2000 files, frames 1001–3000; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1330.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+
+### P046 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v0001.bgeo.sc` — exists; publish P020
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1920.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1920.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1920.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0001.FX_Layout_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.mops_noise/v1/SQ020-SH010_FX_v0001.mops_noise_v1.1920.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.strings_test/v1/SQ020-SH010_FX_v0001.strings_test_v1.1920.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+
+### P047 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v0001.bgeo.sc` — exists; publish P020
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1792.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1792.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0001/SQ020-SH010_FX_Layout_Export_v0001.bgeo.sc` — exists; publish P046
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0001/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1792.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0001.FX_Layout_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.mops_noise/v1/SQ020-SH010_FX_v0001.mops_noise_v1.1920.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.strings_test/v1/SQ020-SH010_FX_v0001.strings_test_v1.1920.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+
+### P048 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v0001.bgeo.sc` — exists; publish P020
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Export/Knee_Export/v0001/Knee_Knee_Export_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1690.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1690.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.####.bgeo.sc`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002/SQ020-SH010_FX_Layout_Export_v0002.bgeo.sc` — exists; publish P047
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0002/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v0001.abc` — exists; publish P038
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/_ShotCam/v0001/SQ020-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1690.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Layout_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.mops_noise/v1/SQ020-SH010_FX_v0002.mops_noise_v1.1920.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.strings_test/v1/SQ020-SH010_FX_v0002.strings_test_v1.1920.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists; loose file
+
+### P049 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/Layout_FG_fibers/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/Layout_FG_fibers/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/SQ010-SH010_Layout_v0001.1108.jpg` — exists; publish P037
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Playblasts/Layout/v0001/SQ010-SH010_Layout_v0001.####.jpg`: 120 files, frames 1001–1120; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001/SQ020-SH010_FX_Export_Back_Fibers_v0001.1001.bgeo.sc` — exists; publish P039
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Back_Fibers/v0001/SQ020-SH010_FX_Export_Back_Fibers_v0001.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.1001.bgeo.sc` — exists; publish P045
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Proteases/v0002/SQ020-SH010_FX_Export_Proteases_v0002.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0011.Layout_FG_fibers/rendergallery.db` — MISSING; loose file
+
+### P050 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0005.hip`
+- `X:/Cytonics_CYT108/02_Designs/Storyboard/Cytonics Drawings for animatic/18.jpg` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v0001.abc` — exists; publish P021
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0005.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1276.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P051 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v0001.abc` — exists; publish P021
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1001.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/SQ030-SH010_Layout_v0004.1001.jpg` — exists; publish P147
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/SQ030-SH010_Layout_v0004.####.jpg`: 165 files, frames 1001–1165; internal gaps: []
+
+### P052 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0015.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1001.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P053 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v0001.abc` — exists; publish P021
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1158.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Anim_heroCYT/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1001.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1158.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/SQ030-SH010_Layout_v0004.1001.jpg` — exists; publish P147
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/SQ030-SH010_Layout_v0004.####.jpg`: 165 files, frames 1001–1165; internal gaps: []
+
+### P054 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v0001.abc` — exists; publish P021
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1001.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1590.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Anim_heroCYT/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1001.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1590.bgeo.sc` — MISSING; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/SQ030-SH010_Layout_v0004.1001.jpg` — exists; publish P147
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/SQ030-SH010_Layout_v0004.####.jpg`: 165 files, frames 1001–1165; internal gaps: []
+
+### P055 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1867.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/SQ020-SH020_FX_Export_Fibers_v0001.1001.bgeo.sc` — exists; publish P073
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/SQ020-SH020_FX_Export_Fibers_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001/SQ020-SH020_FX_Export_Proteases_v0001.1001.bgeo.sc` — exists; publish P084
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001/SQ020-SH020_FX_Export_Proteases_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1867.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1867.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.1390.bgeo.sc` — exists; publish P139
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.1867.bgeo.sc` — MISSING; publish P139
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P056 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1793.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1793.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0001/SQ020-SH020_Background_CYT_108_Animations_v0001.1001.bgeo.sc` — exists; publish P055
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0001/SQ020-SH020_Background_CYT_108_Animations_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1793.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1793.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1629.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1793.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P057 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1198.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1198.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0002/SQ020-SH020_Background_CYT_108_Animations_v0002.1001.bgeo.sc` — exists; publish P056
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0002/SQ020-SH020_Background_CYT_108_Animations_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1198.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1198.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1198.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1198.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1629.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P058 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1612.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1612.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0003/SQ020-SH020_Background_CYT_108_Animations_v0003.1001.bgeo.sc` — exists; publish P057
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0003/SQ020-SH020_Background_CYT_108_Animations_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1612.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1612.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1612.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1629.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P059 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1179.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1179.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1179.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/SQ020-SH020_Background_CYT_108_Animations_v0004.1001.bgeo.sc` — exists; publish P058
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/SQ020-SH020_Background_CYT_108_Animations_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/SQ020-SH020_FX_Export_Fibers_v0002.1001.bgeo.sc` — exists; publish P074
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/SQ020-SH020_FX_Export_Fibers_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002/SQ020-SH020_FX_Export_Proteases_v0002.1001.bgeo.sc` — exists; publish P085
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002/SQ020-SH020_FX_Export_Proteases_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1179.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1179.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1179.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1179.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P060 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0005/SQ020-SH020_Background_CYT_108_Animations_v0005.1001.bgeo.sc` — exists; publish P059
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0005/SQ020-SH020_Background_CYT_108_Animations_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P061 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0007
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0007/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1641.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1641.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1641.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0006/SQ020-SH020_Background_CYT_108_Animations_v0006.1001.bgeo.sc` — exists; publish P060
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0006/SQ020-SH020_Background_CYT_108_Animations_v0006.####.bgeo.sc`: 428 files, frames 1001–1428; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1641.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1641.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1641.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1641.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P062 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1391.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1391.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1391.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0007/SQ020-SH020_Background_CYT_108_Animations_v0007.1001.bgeo.sc` — exists; publish P061
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0007/SQ020-SH020_Background_CYT_108_Animations_v0007.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1391.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1391.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1391.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1391.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P063 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1812.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1812.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1812.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.1001.bgeo.sc` — exists; publish P062
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.1001.bgeo.sc` — exists; publish P086
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1812.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1812.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1812.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1812.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P064 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1773.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1773.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1773.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.1001.bgeo.sc` — exists; publish P064
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1773.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1773.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1773.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1773.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1865.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P065 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1216.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1216.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.1001.bgeo.sc` — exists; publish P064
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006/SQ020-SH020_FX_Export_Fibers_v0006.1001.bgeo.sc` — exists; publish P078
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006/SQ020-SH020_FX_Export_Fibers_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1216.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1216.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1216.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1001.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1216.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1001.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1216.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P066 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1086.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1086.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1086.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1847.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.1001.bgeo.sc` — exists; publish P065
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1001.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/SQ020-SH020_FX_Hero_CYT_v0001.1001.bgeo.sc` — exists; publish P101
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/SQ020-SH020_FX_Hero_CYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1086.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1086.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1086.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1086.bgeo.sc` — exists; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1847.bgeo.sc` — MISSING; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1086.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1847.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P067 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0012.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v0004.abc` — exists; publish P025
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/SQ020-SH020_Single_Frame _Membrane_v0001.obj` — exists; publish P105
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/SQ020-SH020_Single_Frame _Membrane_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/SQ020-SH020_Single_Frame_A2M_v0001.obj` — exists; publish P106
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/SQ020-SH020_Single_Frame_A2M_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/SQ020-SH020_Single_Frame_Colagen_v0001.obj` — exists; publish P107
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/SQ020-SH020_Single_Frame_Colagen_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/SQ020-SH020_Single_Frame_Extra_A2M_v0001.obj` — exists; publish P108
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/SQ020-SH020_Single_Frame_Extra_A2M_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0012.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v####.ma`: 18 files, frames 1–18; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v0006.abc` — exists; publish P128
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v####.abc`: 1 files, frames 6–6; internal gaps: []
+
+### P068 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0017.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v0004.abc` — exists; publish P025
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/SQ020-SH020_Single_Frame _Membrane_v0001.obj` — exists; publish P105
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/SQ020-SH020_Single_Frame _Membrane_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/SQ020-SH020_Single_Frame_A2M_v0001.obj` — exists; publish P106
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/SQ020-SH020_Single_Frame_A2M_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/SQ020-SH020_Single_Frame_Colagen_v0001.obj` — exists; publish P107
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/SQ020-SH020_Single_Frame_Colagen_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/SQ020-SH020_Single_Frame_Extra_A2M_v0001.obj` — exists; publish P108
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/SQ020-SH020_Single_Frame_Extra_A2M_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0017.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v####.ma`: 18 files, frames 1–18; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v0006.abc` — exists; publish P128
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v####.abc`: 1 files, frames 6–6; internal gaps: []
+
+### P069 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0018.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v0004.abc` — exists; publish P025
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/SQ020-SH020_Single_Frame _Membrane_v0001.obj` — exists; publish P105
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/SQ020-SH020_Single_Frame _Membrane_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/SQ020-SH020_Single_Frame_A2M_v0001.obj` — exists; publish P106
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/SQ020-SH020_Single_Frame_A2M_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/SQ020-SH020_Single_Frame_Colagen_v0001.obj` — exists; publish P107
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/SQ020-SH020_Single_Frame_Colagen_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/SQ020-SH020_Single_Frame_Extra_A2M_v0001.obj` — exists; publish P108
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/SQ020-SH020_Single_Frame_Extra_A2M_v####.obj`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0018.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v####.ma`: 18 files, frames 1–18; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v0006.abc` — exists; publish P128
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v####.abc`: 1 files, frames 6–6; internal gaps: []
+
+### P070 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1867.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P071 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1246.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1246.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1246.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.1001.bgeo.sc` — exists; publish P063
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.1001.bgeo.sc` — exists; publish P086
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1246.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1246.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1246.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1246.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P072 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1697.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1697.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1697.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0002/SQ020-SH020_FX_Export_Chondrocytes_v0002.bgeo.sc` — exists; publish P071
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0002/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1697.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Chondrocytes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1697.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1697.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1697.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P073 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1867.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P074 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1867.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/SQ020-SH020_Background_CYT_108_Animations_v0004.1001.bgeo.sc` — exists; publish P058
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/SQ020-SH020_Background_CYT_108_Animations_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/SQ020-SH020_FX_Export_Fibers_v0001.1001.bgeo.sc` — exists; publish P073
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/SQ020-SH020_FX_Export_Fibers_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1867.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1867.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1867.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P075 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1667.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1667.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1667.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.1001.bgeo.sc` — exists; publish P062
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/SQ020-SH020_FX_Export_Fibers_v0002.1001.bgeo.sc` — exists; publish P074
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/SQ020-SH020_FX_Export_Fibers_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1667.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1667.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1667.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1667.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P076 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.1001.bgeo.sc` — exists; publish P062
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0003/SQ020-SH020_FX_Export_Fibers_v0003.1001.bgeo.sc` — exists; publish P075
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0003/SQ020-SH020_FX_Export_Fibers_v0003.####.bgeo.sc`: 64 files, frames 1001–1064; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P077 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1743.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.1001.bgeo.sc` — exists; publish P064
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.1001.bgeo.sc` — exists; publish P088
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1743.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1743.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1743.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1743.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P078 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.1001.bgeo.sc` — exists; publish P064
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0005/SQ020-SH020_FX_Export_Fibers_v0005.1001.bgeo.sc` — exists; publish P077
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0005/SQ020-SH020_FX_Export_Fibers_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.1001.bgeo.sc` — exists; publish P088
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1001.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1743.bgeo.sc` — MISSING; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1743.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P079 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0007
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0007/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.1001.bgeo.sc` — exists; publish P065
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006/SQ020-SH020_FX_Export_Fibers_v0006.1001.bgeo.sc` — exists; publish P078
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0006/SQ020-SH020_FX_Export_Fibers_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1001.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1216.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1001.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1216.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P080 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1358.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1358.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1358.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1847.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.1001.bgeo.sc` — exists; publish P065
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1001.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/SQ020-SH020_FX_Hero_CYT_v0001.1001.bgeo.sc` — exists; publish P101
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/SQ020-SH020_FX_Hero_CYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1358.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1358.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1358.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1358.bgeo.sc` — exists; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1847.bgeo.sc` — MISSING; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1358.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1847.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P081 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0009
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0009/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1089.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1089.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1089.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1001.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1089.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1089.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1089.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1089.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1089.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1088.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1089.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1088.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1089.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P082 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0004/SQ020-SH020_Extra_protease_v0004.abc` — exists; publish P069
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0004/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0009/SQ020-SH020_FX_Export_Fibers_v0009.1001.bgeo.sc` — exists; publish P081
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0009/SQ020-SH020_FX_Export_Fibers_v0009.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1001.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1001.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1001.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Fibers/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1001.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1063.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1001.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1063.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P083 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1143.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1143.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1143.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/versioninfo.json` — exists; publish P063
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.1001.bgeo.sc` — exists; publish P086
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1143.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Macrophage/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1143.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1143.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1143.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P084 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/SQ020-SH020_FX_Export_Fibers_v0001.1001.bgeo.sc` — exists; publish P073
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0001/SQ020-SH020_FX_Export_Fibers_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1867.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P085 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1867.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/SQ020-SH020_Background_CYT_108_Animations_v0004.1001.bgeo.sc` — exists; publish P058
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0004/SQ020-SH020_Background_CYT_108_Animations_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/SQ020-SH020_FX_Export_Fibers_v0002.1001.bgeo.sc` — exists; publish P074
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0002/SQ020-SH020_FX_Export_Fibers_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001/SQ020-SH020_FX_Export_Proteases_v0001.1001.bgeo.sc` — exists; publish P084
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0001/SQ020-SH020_FX_Export_Proteases_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1867.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1867.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1867.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P086 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.1001.bgeo.sc` — exists; publish P062
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0008/SQ020-SH020_Background_CYT_108_Animations_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002/SQ020-SH020_FX_Export_Proteases_v0002.1001.bgeo.sc` — exists; publish P085
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0002/SQ020-SH020_FX_Export_Proteases_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P087 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1511.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1511.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1511.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.1001.bgeo.sc` — exists; publish P063
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.1001.bgeo.sc` — exists; publish P086
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1001.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1511.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1511.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1511.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1511.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P088 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1743.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.1001.bgeo.sc` — exists; publish P064
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0010/SQ020-SH020_Background_CYT_108_Animations_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.1001.bgeo.sc` — exists; publish P088
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1743.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1743.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1743.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1743.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P089 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1331.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1331.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1331.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1847.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.1001.bgeo.sc` — exists; publish P065
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0011/SQ020-SH020_Background_CYT_108_Animations_v0011.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0007/SQ020-SH020_FX_Export_Fibers_v0007.1001.bgeo.sc` — exists; publish P079
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0007/SQ020-SH020_FX_Export_Fibers_v0007.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.1001.bgeo.sc` — exists; publish P088
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0005/SQ020-SH020_FX_Export_Proteases_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/SQ020-SH020_FX_Hero_CYT_v0001.1001.bgeo.sc` — exists; publish P101
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/SQ020-SH020_FX_Hero_CYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1331.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1331.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1331.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1331.bgeo.sc` — exists; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1847.bgeo.sc` — MISSING; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1331.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1847.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P090 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0007
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0007/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1001.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/SQ020-SH020_FX_Extra_A2M_v0004.1001.bgeo.sc` — exists; publish P098
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/SQ020-SH020_FX_Extra_A2M_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1001.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1001.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P091 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1867.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0007/SQ020-SH020_FX_Export_Proteases_v0007.1001.bgeo.sc` — exists; publish P090
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0007/SQ020-SH020_FX_Export_Proteases_v0007.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/SQ020-SH020_FX_Extra_A2M_v0004.1001.bgeo.sc` — exists; publish P098
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/SQ020-SH020_FX_Extra_A2M_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1867.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1867.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1867.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1867.bgeo.sc` — MISSING; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1867.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P092 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0009
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0009/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1303.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1303.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1303.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.taskgraph.1303.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0006.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1303.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1303.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1303.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1303.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1303.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1303.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P093 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0010
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0010/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1543.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1543.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1543.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0009/SQ020-SH020_FX_Export_Proteases_v0009.1001.bgeo.sc` — exists; publish P092
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0009/SQ020-SH020_FX_Export_Proteases_v0009.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.taskgraph.1543.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0007.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1543.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1543.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1543.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1543.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1543.bgeo.sc` — MISSING; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1543.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P094 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0011
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0011/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1867.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0010/SQ020-SH020_FX_Export_Proteases_v0010.1001.bgeo.sc` — exists; publish P093
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0010/SQ020-SH020_FX_Export_Proteases_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.taskgraph.1867.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0009.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1867.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1867.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1867.bgeo.sc` — MISSING; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1867.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P095 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1465.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1465.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1465.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0011/SQ020-SH020_FX_Export_Proteases_v0011.1001.bgeo.sc` — exists; publish P094
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0011/SQ020-SH020_FX_Export_Proteases_v0011.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1465.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Proteases/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1465.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1465.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1465.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1465.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1465.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1465.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P096 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1716.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1716.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1716.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.1001.bgeo.sc` — exists; publish P063
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.1001.bgeo.sc` — exists; publish P086
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1716.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Rusty_Fog/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1716.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1716.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1716.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P097 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1040.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1040.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003/SQ020-SH020_FX_Extra_A2M_v0003.1001.bgeo.sc` — exists; publish P097
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003/SQ020-SH020_FX_Extra_A2M_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1040.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Extra_A2M/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1040.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1040.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1040.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1040.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1040.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P098 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003/SQ020-SH020_FX_Extra_A2M_v0003.1001.bgeo.sc` — exists; publish P097
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0003/SQ020-SH020_FX_Extra_A2M_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1094.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Extra_A2M/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1094.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1094.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1094.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P099 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1314.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1314.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1314.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/SQ020-SH020_FX_Extra_A2M_v0004.1001.bgeo.sc` — exists; publish P098
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0004/SQ020-SH020_FX_Extra_A2M_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1314.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Extra_A2M/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1314.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1314.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1314.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1314.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1046.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.1314.bgeo.sc` — exists; publish P137
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/SQ020-SH021_FX_CYT_108_Animation_Export_v0009.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1046.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1314.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P100 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.1001.bgeo.sc` — exists; publish P043
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Fibers_and_Chondrocytes/v0003/SQ020-SH010_FX_Export_Fibers_and_Chondrocytes_v0003.####.bgeo.sc`: 379 files, frames 1001–1379; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1591.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1591.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.####.bgeo.sc`: 1500 files, frames 1001–2500; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1591.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/versioninfo.json` — exists; publish P063
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P070
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0001/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1001.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.1001.bgeo.sc` — exists; publish P086
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0003/SQ020-SH020_FX_Export_Proteases_v0003.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1591.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Extra_Fiber/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1591.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1591.bgeo.sc` — MISSING; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1591.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1612.bgeo.sc` — MISSING; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P101 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Hero_CYT/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v0001.bgeo.sc` — exists; publish P040
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Export_Chondrocytes/v0001/SQ020-SH010_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1847.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.1867.bgeo.sc` — exists; publish P053
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0001/SQ020-SH020_Anim_heroCYT_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v0001.bgeo.sc` — exists; publish P102
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/SQ020-SH020_Layout_macrophage_v####.bgeo.sc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1867.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Hero_CYT/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.####.bgeo.sc`: 1167 files, frames 1001–2167; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1867.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1847.bgeo.sc` — MISSING; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1867.bgeo.sc` — MISSING; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1847.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1867.bgeo.sc` — MISSING; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P102 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Layout_macrophage/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.hip`
+- `X:/Cytonics_CYT108/02_Designs/Storyboard/Cytonics Drawings for animatic/18.jpg` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v0001.abc` — exists; publish P021
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0006.Layout_macrophage/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1276.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P103 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1001.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1320.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1320.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1320.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1320.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1320.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1001.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1320.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1001.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1320.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1320.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0065.Filecache1/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P104 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1200.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1200.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002/SQ020-SH020_Extra_protease_v0002.abc` — exists; publish P067
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1200.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1200.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1200.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1200.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1200.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1001.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1200.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.taskgraph.1200.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0079.Filecache1/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1200.bgeo.sc` — MISSING; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P105 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame _Membrane/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1001.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1250.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1250.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1250.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1250.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1250.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1001.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1250.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1001.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1250.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1250.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1001.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1250.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0070.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P106 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_A2M/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1001.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1250.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1250.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1250.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1250.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1250.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1001.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1250.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1001.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1250.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1250.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1001.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1250.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0070.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P107 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Colagen/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1001.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1250.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1250.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1250.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1250.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1250.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1001.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1250.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1001.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1250.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1250.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1001.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1250.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0070.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P108 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Single_Frame_Extra_A2M/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0071.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1001.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1250.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1001.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1250.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1001.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1250.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1001.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1250.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1001.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.1250.bgeo.sc` — exists; publish P091
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0008/SQ020-SH020_FX_Export_Proteases_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1001.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1250.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1001.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.1250.bgeo.sc` — exists; publish P099
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_A2M/v0005/SQ020-SH020_FX_Extra_A2M_v0005.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1001.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1250.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1001.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.1250.bgeo.sc` — exists; publish P103
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0001/SQ020-SH020_LGT_proteasse_attribute_cache_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0071.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0071.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P109 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Playblasts/Animation/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Playblasts/Animation/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0009.hip`
+- `X:/Cytonics_CYT108/02_Designs/Storyboard/Cytonics Drawings for animatic/18.jpg` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v0001.abc` — exists; publish P021
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Export/Modeling/v0001/Macrophage_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v0003.bgeo.sc` — exists; publish P048
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Export/FX_Layout_Export/v0003/SQ020-SH010_FX_Layout_Export_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0009.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0009.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1001.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1806.bgeo.sc` — MISSING; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+
+### P110 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0013
+
+- Method: UNRESOLVED: missing versioninfo.json
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0013/versioninfo.json`
+- Source: `(unresolved)`
+
+### P111 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014
+
+- Method: AE completed queue + composition walk
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/HighRes/SQ020-SH020_HighRes_v0047.aep`
+- Composition: `SQ020-SH020_BG_v0001` (ID 17); completed queue item 75
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/Light_Mask/SQ020-SH020_Lighting_Beauty_v0018_Light_Mask.1001.exr` — exists; publish P114
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/Light_Mask/SQ020-SH020_Lighting_Beauty_v0018_Light_Mask.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/Proteasse_Affect/SQ020-SH020_Lighting_Beauty_v0018_Proteasse_Affect.1001.exr` — exists; publish P114
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/Proteasse_Affect/SQ020-SH020_Lighting_Beauty_v0018_Proteasse_Affect.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/beauty/SQ020-SH020_Lighting_Beauty_v0018_beauty.1001.exr` — exists; publish P114
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/beauty/SQ020-SH020_Lighting_Beauty_v0018_beauty.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/volume/SQ020-SH020_Lighting_Beauty_v0018_volume.1001.exr` — exists; publish P114
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/volume/SQ020-SH020_Lighting_Beauty_v0018_volume.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0014/beauty/SQ020-SH020_Lighting_Core_v0014_beauty.1001.exr` — exists; publish P115
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0014/beauty/SQ020-SH020_Lighting_Core_v0014_beauty.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/Light_Mask/SQ020-SH020_Lighting_Extra_A2M_v0022_Light_Mask.1001.exr` — exists; publish P116
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/Light_Mask/SQ020-SH020_Lighting_Extra_A2M_v0022_Light_Mask.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/beauty/SQ020-SH020_Lighting_Extra_A2M_v0022_beauty.1001.exr` — exists; publish P116
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/beauty/SQ020-SH020_Lighting_Extra_A2M_v0022_beauty.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/cryptomatte/SQ020-SH020_Lighting_Extra_A2M_v0022_cryptomatte.1001.exr` — exists; publish P116
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/cryptomatte/SQ020-SH020_Lighting_Extra_A2M_v0022_cryptomatte.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0016/cryptomatte/SQ020-SH020_Lighting_Matte_v0016_cryptomatte.1001.exr` — exists; publish P117
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0016/cryptomatte/SQ020-SH020_Lighting_Matte_v0016_cryptomatte.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009/beauty/SQ020-SH020_Proteases_Inside_v0009_beauty.1001.exr` — exists; publish P118
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009/beauty/SQ020-SH020_Proteases_Inside_v0009_beauty.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009/cryptomatte/SQ020-SH020_Proteases_Inside_v0009_cryptomatte.1001.exr` — exists; publish P118
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009/cryptomatte/SQ020-SH020_Proteases_Inside_v0009_cryptomatte.####.exr`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/beauty/SQ020-SH020_Rusty_Clouds_v0001_beauty.1001.exr` — exists; publish P119
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/beauty/SQ020-SH020_Rusty_Clouds_v0001_beauty.####.exr`: 866 files, frames 1001–1866; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0012/beauty/SQ020-SH020_Rusty_Microphage_v0012_beauty.1550.exr` — exists; publish P121
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0012/beauty/SQ020-SH020_Rusty_Microphage_v0012_beauty.####.exr`: 318 files, frames 1550–1867; internal gaps: []
+
+### P112 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0013
+
+- Method: AE completed queue + composition walk
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0013/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/HighRes/SQ020-SH020_HighRes_v0046.aep`
+- Composition: `SQ020-SH020_HighRes_v0001` (ID 265); completed queue item 63
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0013/SQ020-SH020_BG_v0013_00000.png` — MISSING; publish P110
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Facing_Ratio/SQ020-SH020_Rusty_Hero_v0006_Facing_Ratio.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Facing_Ratio/SQ020-SH020_Rusty_Hero_v0006_Facing_Ratio.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Light_Mask/SQ020-SH020_Rusty_Hero_v0006_Light_Mask.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Light_Mask/SQ020-SH020_Rusty_Hero_v0006_Light_Mask.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Ribbon_Mask/SQ020-SH020_Rusty_Hero_v0006_Ribbon_Mask.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Ribbon_Mask/SQ020-SH020_Rusty_Hero_v0006_Ribbon_Mask.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/beauty/SQ020-SH020_Rusty_Hero_v0006_beauty.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/beauty/SQ020-SH020_Rusty_Hero_v0006_beauty.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/cryptomatte/SQ020-SH020_Rusty_Hero_v0006_cryptomatte.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/cryptomatte/SQ020-SH020_Rusty_Hero_v0006_cryptomatte.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/Color_Cyan/SQ020-SH020_Rusty_Ribbons_v0006_Color_Cyan.1390.exr` — exists; publish P122
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/Color_Cyan/SQ020-SH020_Rusty_Ribbons_v0006_Color_Cyan.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/beauty/SQ020-SH020_Rusty_Ribbons_v0006_beauty.1390.exr` — exists; publish P122
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/beauty/SQ020-SH020_Rusty_Ribbons_v0006_beauty.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/Retake/Image20260624115720.png` — exists; loose file
+  - `X:/Cytonics_CYT108/04_Resources/Retake/Image20260624######.png`: 1 files, frames 115720–115720; internal gaps: []
+
+### P113 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0015
+
+- Method: AE completed queue + composition walk
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0015/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/HighRes/SQ020-SH020_HighRes_v0052.aep`
+- Composition: `SQ020-SH020_HighRes_v0001` (ID 265); completed queue item 78
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014/SQ020-SH020_BG_v0014_01001.png` — exists; publish P111
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/BG/v0014/SQ020-SH020_BG_v0014_#####.png`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0013/SQ020-SH020_HighRes_v0013.mov` — exists; publish P112
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/2dRender/HighRes/v0013/SQ020-SH020_HighRes_v####.mov`: 1 files, frames 13–13; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Facing_Ratio/SQ020-SH020_Rusty_Hero_v0006_Facing_Ratio.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Facing_Ratio/SQ020-SH020_Rusty_Hero_v0006_Facing_Ratio.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Light_Mask/SQ020-SH020_Rusty_Hero_v0006_Light_Mask.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Light_Mask/SQ020-SH020_Rusty_Hero_v0006_Light_Mask.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Ribbon_Mask/SQ020-SH020_Rusty_Hero_v0006_Ribbon_Mask.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/Ribbon_Mask/SQ020-SH020_Rusty_Hero_v0006_Ribbon_Mask.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/beauty/SQ020-SH020_Rusty_Hero_v0006_beauty.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/beauty/SQ020-SH020_Rusty_Hero_v0006_beauty.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/cryptomatte/SQ020-SH020_Rusty_Hero_v0006_cryptomatte.1390.exr` — exists; publish P120
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/cryptomatte/SQ020-SH020_Rusty_Hero_v0006_cryptomatte.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/Color_Cyan/SQ020-SH020_Rusty_Ribbons_v0006_Color_Cyan.1390.exr` — exists; publish P122
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/Color_Cyan/SQ020-SH020_Rusty_Ribbons_v0006_Color_Cyan.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/beauty/SQ020-SH020_Rusty_Ribbons_v0006_beauty.1390.exr` — exists; publish P122
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/beauty/SQ020-SH020_Rusty_Ribbons_v0006_beauty.####.exr`: 478 files, frames 1390–1867; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/Retake/Image20260624115720.png` — exists; loose file
+  - `X:/Cytonics_CYT108/04_Resources/Retake/Image20260624######.png`: 1 files, frames 115720–115720; internal gaps: []
+
+### P114 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Beauty/v0018/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1092.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1092.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1090.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1092.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1092.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1090.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1092.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1092.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1092.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1090.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1092.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1090.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1092.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P115 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0014
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Core/v0014/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1092.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1092.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1090.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1092.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1092.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1090.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1092.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1092.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1092.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1090.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1092.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1090.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1092.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P116 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Extra_A2M/v0022/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1092.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1092.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1090.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1092.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1092.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1090.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1092.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1092.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1092.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1090.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1092.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1090.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1092.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P117 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0016
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Lighting_Matte/v0016/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1092.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1092.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1090.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1092.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1092.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1090.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1092.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1092.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1092.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1090.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1092.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1090.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1092.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P118 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Proteases_Inside/v0009/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1092.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1092.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1090.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1092.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1092.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1090.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1092.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1092.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1092.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1090.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1092.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1090.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1092.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P119 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Clouds/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0027.hip`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v0005.bgeo.sc` — exists; publish P007
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Modeling_FX/v0005/CYT108_Modeling_FX_v####.bgeo.sc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.1114.bgeo.sc` — exists; publish P063
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0009/SQ020-SH020_Background_CYT_108_Animations_v0009.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.1114.bgeo.sc` — exists; publish P076
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0004/SQ020-SH020_FX_Export_Fibers_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1114.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0004/SQ020-SH020_FX_Export_Proteases_v0004.1114.bgeo.sc` — exists; publish P087
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0004/SQ020-SH020_FX_Export_Proteases_v0004.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1114.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1114.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v0001.abc` — exists; publish P050
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0001/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0027.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0027.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1114.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P120 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Hero/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0045.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1710.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1710.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1090.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1710.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1710.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1090.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.1710.bgeo.sc` — exists; publish P089
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0006/SQ020-SH020_FX_Export_Proteases_v0006.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1710.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1710.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0045.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0045.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P121 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0012
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Microphage/v0012/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1090.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1092.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1090.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1092.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v0003.abc` — exists; publish P068
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0003/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1090.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.1092.bgeo.sc` — exists; publish P082
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0010/SQ020-SH020_FX_Export_Fibers_v0010.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1090.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1092.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1090.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1092.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1090.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1092.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1090.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1092.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1090.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1092.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v0003.abc` — exists; publish P052
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0003/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1090.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1092.bgeo.sc` — exists; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P122 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Renders/3dRender/Rusty_Ribbons/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0087.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1200.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.1506.bgeo.sc` — exists; publish P054
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Anim_heroCYT/v0002/SQ020-SH020_Anim_heroCYT_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1200.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.1506.bgeo.sc` — exists; publish P066
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Background_CYT_108_Animations/v0012/SQ020-SH020_Background_CYT_108_Animations_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002/SQ020-SH020_Extra_protease_v0002.abc` — exists; publish P067
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/Extra_protease/v0002/SQ020-SH020_Extra_protease_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v0003.bgeo.sc` — exists; publish P072
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Chondrocytes/v0003/SQ020-SH020_FX_Export_Chondrocytes_v####.bgeo.sc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1200.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.1506.bgeo.sc` — exists; publish P080
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Fibers/v0008/SQ020-SH020_FX_Export_Fibers_v0008.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1200.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.1506.bgeo.sc` — exists; publish P083
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Macrophage/v0001/SQ020-SH020_FX_Export_Macrophage_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1200.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.1506.bgeo.sc` — exists; publish P095
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Proteases/v0012/SQ020-SH020_FX_Export_Proteases_v0012.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1200.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.1506.bgeo.sc` — exists; publish P096
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Export_Rusty_Fog/v0001/SQ020-SH020_FX_Export_Rusty_Fog_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1200.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.1506.bgeo.sc` — exists; publish P100
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/FX_Extra_Fiber/v0001/SQ020-SH020_FX_Extra_Fiber_v0001.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1200.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.1506.bgeo.sc` — exists; publish P104
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/LGT_proteasse_attribute_cache/v0002/SQ020-SH020_LGT_proteasse_attribute_cache_v0002.####.bgeo.sc`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v0002.abc` — exists; publish P051
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Export/_ShotCam/v0002/SQ020-SH020__ShotCam_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0087.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0087.Director/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1200.bgeo.sc` — MISSING; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.1506.bgeo.sc` — MISSING; publish P152
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/SQ040-SH010_FX_Export_v0003.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists; loose file
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists; loose file
+
+### P123 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001
+
+- Method: UNRESOLVED: missing versioninfo.json
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/versioninfo.json`
+- Source: `(unresolved)`
+
+### P124 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0007.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002/CYT108_Rigging_v0002.ma` — exists; publish P016
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002/CYT108_Rigging_v####.ma`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0007.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v####.ma`: 13 files, frames 1–13; internal gaps: []
+
+### P125 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0010.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002/CYT108_Rigging_v0002.ma` — exists; publish P016
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0002/CYT108_Rigging_v####.ma`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0010.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v####.ma`: 13 files, frames 1–13; internal gaps: []
+
+### P126 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0011.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0002/CYT108_Rigging1_v0002.ma` — exists; publish P018
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0002/CYT108_Rigging1_v####.ma`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0011.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v####.ma`: 13 files, frames 1–13; internal gaps: []
+
+### P127 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0012.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/CYT108_Rigging1_v0003.ma` — exists; publish P019
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/CYT108_Rigging1_v####.ma`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v0003.abc` — exists; publish P024
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0003/Protease_Modeling_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0012.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v####.ma`: 13 files, frames 1–13; internal gaps: []
+
+### P128 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0012.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/CYT108_Rigging1_v0003.ma` — exists; publish P019
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/CYT108_Rigging1_v####.ma`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v0004.abc` — exists; publish P025
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0004/Protease_Modeling_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0012.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v####.ma`: 13 files, frames 1–13; internal gaps: []
+
+### P129 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0005.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v0001.ma` — exists; publish P015
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v####.ma`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0005.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v####.ma`: 13 files, frames 1–13; internal gaps: []
+
+### P130 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002/SQ020-SH021_Animation_v0002.abc` — exists; publish P124
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002/SQ020-SH021_Animation_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1360.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+
+### P131 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v0003.abc` — exists; publish P125
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.1001.bgeo.sc` — exists; publish P130
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_v0001.####.bgeo.sc`: 360 files, frames 1001–1360; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1141.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+
+### P132 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v0003.abc` — exists; publish P125
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.1001.bgeo.sc` — exists; publish P131
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1409.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+
+### P133 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v0004.abc` — exists; publish P126
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1001.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1147.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+
+### P134 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v0004.abc` — exists; publish P126
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v0005.abc` — exists; publish P127
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1392.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.1001.bgeo.sc` — exists; publish P133
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0005/SQ020-SH021_FX_CYT_108_Animation_Export_v0005.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+
+### P135 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v0004.abc` — exists; publish P126
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v0005.abc` — exists; publish P127
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1392.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006/SQ020-SH021_FX_CYT_108_Animation_Export_v0006.1001.bgeo.sc` — exists; publish P134
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006/SQ020-SH021_FX_CYT_108_Animation_Export_v0006.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+
+### P136 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v0004.abc` — exists; publish P126
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v0005.abc` — exists; publish P127
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1392.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1001.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1001.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+
+### P137 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0009/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v0004.abc` — exists; publish P126
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v0006.abc` — exists; publish P128
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0006/SQ020-SH021_Animation_v####.abc`: 1 files, frames 6–6; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1392.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.1001.bgeo.sc` — exists; publish P136
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0008/SQ020-SH021_FX_CYT_108_Animation_Export_v0008.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.1001.bgeo.sc` — exists; publish P141
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0004.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+
+### P138 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v0003.abc` — exists; publish P125
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0001/SQ020-SH021_LowRes_v0001.abc` — exists; publish P142
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0001/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db` — MISSING; loose file
+
+### P139 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v0003.abc` — exists; publish P125
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0001.1001.bgeo.sc` — exists; publish P138
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0001/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0001.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1409.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db` — MISSING; loose file
+
+### P140 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v0003.abc` — exists; publish P125
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0003/SQ020-SH021_Animation_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.1001.bgeo.sc` — exists; publish P139
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0002/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0002.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1409.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db` — MISSING; loose file
+
+### P141 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip`
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v0004.abc` — exists; publish P126
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0004/SQ020-SH021_Animation_v####.abc`: 1 files, frames 4–4; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v0005.abc` — exists; publish P127
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0005/SQ020-SH021_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v0001.abc` — exists; publish P129
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation1/v0001/SQ020-SH021_Animation1_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1392.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1001.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.1001.bgeo.sc` — exists; publish P140
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export_LowRes/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_LowRes_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v0002.abc` — exists; publish P143
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/SQ020-SH021_LowRes_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+
+### P142 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v0002.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0001/CYT108_LowRes1_v0001.ma` — exists; publish P001
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0001/CYT108_LowRes1_v####.ma`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001/Protease_Modeling_LowPoly_v0001.abc` — exists; publish P026
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0001/Protease_Modeling_LowPoly_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v0002.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v####.ma`: 3 files, frames 1–3; internal gaps: []
+
+### P143 — X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/LowRes/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v0003.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0002/CYT108_LowRes1_v0002.ma` — exists; publish P002
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/LowRes1/v0002/CYT108_LowRes1_v####.ma`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003/Protease_Modeling_LowPoly_v0003.abc` — exists; publish P028
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling_LowPoly/v0003/Protease_Modeling_LowPoly_v####.abc`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v0003.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v####.ma`: 3 files, frames 1–3; internal gaps: []
+
+### P144 — X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/_ShotCam/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/_ShotCam/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v0008.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v0001.ma` — exists; publish P015
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v####.ma`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v0001.abc` — exists; publish P031
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v0008.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v####.ma`: 9 files, frames 1–9; internal gaps: []
+
+### P145 — X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/FX_Export_for_camera/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/FX_Export_for_camera/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.hip`
+- `C:/Users/User/Desktop/Dimitar/Composition Grids/16x9_White.png` — existence unverified; loose file
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified; loose file
+- `X:/Cytonics_CYT108/02_Designs/Models/LRP2 and HERO.fbx` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0002/Receptor_FX_Modeling_v0002.bgeo.sc` — exists; publish P030
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/FX_Modeling/v0002/Receptor_FX_Modeling_v####.bgeo.sc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002/SQ020-SH021_Animation_v0002.abc` — exists; publish P124
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0002/SQ020-SH021_Animation_v####.abc`: 1 files, frames 2–2; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/Layout/v0001/SQ030-SH010_Layout_v0001.abc` — exists; publish P146
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/Layout/v0001/SQ030-SH010_Layout_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/_ShotCam/v0001/SQ030-SH010__ShotCam_v0001.abc` — exists; publish P144
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/_ShotCam/v0001/SQ030-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.taskgraph.1091.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/galleries/SQ030-SH010_FX_v0002.FX_Export_for_camera/rendergallery.db` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/animated_uv_sphere_points/animated_uv_sphere_points.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/animated_uv_sphere_points/animated_uv_sphere_points.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/animated_uv_sphere_points/animated_uv_sphere_points.1091.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/animated_uv_sphere_points/animated_uv_sphere_points.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.1091.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.####.bgeo.sc`: 36 files, frames 1130–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.1130.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.####.bgeo.sc`: 36 files, frames 1130–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/lysosome/lysosome.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/lysosome/lysosome.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/lysosome/lysosome.1091.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/lysosome/lysosome.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/membrane/membrane.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/membrane/membrane.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/membrane/membrane.1091.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/membrane/membrane.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_1/morphing_step_1.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_1/morphing_step_1.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_1/morphing_step_1.1091.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_1/morphing_step_1.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_2/morphing_step_2.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_2/morphing_step_2.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_2/morphing_step_2.1091.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_2/morphing_step_2.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/uv_sphere_morphing/uv_sphere_morphing.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/uv_sphere_morphing/uv_sphere_morphing.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/uv_sphere_morphing/uv_sphere_morphing.1091.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/uv_sphere_morphing/uv_sphere_morphing.####.bgeo.sc`: 165 files, frames 1001–1165; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.1001.bgeo.sc` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.####.bgeo.sc`: 80 files, frames 1001–1080; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.1091.bgeo.sc` — MISSING; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.####.bgeo.sc`: 80 files, frames 1001–1080; internal gaps: []
+
+### P146 — X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/Layout/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/Layout/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v0008.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v0001.ma` — exists; publish P015
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v####.ma`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v0001.abc` — exists; publish P031
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Export/Modeling/v0001/Receptor_Modeling_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v0008.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v####.ma`: 9 files, frames 1–9; internal gaps: []
+
+### P147 — X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Playblasts/Layout/v0004/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/SQ030-SH010_Layout_houdini_v0006.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Playblasts/Animation/v0004/SQ020-SH020_Animation_v0004.1867.jpg` — exists; publish P109
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Playblasts/Animation/v0004/SQ020-SH020_Animation_v0004.####.jpg`: 867 files, frames 1001–1867; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Export/FX_Export_for_camera/v0001/SQ030-SH010_FX_Export_for_camera_v0001..abc` — exists; publish P145
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/SQ030-SH010_Layout_houdini_v0006.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/galleries/SQ030-SH010_Layout_houdini_v0006.Director/rendergallery.db` — MISSING; loose file
+
+### P148 — X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v0002.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v0001.ma` — exists; publish P015
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v####.ma`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v0002.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v####.ma`: 6 files, frames 1–6; internal gaps: []
+
+### P149 — X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v0005.ma`
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/CYT108_Rigging1_v0003.ma` — exists; publish P019
+  - `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging1/v0003/CYT108_Rigging1_v####.ma`: 1 files, frames 3–3; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc` — exists; publish P023
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v0005.ma` — exists; loose file
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v####.ma`: 6 files, frames 1–6; internal gaps: []
+
+### P150 — X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0001
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0001/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1098.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006/SQ020-SH021_FX_CYT_108_Animation_Export_v0006.1001.bgeo.sc` — exists; publish P134
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0006/SQ020-SH021_FX_CYT_108_Animation_Export_v0006.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/SQ040-SH010_Animation_v0005.abc` — exists; publish P149
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/SQ040-SH010_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/SQ040-SH010__ShotCam_v0001.abc` — exists; publish P148
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/SQ040-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1098.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/galleries/SQ040-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+
+### P151 — X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0002
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0002/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1098.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1098.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/SQ040-SH010_Animation_v0005.abc` — exists; publish P149
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/SQ040-SH010_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0001/SQ040-SH010_FX_Export_v0001.1001.bgeo.sc` — exists; publish P150
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0001/SQ040-SH010_FX_Export_v0001.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/SQ040-SH010__ShotCam_v0001.abc` — exists; publish P148
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/SQ040-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1098.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/galleries/SQ040-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+
+### P152 — X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003
+
+- Method: publish scene-wide metadata
+- Metadata: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0003/versioninfo.json`
+- Source: `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.hip`
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.1001.bgeo.sc` — exists; publish P132
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0003/SQ020-SH021_FX_CYT_108_Animation_Export_v0003.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1001.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.1098.bgeo.sc` — exists; publish P135
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/FX_CYT_108_Animation_Export/v0007/SQ020-SH021_FX_CYT_108_Animation_Export_v0007.####.bgeo.sc`: 530 files, frames 1001–1530; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/SQ040-SH010_Animation_v0005.abc` — exists; publish P149
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/Animation/v0005/SQ040-SH010_Animation_v####.abc`: 1 files, frames 5–5; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0002/SQ040-SH010_FX_Export_v0002.1001.bgeo.sc` — exists; publish P151
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/FX_Export/v0002/SQ040-SH010_FX_Export_v0002.####.bgeo.sc`: 160 files, frames 1001–1160; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/SQ040-SH010__ShotCam_v0001.abc` — exists; publish P148
+  - `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Export/_ShotCam/v0001/SQ040-SH010__ShotCam_v####.abc`: 1 files, frames 1–1; internal gaps: []
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.checkpoint.json` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1001.py` — MISSING; loose file
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/galleries/SQ040-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING; loose file
+
+## Source scenes and resources without publish metadata
+
+- `C:/Users/User/Desktop/Dimitar/Composition Grids/16x9_White.png` — existence unverified
+- `C:/Users/User/Desktop/receptor.obj` — existence unverified
+- `C:/Users/User/Desktop/receptor_uv.obj` — existence unverified
+- `C:/Users/peter/Documents/SideFX/Courses/Intro_to_Solaris_USD/usd/scenes/extension_scene.usdc` — existence unverified
+- `X:/Cytonics_CYT108/02_Designs/Models/LRP2 and HERO.fbx` — exists
+- `X:/Cytonics_CYT108/02_Designs/Storyboard/Cytonics Drawings for animatic/01.jpg` — exists
+- `X:/Cytonics_CYT108/02_Designs/Storyboard/Cytonics Drawings for animatic/18.jpg` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v0002.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/LowRes/CYT108_LowRes_v0003.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0003.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0004.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0005.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0007.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Animation/Rigging/CYT108_Rigging_v0008.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/CYT108_Modeling_v0003.taskgraph.1071.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_LowPoly/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_abc/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Scenefiles/Modeling/Modeling/galleries/CYT108_Modeling_v0003.Modeling_FX_bgeo/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Bones_V01.fbx` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/Knee_Modeling_v0001.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Knee/Scenefiles/Modeling/Modeling/galleries/Knee_Modeling_v0001.Knee_Export/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Macrophage/Scenefiles/Modeling/Modeling/Macrophage_Modeling_v0002.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0002.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/Protease_Modeling_v0003.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Scenefiles/Modeling/Modeling/galleries/Protease_Modeling_v0003.Modeling_LowPoly/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0002.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/Receptor_Modeling_v0003.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Assets/Prop/Receptor/Scenefiles/Modeling/Modeling/galleries/Receptor_Modeling_v0003.FX_Modeling/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/Knee_Bones_V01.fbx` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1078.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1084.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1090.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/SQ010-SH010_FX_v0001.taskgraph.1120.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/galleries/SQ010-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1078.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1084.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1090.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1120.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1690.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1792.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers/fibers.1920.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers_v2/fibers_v2.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/fibers_v2/fibers_v2.1120.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1078.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1084.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1090.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1120.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1690.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1792.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb/knee_cracks_vdb.1920.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1084.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1090.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/FX/FX/geo/knee_cracks_vdb_v2/knee_cracks_vdb_v2.1120.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/SQ010-SH010_Layout_v0004.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/SQ010-SH010_Layout_v0004.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ010/SH010/Scenefiles/Layout/Layout/galleries/SQ010-SH010_Layout_v0004.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1792.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0001.taskgraph.1920.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1254.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0002.taskgraph.1690.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0003.taskgraph.1353.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/SQ020-SH010_FX_v0005.taskgraph.1284.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0001.FX_Layout_Export/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Fibers_and_Chondrocytes/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0002.FX_Layout_Export/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Back_Fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Fibers_and_Chondrocytes/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0003.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/galleries/SQ020-SH010_FX_v0005.FX_Export_Chondrocytes/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.mops_noise/v1/SQ020-SH010_FX_v0001.mops_noise_v1.1920.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0001.strings_test/v1/SQ020-SH010_FX_v0001.strings_test_v1.1920.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.mops_noise/v1/SQ020-SH010_FX_v0002.mops_noise_v1.1920.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0002.strings_test/v1/SQ020-SH010_FX_v0002.strings_test_v1.1920.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/SQ020-SH010_FX_v0003.recovery_test_sim_vellum/v1/SQ020-SH010_FX_v0003.recovery_test_sim_vellum_v1.3000.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagen_curves_final.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_in_camera.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_not_dense.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/collagens_v2.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/fibers_test/fibers_test.1254.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1040.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1086.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1089.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1143.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1179.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1216.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1246.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1284.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1303.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1314.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1331.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1358.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1391.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1465.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1511.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1543.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1591.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1641.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1667.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1697.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1716.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1743.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1773.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1812.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_cache/full_sim_cache.1867.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1040.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1086.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1089.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1216.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1303.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1314.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1331.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1358.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1465.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1543.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/full_sim_clipped/full_sim_clipped.1867.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim/mixed_sim.1254.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all/mixed_sim_all.1254.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_all_v2/mixed_sim_all_v2.1254.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1143.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1179.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1198.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1246.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1284.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1353.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1391.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1511.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1591.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1612.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1641.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1667.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1697.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1716.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1773.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1793.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1812.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_back/mixed_sim_back.1867.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1143.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1179.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1198.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1246.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1284.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1353.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1391.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1511.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1591.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1612.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1641.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1667.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1697.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1716.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1773.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1793.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1812.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front/mixed_sim_front.1867.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_front_v2/mixed_sim_front_v2.1284.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/mixed_sim_v2/mixed_sim_v2.1254.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1254.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1284.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/protease_starting_pts/protease_starting_pts.1353.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/FX/FX/geo/target_pts_full_sim.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0006.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0006.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/SQ020-SH010_Layout_v0011.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0006.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH010/Scenefiles/Layout/Layout/galleries/SQ020-SH010_Layout_v0011.Layout_FG_fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0005.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0005.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0006.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0009.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0009.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1158.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0011.taskgraph.1590.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/SQ020-SH020_Animation_v0015.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0005.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0006.Layout_macrophage/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0009.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Anim_heroCYT/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Animation/galleries/SQ020-SH020_Animation_v0011.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0012.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0017.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/Animation/Extra_protease/SQ020-SH020_Extra_protease_v0018.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0001.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1179.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1198.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1612.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1793.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0002.taskgraph.1867.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1143.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1246.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1391.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1511.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1591.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1641.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1667.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1697.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1716.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1773.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0003.taskgraph.1812.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1086.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1216.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1331.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1358.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1743.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0004.taskgraph.1867.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1040.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1094.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1314.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0005.taskgraph.1867.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0006.taskgraph.1303.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0007.taskgraph.1543.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0009.taskgraph.1867.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1089.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/SQ020-SH020_FX_v0011.taskgraph.1465.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Chondrocytes/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0001.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.Background_CYT_108_Animations/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0002.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Background_CYT_108_Animations/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Chondrocytes/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Macrophage/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Export_Rusty_Fog/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0003.FX_Extra_Fiber/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0004.FX_Hero_CYT/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0005.FX_Extra_A2M/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0006.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0007.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0009.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Fibers/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/galleries/SQ020-SH020_FX_v0011.FX_Export_Proteases/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1001.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/CYT_108_Animations/CYT_108_Animations.1867.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/cyt_del_group.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/extra_a2m/extra_a2m.1867.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1040.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1089.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1303.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1314.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1465.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1543.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask/high_res_light_mask.1867.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1089.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1303.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1314.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1465.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1543.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/high_res_light_mask_noisy/high_res_light_mask_noisy.1867.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1040.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1086.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1089.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1143.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1179.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1198.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1216.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1246.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1303.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1314.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1331.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1358.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1391.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1465.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1511.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1543.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1591.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1612.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1641.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1667.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1697.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1716.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1743.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1773.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1812.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers/optimize_fibers.1867.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1040.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1086.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1089.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1094.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1216.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1303.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1314.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1331.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1358.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1465.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1543.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/FX/FX/geo/optimize_fibers_v2/optimize_fibers_v2.1867.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/HighRes/SQ020-SH020_HighRes_v0046.aep` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/HighRes/SQ020-SH020_HighRes_v0047.aep` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/HighRes/SQ020-SH020_HighRes_v0052.aep` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0027.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0027.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0045.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0045.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0065.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0070.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0071.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0071.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0079.taskgraph.1200.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0087.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0087.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/SQ020-SH020_Lighting_v0103.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0027.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0045.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0065.Filecache1/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0070.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0071.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0079.Filecache1/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0087.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH020/Scenefiles/LookDev/Lighting/galleries/SQ020-SH020_Lighting_v0103.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0005.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0007.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0010.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0011.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0012.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v0002.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/LowRes/SQ020-SH021_LowRes_v0003.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1141.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1147.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1360.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1392.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/SQ020-SH021_FX_v0002.taskgraph.1409.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/galleries/SQ020-SH021_FX_v0002.FX_CYT_108_Animation_Export_LowRes/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/FX/FX/geo/ribbons_optimized_v2.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/SQ030-SH010_FX_v0002.taskgraph.1091.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/galleries/SQ030-SH010_FX_v0002.FX_Export_for_camera/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/animated_uv_sphere_points/animated_uv_sphere_points.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/animated_uv_sphere_points/animated_uv_sphere_points.1091.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.1091.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/explosion/explosion.1130.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/lysosome/lysosome.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/lysosome/lysosome.1091.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/membrane/membrane.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/membrane/membrane.1091.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_1/morphing_step_1.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_1/morphing_step_1.1091.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_2/morphing_step_2.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/morphing_step_2/morphing_step_2.1091.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/uv_sphere_morphing/uv_sphere_morphing.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/uv_sphere_morphing/uv_sphere_morphing.1091.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.1001.bgeo.sc` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/FX/FX/geo/vellum_receptor/vellum_receptor.1091.bgeo.sc` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout/SQ030-SH010_Layout_v0008.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/SQ030-SH010_Layout_houdini_v0006.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/SQ030-SH010_Layout_houdini_v0006.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH010/Scenefiles/Layout/Layout_houdini/galleries/SQ030-SH010_Layout_houdini_v0006.Director/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v0002.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/Animation/Animation/SQ040-SH010_Animation_v0005.ma` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.checkpoint.json` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.hip` — exists
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1001.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/SQ040-SH010_FX_v0001.taskgraph.1098.py` — MISSING
+- `X:/Cytonics_CYT108/03_Production/Shots/SQ040/SH010/Scenefiles/FX/FX/galleries/SQ040-SH010_FX_v0001.FX_Export/rendergallery.db` — MISSING
+- `X:/Cytonics_CYT108/04_Resources/HDRI/abandoned_church_4k.hdr` — exists
+- `X:/Cytonics_CYT108/04_Resources/HDRI/christmas_photo_studio_03_4k.exr` — exists
+- `X:/Cytonics_CYT108/04_Resources/Retake/Image20260624115720.png` — exists

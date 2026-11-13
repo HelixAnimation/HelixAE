@@ -1,0 +1,90 @@
+{
+  "target": "/volume1/Renders/X/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/2dRender/No_Signals/v0001/versioninfo.json",
+  "source_scene_sha256": "9658fc3f627f5a016a7d7f2dd54e9331ef27d4c53f2ad315510cf7921279fa99",
+  "scene_size": 2595716,
+  "scene_mtime_ns": 1781768936391117418,
+  "movie_size": 115093892,
+  "movie_mtime_ns": 1781769600718556582,
+  "movie_moov_sha256": "45b1f021f11609308f293c149dda7790165ca8d4b1c00bb26ec1c56779a9d7b9",
+  "movie_project_link": {
+    "compositionID": "113",
+    "renderQueueItemID": "20",
+    "renderOutputModuleIndex": "0",
+    "fullPath": "X:\\Cytonics_CYT108\\03_Production\\Shots\\SQ030\\SH020\\Scenefiles\\LookDev\\LowRes\\SQ030-SH020_LowRes_v0012.aep"
+  },
+  "scene_metadata": {
+    "project_path": "X:\\Cytonics_CYT108",
+    "sequence": "SQ030",
+    "shot": "SH020",
+    "department": "LookDev",
+    "task": "LowRes",
+    "version": "v0012",
+    "type": "shot",
+    "locations": {},
+    "comment": "",
+    "hierarchy": "SQ030/SH020",
+    "itemType": "shot",
+    "username": "Goran Dimov",
+    "user": "gdi"
+  },
+  "scene_dependencies": [],
+  "scene_external": [],
+  "fps": 24.0,
+  "status": "reconstructed",
+  "version": "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/2dRender/No_Signals/v0001",
+  "source": "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Scenefiles/LookDev/LowRes/SQ030-SH020_LowRes_v0012.aep",
+  "movie": "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/2dRender/No_Signals/v0001/SQ030-SH020_No_Signals_v0001.mov",
+  "metadata": {
+    "project_path": "X:\\Cytonics_CYT108",
+    "sequence": "SQ030",
+    "shot": "SH020",
+    "department": "LookDev",
+    "task": "LowRes",
+    "type": "shot",
+    "hierarchy": "SQ030/SH020",
+    "itemType": "shot",
+    "version": "v0001",
+    "identifier": "No_Signals",
+    "sourceScene": "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Scenefiles/LookDev/LowRes/SQ030-SH020_LowRes_v0012.aep",
+    "locations": {
+      "global": "."
+    },
+    "fps": 24.0,
+    "dependencies": [],
+    "externalFiles": [],
+    "renderDependencies": {
+      "context": {
+        "application": "aftereffects",
+        "type": "composition",
+        "identifier": "113",
+        "name": "SQ030-SH020_LowRes_v0001"
+      },
+      "dependencies": [
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/2dRender/LightBeam/v0002/SQ030-SH020_LightBeam_v0002.mov",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_1/v0002/Light_Mask/SQ030-SH020_Lighting_Bauty_1_v0002_Light_Mask.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_1/v0002/Z/SQ030-SH020_Lighting_Bauty_1_v0002_Z.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_1/v0002/beauty/SQ030-SH020_Lighting_Bauty_1_v0002_beauty.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_1/v0002/cryptomatte/SQ030-SH020_Lighting_Bauty_1_v0002_cryptomatte.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_1/v0002/Facing_Ratio/SQ030-SH020_Lighting_Bauty_Fog_1_v0002_Facing_Ratio.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_1/v0002/cryptomatte/SQ030-SH020_Lighting_Bauty_Fog_1_v0002_cryptomatte.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_1/v0002/volume/SQ030-SH020_Lighting_Bauty_Fog_1_v0002_volume.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_2/v0002/Facing_Ratio/SQ030-SH020_Lighting_Bauty_Fog_2_v0002_Facing_Ratio.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_2/v0002/beauty/SQ030-SH020_Lighting_Bauty_Fog_2_v0002_beauty.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_2/v0002/cryptomatte/SQ030-SH020_Lighting_Bauty_Fog_2_v0002_cryptomatte.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Bauty_Fog_2/v0002/specular/SQ030-SH020_Lighting_Bauty_Fog_2_v0002_specular.1001.exr",
+        "X:/Cytonics_CYT108/03_Production/Shots/SQ030/SH020/Renders/3dRender/Lighting_Particles/v0002/beauty/SQ030-SH020_Lighting_Particles_v0002_beauty.1001.exr"
+      ],
+      "externalFiles": [
+        "X:/Cytonics_CYT108/04_Resources/BG/Cytonics Opening BG.png",
+        "X:/Cytonics_CYT108/04_Resources/Retake/Image20260617182532.png"
+      ]
+    }
+  },
+  "missing": [],
+  "dependency_scope": "AE composition 113 from the movie project link; scene-wide top-level fallback",
+  "exporter_identity": "unknown; scene artist is not asserted as render user",
+  "backup": null,
+  "backup_reason": "No original versioninfo.json existed",
+  "new_sha256": "d81bb80caacd1f3214539e9384df3f83f74d07d52390ca2bdb0948297b844c8b",
+  "reconstructed_utc": "2026-10-19T21:42:11.501494+00:00"
+}

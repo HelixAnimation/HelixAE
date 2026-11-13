@@ -9,6 +9,7 @@ import threading
 import time
 
 import helixae_bridge
+from helixae_kitsu import shot_fps
 import helixae_protocol
 
 
@@ -301,7 +302,6 @@ def fetch_kitsu(context, cancel, report, session_factory=None):
             return int(value[0]), int(value[1])
         return fallback
     project_res = resolution(project.get('resolution'), (context.get('width', 1920), context.get('height', 1080)))
-    fps = float(project.get('fps') or context.get('fps') or 25)
     records = []
     for shot in shots:
         if shot.get('canceled'):
@@ -313,5 +313,5 @@ def fetch_kitsu(context, cancel, report, session_factory=None):
         records.append({'shot': shot.get('name', ''), 'sequence': sequence_names.get(shot.get('parent_id'), ''),
                         'id': shot['id'], 'start': start, 'end': end,
                         'frameRange': '%s-%s' % (start, end) if start is not None and end is not None else None,
-                        'fps': fps, 'width': width, 'height': height, 'resolution': '%dx%d' % (width, height)})
+                        'fps': shot_fps(shot, project.get('fps'), context.get('fps')), 'width': width, 'height': height, 'resolution': '%dx%d' % (width, height)})
     return {'shots': records, 'seconds': time.perf_counter() - started, 'requests': count}

@@ -5,6 +5,7 @@ Gets shot information from Kitsu including frame ranges, fps, etc.
 """
 
 import os
+from helixae_kitsu import shot_fps
 from qtpy.QtCore import *
 from qtpy.QtGui import *
 from qtpy.QtWidgets import *
@@ -220,7 +221,7 @@ class AEKitsu(QObject):
             
             # Get project FPS
             try:
-                projectFps = kitsuMgr.getFps() or 24.0
+                projectFps = kitsuMgr.getFps()
             except Exception:
                 projectFps = self.core.getConfig("globals", "fps", config="project") or 25.0
             
@@ -363,8 +364,17 @@ class AEKitsu(QObject):
             frameRange = "N/A"
         item.setText(1, frameRange)
         
-        # FPS (use project FPS as default)
-        item.setText(2, f"{projectFps:.2f}")
+        # Prism's normalized shot record may omit custom Kitsu metadata.
+        full_shot = shot
+        gazu = getattr(kitsuMgr, 'gazu', None)
+        if gazu is not None and shot.get('id'):
+            try:
+                full_shot = gazu.shot.get_shot(shot['id'])
+            except Exception:
+                pass  # Use available shot metadata and project/config fallbacks.
+        fps = shot_fps(full_shot, projectFps,
+                       self.core.getConfig('globals', 'fps', config='project'))
+        item.setText(2, f"{fps:.2f}")
         
         # Get tasks for this shot and create a rich text widget
         try:
@@ -421,7 +431,7 @@ class AEKitsu(QObject):
             'frameRange': frameRange,
             'start': start,
             'end': end,
-            'fps': projectFps
+            'fps': fps
         }
         item.setData(0, Qt.UserRole, userData)
     

@@ -9,6 +9,7 @@ from qtpy.QtCore import *
 from qtpy.QtGui import *
 
 from footage_tracker import kitsu_keys
+from helixae_kitsu import shot_fps
 
 
 class KitsuIntegration:
@@ -218,7 +219,7 @@ class KitsuIntegration:
             errorMessages.append(f"Project path after load attempt: {getattr(self.core, 'projectPath', None)}")
             
             try:
-                projectFps = kitsuMgr.getFps() or 24.0
+                projectFps = kitsuMgr.getFps()
                 errorMessages.append(f"Project FPS: {projectFps}")
             except Exception as e:
                 projectFps = self.core.getConfig("globals", "fps", config="project") or 25.0
@@ -266,6 +267,7 @@ class KitsuIntegration:
 
             # Use gazu to get full shot data with resolution
             shot_resolutions = {}
+            full_shots = {}
             if gazu_client:
                 print(f"[KITSU] Fetching shot details from Kitsu (with resolution)...")
                 for shot in shots:
@@ -277,6 +279,7 @@ class KitsuIntegration:
                         try:
                             # Use gazu's get_shot function which returns full shot data
                             full_shot = gazu_client.shot.get_shot(shot_id)
+                            full_shots[shot_id] = full_shot
 
                             # Check for resolution in the shot data
                             shot_resolution = None
@@ -337,7 +340,8 @@ class KitsuIntegration:
                         'shot': shotName,
                         'sequence': sequence,
                         'frameRange': frameRange,
-                        'fps': projectFps,
+                        'fps': shot_fps(full_shots.get(shot_id, shot), projectFps,
+                                        self.core.getConfig('globals', 'fps', config='project')),
                         'start': start,
                         'end': end,
                         'width': shot_width,

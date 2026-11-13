@@ -1182,9 +1182,12 @@ class AEOperations:
                 return {'success': False, 'error': str(e)}
             data, error = helixae_protocol.parse_json_response(result)
             if data and not error and data.get("result"):
+                folder_id = data.get('folderId')
                 return {
                     'success': True,
-                    'folder_id': data.get('folderId'),
+                    'folder_id': folder_id,
+                    # Backward-compatible alias for callers using the AE key name.
+                    'folderId': folder_id,
                     'folder_name': data.get('folderName'),
                 }
             reason = (data or {}).get('reason') or (data or {}).get('details') or error or 'no response'

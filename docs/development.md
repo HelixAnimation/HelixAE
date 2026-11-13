@@ -192,3 +192,14 @@ The initial NAS working copy included an uncommitted menu-port change from
 `.gitattributes` lets Git normalize Windows CRLF files for comparisons without
 rewriting the copied source or vendored libraries. Command templates retain CRLF
 on checkout and shell scripts use LF.
+
+
+### Slow project opening
+
+Opening a project from the Project Browser allows up to ten minutes for After
+Effects to confirm completion (other core bridge operations retain their
+two-minute timeout). A timeout does not cancel AE's open request: the project
+may still be loading or waiting for a save, missing-footage, font, or plugin
+dialog. Check After Effects before trying again; HelixAE does not retry the open
+automatically. Restart the HelixAE/Prism UI process to pick up this Python-only
+change; no CEP reinstall is needed.

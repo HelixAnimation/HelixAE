@@ -154,37 +154,47 @@ class ContextMenu(
                                if item.data(0, Qt.UserRole) and item.data(0, Qt.UserRole).get('type') == 'footage']
 
                 if footage_items:
-                    changeShotMenu = menu.addMenu("Change Shot")
-                    changeShotMenu.aboutToShow.connect(
-                        lambda: self._addChangeShotMenu_lazy(changeShotMenu, footage_items)
-                    )
-                    menu.addSeparator()
+                    shot_switcher = self.tracker.tree_ops.shot_switcher
+                    changeMenu = menu.addMenu("Change…")
 
-                t5 = time.perf_counter()
-                footage_2d_items = [item for item in footage_items if self._is2DRenderFootage(item)]
-                footage_3d_items = [item for item in footage_items if self._is3DRenderFootageItem(item)]
-                t6 = time.perf_counter()
-                if t6 - t5 > 0.01:
-                    print(f"[DEBUG MENU] 2D/3D filter took {t6-t5:.4f}s for {len(footage_items)} items")
-                print(f"[DEBUG MENU] Found {len(footage_2d_items)} 2D items, {len(footage_3d_items)} 3D items")
+                    current_shot = self.tracker.tree_ops.extractCurrentShotFromProject()
+                    if current_shot:
+                        currentAction = QAction(f"Current Shot ({current_shot})", changeMenu)
+                        currentAction.triggered.connect(
+                            lambda checked=False, items=footage_items:
+                                shot_switcher.changeToCurrentShot(items))
+                    else:
+                        currentAction = QAction("Current Shot (Unknown)", changeMenu)
+                        currentAction.setEnabled(False)
+                    changeMenu.addAction(currentAction)
+                    changeMenu.addSeparator()
 
-                if footage_2d_items:
-                    type_label = "2D" if len(footage_2d_items) == 1 else f"2D ({len(footage_2d_items)} items)"
-                    changeId2dMenu = menu.addMenu(f"Change {type_label} Identifier")
-                    changeId2dMenu.aboutToShow.connect(lambda menu=changeId2dMenu, items=footage_2d_items:
-                        self._addChangeIdentifierMenu_lazy(menu, items, '2d'))
-                    menu.addSeparator()
+                    shotAction = QAction("Shot…", changeMenu)
+                    shotAction.triggered.connect(
+                        lambda checked=False, items=footage_items:
+                            shot_switcher.showShotSelectionDialog(items))
+                    changeMenu.addAction(shotAction)
 
-                if footage_3d_items:
-                    type_label = "3D" if len(footage_3d_items) == 1 else f"3D ({len(footage_3d_items)} items)"
-                    changeId3dMenu = menu.addMenu(f"Change {type_label} Identifier")
-                    changeId3dMenu.aboutToShow.connect(lambda menu=changeId3dMenu, items=footage_3d_items:
-                        self._addChangeIdentifierMenu_lazy(menu, items, '3d'))
-                    menu.addSeparator()
+                    identifierAction = QAction("Identifier…", changeMenu)
+                    identifierAction.triggered.connect(
+                        lambda checked=False, items=footage_items:
+                            shot_switcher.showChangeIdentifierDialog(items))
+                    changeMenu.addAction(identifierAction)
 
-                    changeAovMenu = menu.addMenu("Change AOV")
-                    changeAovMenu.aboutToShow.connect(lambda menu=changeAovMenu, items=footage_3d_items:
-                        self._addChangeAOVMenu_lazy(menu, items))
+                    if any(shot_switcher.is3DFootageItem(item) for item in footage_items):
+                        aovAction = QAction("AOV…", changeMenu)
+                        aovAction.triggered.connect(
+                            lambda checked=False, items=footage_items:
+                                shot_switcher.showChangeAOVDialog(items))
+                        changeMenu.addAction(aovAction)
+
+                    changeMenu.addSeparator()
+                    customAction = QAction("Custom…", changeMenu)
+                    customAction.triggered.connect(
+                        lambda checked=False, items=footage_items:
+                            shot_switcher.showChangeFootageDialog(items))
+                    changeMenu.addAction(customAction)
+
                     menu.addSeparator()
 
                 syncMenu = menu.addMenu("Sync")

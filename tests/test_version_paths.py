@@ -300,6 +300,167 @@ class TestAOVDiscovery(unittest.TestCase):
         self.assertIsNone(vp.find_aov_path(self.identifier, ""))
 
 
+class TestChangeTargetPaths(unittest.TestCase):
+    def setUp(self):
+        self._tmp = tempfile.TemporaryDirectory()
+        self.root = self._tmp.name
+        files = [
+            "Shots/SQ01/SH010/Renders/3dRender/Lighting/v0002/beauty/beauty.1001.exr",
+            "Shots/SQ01/SH010/Renders/3dRender/Lighting/v0003/beauty/beauty.1001.exr",
+            "Shots/SQ01/SH010/Renders/3dRender/Lighting/v0003/diffuse/diffuse.1001.exr",
+            "Shots/SQ01/SH010/Renders/3dRender/FX/v0002/smoke/smoke.1001.exr",
+            "Shots/SQ02/SH020/Renders/3dRender/Lighting/v0005/beauty/beauty.1001.exr",
+            "Shots/SQ01/SH010/Renders/2dRender/LowRes/v0001/comp.mov",
+            "Shots/SQ01/SH010/Renders/2dRender/LowRes/v0002/comp.mov",
+            "Shots/SQ01/SH010/Playblasts/Anim/v0002/playblast.mov",
+        ]
+        for relative in files:
+            path = os.path.join(self.root, relative)
+            os.makedirs(os.path.dirname(path), exist_ok=True)
+            with open(path, "w"):
+                pass
+        self.source_3d = os.path.join(
+            self.root,
+            "Shots/SQ01/SH010/Renders/3dRender/Lighting/v0002/beauty/beauty.1001.exr",
+        )
+
+    def tearDown(self):
+        self._tmp.cleanup()
+
+    def test_render_type_from_path(self):
+        self.assertEqual(vp.render_type_from_path(self.source_3d), "3dRender")
+        self.assertEqual(
+            vp.render_type_from_path("Z:/SH010/Renders/2dRender/LowRes/v0001/c.mov"),
+            "2dRender",
+        )
+        self.assertEqual(
+            vp.render_type_from_path("Z:/SH010/Playblasts/Anim/v0001/p.mov"),
+            "Playblasts",
+        )
+        self.assertIsNone(vp.render_type_from_path("Z:/SH010/Renders/other/file.mov"))
+
+    def test_shot_root_from_path(self):
+        self.assertEqual(
+            vp.shot_root_from_path(self.source_3d),
+            os.path.join(self.root, "Shots/SQ01/SH010"),
+        )
+        self.assertEqual(
+            vp.shot_root_from_path("Z:/proj/Shots/SH010/Renders/3dRender/Lighting/v0001/beauty/b.exr"),
+            "Z:/proj/Shots/SH010",
+        )
+        self.assertEqual(
+            vp.shot_root_from_path("Z:/proj/Shots/Lunaphore-Edit/Rendering/3dRender/Lighting/v0001/beauty/b.exr"),
+            "Z:/proj/Shots/Lunaphore-Edit",
+        )
+
+    def test_build_target_shot_root(self):
+        source_root = os.path.join(self.root, "Shots/SQ01/SH010")
+        self.assertEqual(
+            vp.build_target_shot_root(source_root, "SQ02-SH020"),
+            os.path.join(self.root, "Shots/SQ02/SH020"),
+        )
+        self.assertEqual(
+            vp.build_target_shot_root(source_root, "SH020"),
+            os.path.join(self.root, "Shots/SQ01/SH020"),
+        )
+
+    def test_build_target_identifier_parent_preserves_render_folder(self):
+        target_root = os.path.join(self.root, "Shots/SQ02/SH020")
+        self.assertEqual(
+            vp.build_target_identifier_parent(self.source_3d, target_root),
+            os.path.join(target_root, "Renders/3dRender"),
+        )
+        rendering_source = os.path.join(
+            self.root, "Shots/SQ01/SH010/Rendering/3dRender/Lighting/v0002/beauty/beauty.1001.exr"
+        )
+        self.assertEqual(
+            vp.build_target_identifier_parent(rendering_source, target_root),
+            os.path.join(target_root, "Rendering/3dRender"),
+        )
+
+    def test_list_identifiers(self):
+        render_parent = os.path.join(
+            self.root, "Shots/SQ01/SH010/Renders/3dRender")
+        self.assertEqual(
+            vp.list_identifiers(render_parent, require_aovs=True),
+            ["FX", "Lighting"],
+        )
+        render_2d_parent = os.path.join(
+            self.root, "Shots/SQ01/SH010/Renders/2dRender")
+        self.assertEqual(vp.list_identifiers(render_2d_parent), ["LowRes"])
+        playblasts_parent = os.path.join(
+            self.root, "Shots/SQ01/SH010/Playblasts")
+        self.assertEqual(vp.list_identifiers(playblasts_parent), ["Anim"])
+
+    def test_find_latest_media_path_prefers_version(self):
+        identifier = os.path.join(
+            self.root, "Shots/SQ01/SH010/Renders/2dRender/LowRes")
+        version, path = vp.find_latest_media_path(identifier)
+        self.assertEqual(version, "v0002")
+        self.assertTrue(path.endswith("comp.mov"))
+        version, _ = vp.find_latest_media_path(identifier, "v0001")
+        self.assertEqual(version, "v0001")
+
+    def test_resolve_same_task_keeps_version(self):
+        result = vp.resolve_target_path(
+            self.source_3d, "SQ01-SH010", "Lighting",
+            target_aov="beauty", is_3d=True, preferred_version="v0002",
+        )
+        self.assertEqual(result["version"], "v0002")
+        self.assertTrue(result["path"].endswith("beauty.1001.exr"))
+
+    def test_resolve_shot_change_uses_latest(self):
+        result = vp.resolve_target_path(
+            self.source_3d, "SQ02-SH020", "Lighting",
+            target_aov="beauty", is_3d=True,
+        )
+        self.assertEqual(result["version"], "v0005")
+        self.assertIn("SQ02", result["path"])
+
+    def test_resolve_aov_change_keeps_version(self):
+        result = vp.resolve_target_path(
+            self.source_3d, "SQ01-SH010", "Lighting",
+            target_aov="diffuse", is_3d=True, preferred_version="v0003",
+        )
+        self.assertEqual(result["version"], "v0003")
+        self.assertTrue(result["path"].endswith("diffuse.1001.exr"))
+
+    def test_resolve_2d_path(self):
+        source = os.path.join(
+            self.root,
+            "Shots/SQ01/SH010/Renders/2dRender/LowRes/v0001/comp.mov",
+        )
+        result = vp.resolve_target_path(
+            source, "SQ01-SH010", "LowRes", is_3d=False,
+            preferred_version="v0001",
+        )
+        self.assertEqual(result["version"], "v0001")
+
+    def test_resolve_explicit_identifier_parent(self):
+        target_root = os.path.join(self.root, "Shots/SQ01/SH010")
+        playblast_parent = os.path.join(target_root, "Playblasts")
+        source = os.path.join(
+            self.root,
+            "Shots/SQ01/SH010/Renders/2dRender/LowRes/v0001/comp.mov",
+        )
+        result = vp.resolve_target_path(
+            source, "SQ01-SH010", "Anim", is_3d=False,
+            target_identifier_parent=playblast_parent,
+        )
+        self.assertEqual(result["version"], "v0002")
+        self.assertIn("Playblasts", result["path"])
+
+    def test_resolve_missing_returns_none(self):
+        self.assertIsNone(vp.resolve_target_path(
+            self.source_3d, "SQ01-SH010", "Lighting",
+            target_aov="missing", is_3d=True,
+        ))
+        self.assertIsNone(vp.resolve_target_path(
+            self.source_3d, "SQ03-SH030", "Lighting",
+            target_aov="beauty", is_3d=True,
+        ))
+
+
 class TestProtocolBuildersPhase4(unittest.TestCase):
     """The seven builders added for ae_operations/shot_switcher."""
 

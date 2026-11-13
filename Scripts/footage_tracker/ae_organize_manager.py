@@ -559,7 +559,7 @@ class AEOrganizeManager(QObject):
                                 print(f"DEBUG: Folder creation raw result: {repr(result)} (type: {type(result).__name__})")
 
                                 if isinstance(result, dict) and result.get('success'):
-                                    folder_id = result.get('folderId', 0)  # Note: 'folderId' not 'folder_id'
+                                    folder_id = result.get('folder_id', 0) or 0
                                     created_folders[current_path] = folder_id
                                     parent_folder_id = folder_id  # Use this folder as parent for next folder
                                     print(f"DEBUG: Folder '{part}' created with ID: {folder_id}")
@@ -607,9 +607,13 @@ class AEOrganizeManager(QObject):
 
                     # Additional validation before calling duplicate
                     if target_folder_id == 0:
-                        self.tracker.debugLog.append(
-                            "  - WARNING: Target folder ID is 0 (root folder), this might cause issues"
+                        error_msg = (
+                            f"Failed to organize {item['name']}: target folder "
+                            f"could not be resolved ({folder_path})"
                         )
+                        errors.append(error_msg)
+                        self.tracker.debugLog.append(f"  - ERROR: {error_msg}")
+                        continue
 
                     if item['type'] == 'footage':
                         print(f"DEBUG: duplicateFootageItem(id={item['id']}, name='{actual_rename_name}', folder={target_folder_id})")
@@ -777,7 +781,7 @@ class AEOrganizeManager(QObject):
             # Remove all empty folders from the project
             self.tracker.debugLog.append("=== REMOVING EMPTY FOLDERS ===")
             empty_folder_result = self.tracker.ae_ops.removeAllEmptyFolders()
-            deleted_count = empty_folder_result.get('deletedCount', 0) if isinstance(empty_folder_result, dict) else 0
+            deleted_count = empty_folder_result.get('deleted_count', 0) if isinstance(empty_folder_result, dict) else 0
             self.tracker.debugLog.append(f"Removed {deleted_count} empty folder(s)")
 
             # Show results
@@ -865,7 +869,7 @@ class AEOrganizeManager(QObject):
                                 print(f"DEBUG: Folder creation raw result: {repr(result)} (type: {type(result).__name__})")
 
                                 if isinstance(result, dict) and result.get('success'):
-                                    folder_id = result.get('folderId', 0)  # Note: 'folderId' not 'folder_id'
+                                    folder_id = result.get('folder_id', 0) or 0
                                     created_folders[current_path] = folder_id
                                     parent_folder_id = folder_id  # Use this folder as parent for next folder
                                     print(f"DEBUG: Folder '{part}' created with ID: {folder_id}")
@@ -888,6 +892,14 @@ class AEOrganizeManager(QObject):
                     # Get the target folder ID (the deepest folder)
                     target_folder_id = created_folders.get(folder_path, 0)
                     self.tracker.debugLog.append(f"  - Target folder ID: {target_folder_id}")
+                    if target_folder_id == 0:
+                        error_msg = (
+                            f"Failed to organize {item['name']}: target folder "
+                            f"could not be resolved ({folder_path})"
+                        )
+                        errors.append(error_msg)
+                        self.tracker.debugLog.append(f"  - ERROR: {error_msg}")
+                        continue
 
                     # Always move item to target folder (rename only if needed)
                     if item['type'] == 'footage':

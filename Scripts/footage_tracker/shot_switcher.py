@@ -28,7 +28,11 @@ class ShotSwitcher:
     def showShotSelectionDialog(self, footage_items):
         """Show shot selection dialog for changing footage to a different shot (always latest version)"""
         try:
-            all_shots = self._getAllAvailableShots()
+            QApplication.setOverrideCursor(Qt.WaitCursor)
+            try:
+                all_shots = self._getAllAvailableShots()
+            finally:
+                QApplication.restoreOverrideCursor()
 
             if not all_shots:
                 self._showNoShotsDialog()
@@ -3506,162 +3510,449 @@ class ShotSwitcher:
 
             dlg.exec_()
 
-    @err_catcher(name=__name__)
-    def getAvailableAOVsForItems(self, footage_items):
-        """Return the sorted union of AOVs available for the selected 3D items."""
-        aovs = set()
-        scanned = {}
-        for item in footage_items:
-            userData = item.data(0, Qt.UserRole) or {}
-            identifier_dir = version_paths.render_identifier_directory(
-                userData.get('path', ''))
-            if identifier_dir:
-                if identifier_dir not in scanned:
-                    scanned[identifier_dir] = version_paths.list_aovs(identifier_dir)
-                if scanned[identifier_dir]:
-                    aovs.update(scanned[identifier_dir])
-                    continue
-            aovs.update(self.getAvailableAOVs(item) or [])
-        return sorted(aovs)
-
-    @err_catcher(name=__name__)
-    def getAvailableAOVs(self, footage_item):
-        """List AOV names available for a 3D render item's identifier.
-
-        The identifier folder on disk is authoritative (all versions are
-        considered).  When the media location is offline, fall back to the
-        AOVs already loaded in the tree hierarchy.
-        """
-        userData = footage_item.data(0, Qt.UserRole) or {}
-        identifier_dir = version_paths.render_identifier_directory(
-            userData.get('path', ''))
-        if identifier_dir:
-            aovs = version_paths.list_aovs(identifier_dir)
-            if aovs:
-                return aovs
-
-        shot_name = self.tracker.getShotNameFromItem(footage_item)
-        identifier = userData.get('identifier', '')
-        hierarchy = getattr(self.tracker, '_stored_hierarchy', {})
-        try:
-            return sorted(hierarchy['3D Renders'][shot_name][identifier].keys())
-        except (KeyError, AttributeError, TypeError):
-            return []
-
-    @err_catcher(name=__name__)
-    def changeAOV(self, footage_items, new_aov):
-        """Switch selected 3D render footage to another AOV.
-
-        The AOV is resolved at the footage's current version when that
-        version contains it; otherwise the newest version containing the
-        AOV is used, so passes are not silently mixed across versions
-        unless the preferred version has no such pass.
-        """
-        try:
-            items = []
-            for item in footage_items:
-                userData = item.data(0, Qt.UserRole) or {}
-                if (userData.get('type') == 'footage'
-                        and userData.get('group') == '3D Renders'):
-                    items.append(item)
-
-            if not items:
-                self.core.popup("No 3D render footage selected.")
-                return
-
-            if len(items) > 1:
-                reply = QMessageBox.question(
-                    self.tracker.dlg_footage,
-                    "Change AOV - Multiple Footage Items",
-                    f"Switch {len(items)} footage item(s) to AOV '{new_aov}'?\n\n"
-                    f"Each item keeps its current version when that version "
-                    f"contains the AOV; otherwise the newest version with "
-                    f"the AOV is used.\n\n"
-                    f"This will replace the footage source in After Effects.",
-                    QMessageBox.Yes | QMessageBox.No
-                )
-                if reply == QMessageBox.No:
-                    return
-
-            success_count = 0
-            skipped_count = 0
-            failed_count = 0
-            failed_items = []
-            switched_versions = set()
-
-            for item in items:
-                try:
-                    userData = item.data(0, Qt.UserRole) or {}
-                    current_aov = self.getAOVNameFromItem(item)
-                    if current_aov.lower() == new_aov.lower():
-                        skipped_count += 1
-                        continue
-
-                    identifier_dir = version_paths.render_identifier_directory(
-                        userData.get('path', ''))
-                    if not identifier_dir:
-                        failed_count += 1
-                        failed_items.append(
-                            f"{item.text(0)}: Could not determine identifier folder")
-                        continue
-
-                    match = version_paths.find_aov_path(
-                        identifier_dir, new_aov,
-                        preferred_version=userData.get('currentVersion'))
-                    if not match:
-                        failed_count += 1
-                        failed_items.append(
-                            f"{item.text(0)}: No media found for AOV '{new_aov}'")
-                        continue
-
-                    version, file_path = match
-                    result = self.tracker.ae_ops.replaceFootage(
-                        userData.get('id'), file_path)
-                    if result.get('success'):
-                        success_count += 1
-                        switched_versions.add(version)
-                    else:
-                        failed_count += 1
-                        failed_items.append(
-                            f"{item.text(0)}: "
-                            f"{result.get('error', 'Unknown error')}")
-                except Exception as e:
-                    failed_count += 1
-                    failed_items.append(f"{item.text(0)}: {str(e)}")
-
-            if failed_count:
-                error_msg = "\n".join(failed_items[:10])
-                if len(failed_items) > 10:
-                    error_msg += f"\n... and {len(failed_items) - 10} more"
-                self.tracker.showSelectableMessage(
-                    "Change AOV Complete with Errors",
-                    f"Successfully changed: {success_count}\n"
-                    f"Skipped (already current): {skipped_count}\n"
-                    f"Failed: {failed_count}\n\n"
-                    f"Errors:\n{error_msg}"
-                )
-            else:
-                if success_count == 0 and skipped_count:
-                    status = f"Already using AOV {new_aov}"
-                else:
-                    suffix = ""
-                    if len(switched_versions) == 1:
-                        suffix = f" ({next(iter(switched_versions))})"
-                    status = f"Changed {success_count} item(s) to {new_aov}{suffix}"
-                self.tracker.dlg_footage.statusBar.setText(status)
-                QTimer.singleShot(
-                    2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
-
-            if success_count:
-                QTimer.singleShot(100, lambda: self.tracker.loadFootageData())
-
-        except Exception as e:
-            import traceback
-            self.core.popup(f"Error changing AOV:\n{str(e)}\n\n{traceback.format_exc()}")
-
     def getAOVNameFromItem(self, item):
         """AOV label from a 3D tree item, without a duplicate suffix."""
         text = item.text(0).strip()
         if text.endswith(')') and text.count(' (') == 1:
             return text.split(' (')[0]
         return text
+
+    def is3DFootageItem(self, item):
+        """True when the tree item belongs to the 3D render group."""
+        userData = item.data(0, Qt.UserRole) or {}
+        group = userData.get('group')
+        if group:
+            return group == '3D Renders'
+        path_lower = userData.get('path', '').lower()
+        return ('3drender' in path_lower or '3d_render' in path_lower
+                or '3d renders' in path_lower)
+
+    def footageGroup(self, item):
+        """Return the tracker group for a footage item."""
+        userData = item.data(0, Qt.UserRole) or {}
+        group = userData.get('group')
+        if group:
+            return group
+        return '3D Renders' if self.is3DFootageItem(item) else '2D Renders'
+
+    @err_catcher(name=__name__)
+    def getChangeDialogShots(self):
+        """Shots offered by the unified Change dialog."""
+        return sorted(self._getAllAvailableShots())
+
+    @err_catcher(name=__name__)
+    def showChangeIdentifierDialog(self, footage_items):
+        """List identifiers for the selected renders and apply a choice."""
+        if not footage_items:
+            self.core.popup("No footage selected.")
+            return
+
+        groups = {self.footageGroup(item) for item in footage_items}
+        if not groups.issubset({'3D Renders', '2D Renders'}):
+            self.core.popup(
+                "Identifier change is only available for 2D and 3D renders.")
+            return
+        if len(groups) > 1:
+            self.core.popup("Select only 2D or only 3D renders.")
+            return
+
+        render_type = '3d' if '3D Renders' in groups else '2d'
+
+        shots = set()
+        for item in footage_items:
+            shot = self.tracker.getShotNameFromItem(item)
+            if shot:
+                shots.add(shot)
+        if not shots:
+            self.core.popup("No shot found for the selected items.")
+            return
+
+        all_shot_identifiers = {}
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            for shot in shots:
+                if render_type == '2d':
+                    shot_identifier_tuples = self.getAvailable2DIdentifiers(shot) or []
+                else:
+                    shot_identifier_tuples = self.getAvailable3DIdentifiers(shot) or []
+                all_shot_identifiers[shot] = shot_identifier_tuples
+        finally:
+            QApplication.restoreOverrideCursor()
+
+        all_unique_identifiers = set()
+        for shot_tuples in all_shot_identifiers.values():
+            for identifier, folder_type in shot_tuples:
+                all_unique_identifiers.add(identifier)
+
+        common_identifiers = set()
+        for identifier in all_unique_identifiers:
+            if all(identifier in [entry[0] for entry in shot_tuples]
+                   for shot_tuples in all_shot_identifiers.values()):
+                common_identifiers.add(identifier)
+
+        all_available_identifiers = set()
+        identifier_availability = {}
+        for shot, shot_tuples in all_shot_identifiers.items():
+            for identifier, folder_type in shot_tuples:
+                if render_type == '2d':
+                    if folder_type == 'Playblasts':
+                        prefixed = f"[PB] {identifier}"
+                    elif folder_type == '2dRender':
+                        prefixed = f"[2D] {identifier}"
+                    else:
+                        prefixed = identifier
+                else:
+                    prefixed = f"[3D] {identifier}"
+
+                all_available_identifiers.add(prefixed)
+                if prefixed not in identifier_availability:
+                    identifier_availability[prefixed] = {
+                        'shots': set(),
+                        'folder_type': folder_type,
+                        'clean_name': identifier,
+                    }
+                identifier_availability[prefixed]['shots'].add(shot)
+
+        self.showIdentifierSelectionDialog(
+            footage_items,
+            all_available_identifiers,
+            all_shot_identifiers,
+            common_identifiers,
+            identifier_availability,
+            render_type,
+        )
+
+    @err_catcher(name=__name__)
+    def getCurrentAOVChoices(self, footage_items):
+        """AOV names available for the selected items' identifiers."""
+        aovs = set()
+        for item in footage_items:
+            path = (item.data(0, Qt.UserRole) or {}).get('path', '')
+            identifier_dir = version_paths.render_identifier_directory(path)
+            if identifier_dir:
+                aovs.update(version_paths.list_aovs(identifier_dir))
+        return sorted(aovs)
+
+    @err_catcher(name=__name__)
+    def showChangeAOVDialog(self, footage_items):
+        """List AOVs for the selected 3D renders and apply a choice."""
+        items = [item for item in footage_items if self.is3DFootageItem(item)]
+        if not items:
+            self.core.popup("Change AOV is only available for 3D renders.")
+            return
+
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            aovs = self.getCurrentAOVChoices(items) or []
+        finally:
+            QApplication.restoreOverrideCursor()
+        current_aovs = {self.getAOVNameFromItem(item) for item in items}
+
+        from .change_dialog import ChangeAOVDialog
+        dlg = ChangeAOVDialog(self.tracker, items, aovs, current_aovs)
+        if dlg.exec_() != QDialog.Accepted:
+            return
+
+        target_aov = dlg.selectedAOV()
+        if not target_aov:
+            return
+
+        entries = self.resolveChangeTargets(items, None, None, target_aov) or []
+        changes = [entry for entry in entries
+                   if entry.get('path') and not entry.get('unchanged')]
+        missing = [entry for entry in entries if not entry.get('path')]
+
+        if not changes:
+            if missing:
+                self.core.popup(
+                    f"No selected item has media for AOV '{target_aov}'.")
+            else:
+                self.core.popup("No changes selected.")
+            return
+
+        if missing:
+            details = "\n".join(
+                f"{entry['label']}: {entry['error']}" for entry in missing[:10])
+            if len(missing) > 10:
+                details += f"\n... and {len(missing) - 10} more"
+            reply = QMessageBox.question(
+                self.tracker.dlg_footage,
+                "Change AOV",
+                f"{len(missing)} item(s) have no media for AOV "
+                f"'{target_aov}'.\n\nChange the {len(changes)} item(s) "
+                f"that resolve?\n\n{details}",
+                QMessageBox.Yes | QMessageBox.No,
+            )
+            if reply != QMessageBox.Yes:
+                return
+
+        self.applyChangeTargets(changes)
+
+    @err_catcher(name=__name__)
+    def showChangeFootageDialog(self, footage_items):
+        """Open the unified shot/identifier/AOV change dialog."""
+        if not footage_items:
+            self.core.popup("No footage selected.")
+            return
+
+        groups = {self.footageGroup(item) for item in footage_items}
+        if not groups.issubset({'3D Renders', '2D Renders'}):
+            self.core.popup("Change is only available for 2D and 3D renders.")
+            return
+        if len(groups) > 1:
+            self.core.popup("Select only 3D renders or only 2D renders.")
+            return
+
+        from .change_dialog import ChangeFootageDialog
+        QApplication.setOverrideCursor(Qt.WaitCursor)
+        try:
+            dlg = ChangeFootageDialog(self.tracker, self, footage_items)
+        finally:
+            QApplication.restoreOverrideCursor()
+        dlg.exec_()
+
+    @err_catcher(name=__name__)
+    def getChangeIdentifierChoices(self, footage_items, target_shot):
+        """Identifiers available for ``target_shot`` in the selection's group.
+
+        Each choice carries the render-type folder it came from so a 2D
+        or Playblast choice keeps its own directory layout.
+        """
+        if not footage_items or not target_shot:
+            return []
+
+        reference = footage_items[0]
+        source_path = (reference.data(0, Qt.UserRole) or {}).get('path', '')
+        source_shot_root = version_paths.shot_root_from_path(source_path)
+        target_shot_root = version_paths.build_target_shot_root(
+            source_shot_root, target_shot)
+        if not target_shot_root:
+            return []
+
+        choices = []
+        if self.is3DFootageItem(reference):
+            parent = version_paths.build_target_identifier_parent(
+                source_path, target_shot_root)
+            if not parent:
+                return []
+            for identifier in version_paths.list_identifiers(parent, require_aovs=True):
+                choices.append({
+                    'identifier': identifier,
+                    'type': '3dRender',
+                    'parent': parent,
+                    'label': identifier,
+                })
+        else:
+            current_type = version_paths.render_type_from_path(source_path) or '2dRender'
+            parents = {}
+            current_parent = version_paths.build_target_identifier_parent(
+                source_path, target_shot_root)
+            if current_parent:
+                parents[current_type] = current_parent
+
+            if current_type == 'Playblasts':
+                for folder in ('Renders', 'Rendering'):
+                    candidate = target_shot_root.rstrip('/') + '/' + folder + '/2dRender'
+                    if os.path.isdir(candidate):
+                        parents['2dRender'] = candidate
+                        break
+            elif current_type == '2dRender':
+                candidate = target_shot_root.rstrip('/') + '/Playblasts'
+                if os.path.isdir(candidate):
+                    parents['Playblasts'] = candidate
+
+            for folder_type, parent in sorted(parents.items()):
+                prefix = '[PB] ' if folder_type == 'Playblasts' else '[2D] '
+                for identifier in version_paths.list_identifiers(parent):
+                    choices.append({
+                        'identifier': identifier,
+                        'type': folder_type,
+                        'parent': parent,
+                        'label': prefix + identifier,
+                    })
+
+        seen = set()
+        unique = []
+        for choice in sorted(choices, key=lambda item: item['label'].lower()):
+            key = (choice['identifier'].lower(), choice['type'], choice['parent'])
+            if key in seen:
+                continue
+            seen.add(key)
+            unique.append(choice)
+        return unique
+
+    @err_catcher(name=__name__)
+    def getChangeAOVChoices(self, footage_items, target_shot, identifier_choice):
+        """AOVs available for the selected target shot/identifier."""
+        if not footage_items or not target_shot:
+            return []
+
+        directories = []
+        if identifier_choice:
+            parent = identifier_choice.get('parent')
+            identifier = identifier_choice.get('identifier')
+            if parent and identifier:
+                directories.append(parent.rstrip('/') + '/' + identifier)
+        else:
+            for item in footage_items:
+                userData = item.data(0, Qt.UserRole) or {}
+                path = userData.get('path', '')
+                identifier = userData.get('identifier', '')
+                if not path or not identifier:
+                    continue
+
+                current_shot = (self.tracker.getShotNameFromItem(item)
+                                or userData.get('shot', ''))
+                if target_shot == current_shot:
+                    identifier_dir = version_paths.render_identifier_directory(path)
+                else:
+                    source_shot_root = version_paths.shot_root_from_path(path)
+                    target_shot_root = version_paths.build_target_shot_root(
+                        source_shot_root, target_shot)
+                    parent = version_paths.build_target_identifier_parent(
+                        path, target_shot_root) if target_shot_root else None
+                    identifier_dir = (parent.rstrip('/') + '/' + identifier
+                                      if parent else None)
+                if identifier_dir:
+                    directories.append(identifier_dir)
+
+        aovs = set()
+        seen_directories = set()
+        for directory in directories:
+            if directory in seen_directories:
+                continue
+            seen_directories.add(directory)
+            aovs.update(version_paths.list_aovs(directory))
+        return sorted(aovs)
+
+    @err_catcher(name=__name__)
+    def resolveChangeTargets(self, footage_items, target_shot,
+                             identifier_choice, target_aov):
+        """Resolve dialog choices to concrete media paths per item.
+
+        Returns a list of dicts with ``item``, ``label``, ``path``,
+        ``version``, ``unchanged`` and ``error``.  No AE changes happen
+        here; the dialog previews these entries before applying them.
+        """
+        entries = []
+        for item in footage_items:
+            userData = item.data(0, Qt.UserRole) or {}
+            source_path = userData.get('path', '')
+            current_shot = (self.tracker.getShotNameFromItem(item)
+                            or userData.get('shot', ''))
+            current_identifier = userData.get('identifier', '')
+            is_3d = self.is3DFootageItem(item)
+
+            target_shot_i = target_shot or current_shot
+            if identifier_choice:
+                target_identifier = identifier_choice.get('identifier', '')
+                parent = identifier_choice.get('parent')
+            else:
+                target_identifier = current_identifier
+                parent = None
+
+            target_aov_i = None
+            if is_3d:
+                target_aov_i = target_aov or self.getAOVNameFromItem(item)
+
+            if len(footage_items) == 1:
+                label = item.text(0)
+            elif is_3d:
+                label = f"{current_shot} / {current_identifier} / {item.text(0)}"
+            else:
+                label = f"{current_shot} / {current_identifier}"
+
+            entry = {
+                'item': item,
+                'label': label,
+                'path': None,
+                'version': None,
+                'unchanged': False,
+                'error': '',
+            }
+
+            error = ''
+            if not target_shot_i:
+                error = "Could not determine target shot"
+            elif not target_identifier:
+                error = "Could not determine target identifier"
+            elif is_3d and not target_aov_i:
+                error = "Could not determine target AOV"
+
+            resolved = None
+            if not error:
+                changed_task = (
+                    target_shot_i != current_shot
+                    or target_identifier != current_identifier
+                )
+                preferred = None if changed_task else userData.get('currentVersion')
+                resolved = version_paths.resolve_target_path(
+                    source_path,
+                    target_shot_i,
+                    target_identifier,
+                    target_aov=target_aov_i,
+                    is_3d=is_3d,
+                    preferred_version=preferred,
+                    target_identifier_parent=parent,
+                )
+                if not resolved:
+                    if is_3d:
+                        error = f"No media for {target_identifier}/{target_aov_i}"
+                    else:
+                        error = f"No media for {target_identifier}"
+
+            if resolved:
+                entry['path'] = resolved['path']
+                entry['version'] = resolved['version']
+                if source_path:
+                    entry['unchanged'] = (
+                        os.path.normcase(os.path.normpath(resolved['path']))
+                        == os.path.normcase(os.path.normpath(source_path))
+                    )
+            else:
+                entry['error'] = error
+            entries.append(entry)
+        return entries
+
+    @err_catcher(name=__name__)
+    def applyChangeTargets(self, entries):
+        """Apply pre-resolved Change dialog entries in one AE pass."""
+        changes = [entry for entry in entries
+                   if entry.get('path') and not entry.get('unchanged')]
+        if not changes:
+            self.core.popup("Nothing to change.")
+            return
+
+        success_count = 0
+        failed_items = []
+        for entry in changes:
+            try:
+                userData = entry['item'].data(0, Qt.UserRole) or {}
+                result = self.tracker.ae_ops.replaceFootage(
+                    userData.get('id'), entry['path'])
+                if result.get('success'):
+                    success_count += 1
+                else:
+                    failed_items.append(
+                        f"{entry['label']}: {result.get('error', 'Unknown error')}")
+            except Exception as e:
+                failed_items.append(f"{entry['label']}: {str(e)}")
+
+        if failed_items:
+            message = "\n".join(failed_items[:10])
+            if len(failed_items) > 10:
+                message += f"\n... and {len(failed_items) - 10} more"
+            self.tracker.showSelectableMessage(
+                "Change Footage Complete with Errors",
+                f"Successfully changed: {success_count}\n"
+                f"Failed: {len(failed_items)}\n\n"
+                f"Errors:\n{message}"
+            )
+        else:
+            self.tracker.dlg_footage.statusBar.setText(
+                f"Changed {success_count} item(s)")
+            QTimer.singleShot(
+                2000, lambda: self.tracker.dlg_footage.statusBar.setText(""))
+
+        if success_count:
+            QTimer.singleShot(100, lambda: self.tracker.loadFootageData())

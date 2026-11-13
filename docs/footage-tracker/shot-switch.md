@@ -4,13 +4,13 @@
 
 **Shot Switch** lets you redirect a footage item to the same render pass in a **different shot**, while keeping the identifier and AOV intact. HelixAE automatically picks the latest available version in the target shot.
 
-This is different from **Change Shot** — here's the distinction:
+This is different from **Change…** — here's the distinction:
 
-| | Shot Switch | Change Shot |
+| | Shot Switch | Change… |
 |---|---|---|
-| **Use case** | Flip between shot variants (e.g. hero vs VFX shot) | Point footage at a completely different shot |
-| **Identifier/AOV** | Preserved automatically | You choose manually |
-| **Version** | Auto-selects latest | You choose manually |
+| **Use case** | Flip between shot variants (e.g. hero vs VFX shot) | Point footage at a different shot, identifier or AOV |
+| **Identifier/AOV** | Preserved automatically | You choose in the dialog |
+| **Version** | Auto-selects latest | Latest, or current version for an AOV-only change |
 
 ---
 
@@ -38,4 +38,4 @@ Common scenarios:
 !!! info
     **Shot Switch only appears** if HelixAE detects alternative shots with matching renders. If the submenu is empty or missing, no matching renders were found in other shots.
 
-If you need to switch to a shot with a **different identifier or AOV**, use **Change Shot** instead (right-click → Change Shot), which gives you full manual control.
+If you need to switch to a shot with a **different identifier or AOV**, use **Change…** instead (right-click → Change…), which gives you full manual control.

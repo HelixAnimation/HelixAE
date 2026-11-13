@@ -1,0 +1,54 @@
+{
+  "status": "reconstructed",
+  "target": "/volume1/Renders/X/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001/versioninfo.json",
+  "version": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Export/Animation/v0001",
+  "source": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0005.ma",
+  "metadata": {
+    "project_path": "X:\\Cytonics_CYT108",
+    "sequence": "SQ020",
+    "shot": "SH021",
+    "department": "Animation",
+    "task": "Animation",
+    "type": "shot",
+    "hierarchy": "SQ020/SH021",
+    "itemType": "shot",
+    "project_name": "Cytonics_CYT108",
+    "version": "v0001",
+    "product": "Animation",
+    "sourceScene": "X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0005.ma",
+    "locations": {
+      "global": "."
+    },
+    "dependencies": [
+      "X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v0001.ma",
+      "X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc"
+    ],
+    "externalFiles": [],
+    "fps": 24.0
+  },
+  "new_sha256": "09810efc6b613cb442d3427de68ab6226cea51f5188047d2a8cbd5e99be938e8",
+  "source_scene_sha256": "91627fca3ae8942ec431925ade00eaf1022d048675e1e4caf0be4132745bd015",
+  "abc_tail_sha256": "63ebf652b634a9f1cce9aafd0563b59c468687ffcc21689ebb70a57bbc7fda10",
+  "abc_size": 25608689743,
+  "abc_mtime_ns": 1779368815398978711,
+  "scene_size": 119846,
+  "scene_mtime_ns": 1779369995434008908,
+  "abc_provenance": "_ai_AlembicVersion=Alembic 1.7.5 (built Nov 30 2020 18:40:46);_ai_Application=Maya 2022 AbcExport v1.0;_ai_DateWritten=Thu May 21 14:52:24 2026;_ai_Description=Exported from: X:/Cytonics_CYT108/03_Production/Shots/SQ020/SH021/Scenefiles/Animation/Animation/SQ020-SH021_Animation_v0005.ma0",
+  "inputs": [
+    {
+      "path": "X:/Cytonics_CYT108/03_Production/Assets/Prop/CYT108/Export/Rigging/v0001/CYT108_Rigging_v0001.ma",
+      "size": 833673729,
+      "mtime_ns": 1779200582178415200
+    },
+    {
+      "path": "X:/Cytonics_CYT108/03_Production/Assets/Prop/Protease/Export/Modeling/v0002/Protease_Modeling_v0002..abc",
+      "size": 752569,
+      "mtime_ns": 1779361251248171966
+    }
+  ],
+  "dependency_scope": "conservative scene-wide saved references and Prism imports",
+  "exporter_identity": "unknown; source-scene artist is not asserted as exporter",
+  "reconstructed_utc": "2026-10-19T21:32:36.053040+00:00",
+  "backup": null,
+  "backup_reason": "No original versioninfo.json existed"
+}

@@ -26,15 +26,24 @@ If multiple items are outdated:
 
 ## Changing Shot, Identifier or AOV Manually
 
-You can manually reassign footage to a different shot, task or pass:
+Right-click any 2D or 3D render → **Change…**:
 
-- Right-click → **Change Shot** → pick from the list or choose **Custom...**
-- Right-click → **Change 2D/3D Identifier** → pick or type a custom name
-- Right-click → **Change AOV** (3D renders only) → pick another pass of the same identifier
+- **Current Shot (SQxx-SHxxx)** — switch the selected footage to the shot in
+  the current `.aep`, keeping each item's identifier and AOV. Versions are
+  resolved automatically. This is the fastest path and opens no dialog.
+- **Shot…** — choose another shot from a list. Identifier and AOV are kept and
+  the latest matching version is used.
+- **Identifier…** — choose another identifier for the selected shot/type. The
+  latest version is used.
+- **AOV…** (3D renders only) — choose another pass for the current identifier.
+  The current version is kept when it contains that pass; otherwise the newest
+  version with the pass is used.
+- **Custom…** — open the combined Shot / Identifier / AOV dialog with a
+  preview of every target and the **Advanced — Path Variables…** editor.
 
-**Change AOV** keeps the footage's current version when that version contains
-the chosen pass; otherwise it uses the newest version that does. The current
-AOV is shown at the top of the submenu and is not offered as a target.
+The menu itself does not scan the filesystem; each list is built only when its
+action is clicked.
 
 !!! warning
-    After changing shot, identifier or AOV, the tracker will look for the matching render in the new location. Make sure the target render exists before changing.
+    The target render must exist on disk. A missing shot/identifier/AOV is
+    reported and is never silently replaced with a different pass.

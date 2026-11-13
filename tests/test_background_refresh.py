@@ -171,6 +171,29 @@ class KitsuWorkerTests(unittest.TestCase):
         self.assertEqual(result['shots'][0]['width'], 2048)
         self.assertEqual(result['shots'][0]['fps'], 24)
 
+    def test_individual_shot_fps_and_fallbacks_without_extra_requests(self):
+        calls = []
+        payloads = {'projects': [{'id': 'prj', 'name': 'Demo', 'fps': '24'}],
+                    'projects/prj/sequences': [],
+                    'projects/prj/shots': [
+                        {'id': 'a', 'data': {'fps': '23.976'}},
+                        {'id': 'b', 'data': {'fps': 30}},
+                        {'id': 'c', 'data': {'fps': ''}},
+                        {'id': 'd', 'data': {'fps': 'bad'}},
+                        {'id': 'e', 'fps': '60'}]}
+        context = {'host': 'https://fixture/api', 'token': 'fixture',
+                   'projectName': 'Demo', 'fps': 25}
+        def fetch():
+            return refresh.fetch_kitsu(context, threading.Event(), lambda value: None,
+                                       self.fixture_session(payloads, calls))['shots']
+        self.assertEqual([row['fps'] for row in fetch()], [23.976, 30, 24, 24, 60])
+        self.assertEqual(len(calls), 3)
+        payloads['projects'][0]['fps'] = 'invalid'
+        context['fps'] = 48
+        self.assertEqual(fetch()[2]['fps'], 48)
+        context['fps'] = None
+        self.assertEqual(fetch()[2]['fps'], 25)
+
     def test_auth_unavailable_does_not_open_login_or_contact_network(self):
         with self.assertRaisesRegex(ValueError, 'not authenticated'):
             refresh.fetch_kitsu(None, threading.Event(), lambda value: None,
