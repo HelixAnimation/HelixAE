@@ -522,5 +522,142 @@ class SimulatedRoundTripTests(unittest.TestCase):
         self.assertIn("bad template", data["details"])
 
 
+def _assert_no_rq_item_id_usage(test, script):
+    """RenderQueueItem has no stable ``.id`` in AE scripting (always
+    ``undefined``, verified live in AE 25.2); none of the render-queue
+    builders may rely on it for identity."""
+    test.assertNotIn("item.id", script)
+    test.assertNotIn("item2.id", script)
+    test.assertNotIn("renderQueueItem.id", script)
+
+
+class RenderQueueAckTests(unittest.TestCase):
+    """build_add_to_render_queue's ack carries enough to roll it back."""
+
+    def test_ack_includes_index_and_output_file(self):
+        script = p.build_add_to_render_queue("Z:/out.mov", "Lossless", 7)
+        self.assertIn("queueItemIndex: app.project.renderQueue.numItems", script)
+        self.assertIn("outputFile: outputModule.file.fsName", script)
+
+    def test_ack_does_not_use_render_queue_item_id(self):
+        script = p.build_add_to_render_queue("Z:/out.mov", "Lossless", 7)
+        self.assertNotIn("queueItemId", script)
+        _assert_no_rq_item_id_usage(self, script)
+
+
+class RemoveRenderQueueItemTests(unittest.TestCase):
+    def test_shape(self):
+        script = p.build_remove_render_queue_item(3, 7, "Z:/out.mov")
+        self.assertIn("JSON.stringify", script)
+        self.assertIn("try {", script)
+        self.assertEqual(script.count("{"), script.count("}"))
+        self.assertEqual(script.count("("), script.count(")"))
+
+    def test_checks_index_comp_and_output_not_id(self):
+        script = p.build_remove_render_queue_item(3, 7, "Z:/out.mov")
+        self.assertIn("var index = 3;", script)
+        self.assertIn('"7"', script)
+        self.assertIn("item.remove()", script)
+        _assert_no_rq_item_id_usage(self, script)
+
+    def test_validates_arguments(self):
+        for args in (
+            (0, 7, "Z:/out.mov"),
+            (-1, 7, "Z:/out.mov"),
+            (3, 0, "Z:/out.mov"),
+            (3, 7, ""),
+            ("abc", 7, "Z:/out.mov"),
+        ):
+            with self.assertRaises(ValueError, msg=args):
+                p.build_remove_render_queue_item(*args)
+
+
+class FindOtherQueuedRenderItemsTests(unittest.TestCase):
+    def test_shape(self):
+        script = p.build_find_other_queued_render_items(7, 3, "Z:/out.mov")
+        self.assertIn("JSON.stringify", script)
+        self.assertIn("RQItemStatus.QUEUED", script)
+        self.assertEqual(script.count("{"), script.count("}"))
+        self.assertEqual(script.count("("), script.count(")"))
+
+    def test_excludes_by_index_and_output_not_id(self):
+        script = p.build_find_other_queued_render_items(7, 3, "Z:/out.mov")
+        self.assertIn("i === 3", script)
+        self.assertIn('"Z:/out.mov"', script)
+        self.assertIn('"7"', script)
+        _assert_no_rq_item_id_usage(self, script)
+
+    def test_conflicts_include_index_comp_and_output_not_id(self):
+        script = p.build_find_other_queued_render_items(7)
+        self.assertIn("conflicts.push({ index: i, compId: itemCompId, outputPath: itemOutput })", script)
+        _assert_no_rq_item_id_usage(self, script)
+
+    def test_exclude_is_optional(self):
+        script = p.build_find_other_queued_render_items(7)
+        self.assertNotIn("i === ", script)
+        self.assertIn('"7"', script)
+
+    def test_exclude_index_and_output_required_together(self):
+        with self.assertRaises(ValueError):
+            p.build_find_other_queued_render_items(7, exclude_index=3)
+        with self.assertRaises(ValueError):
+            p.build_find_other_queued_render_items(7, exclude_output_path="Z:/out.mov")
+
+    def test_validates_arguments(self):
+        with self.assertRaises(ValueError):
+            p.build_find_other_queued_render_items(0, 3, "Z:/out.mov")
+        with self.assertRaises(ValueError):
+            p.build_find_other_queued_render_items(7, "abc", "Z:/out.mov")
+        with self.assertRaises(ValueError):
+            p.build_find_other_queued_render_items(7, 3, "")
+
+
+class UnqueueRenderItemsTests(unittest.TestCase):
+    def _item(self, index=3, comp_id=7, output_path="Z:/out.mov"):
+        return {"index": index, "compId": comp_id, "outputPath": output_path}
+
+    def test_shape(self):
+        script = p.build_unqueue_render_items([self._item()])
+        self.assertIn("JSON.stringify", script)
+        self.assertIn("item2.render = false", script)
+        self.assertEqual(script.count("{"), script.count("}"))
+        self.assertEqual(script.count("("), script.count(")"))
+
+    def test_does_not_use_render_queue_item_id(self):
+        script = p.build_unqueue_render_items([self._item()])
+        _assert_no_rq_item_id_usage(self, script)
+
+    def test_verifies_before_any_mutation(self):
+        """All targets must be checked in one loop before render=false runs on any."""
+        script = p.build_unqueue_render_items([self._item(index=3), self._item(index=5)])
+        verify_loop_end = script.index("var unqueued = [];")
+        mutate_loop_start = script.index("item2.render = false")
+        self.assertLess(verify_loop_end, mutate_loop_start)
+        # No mutation call appears before the verification loop finishes.
+        self.assertNotIn("render = false", script[:verify_loop_end])
+
+    def test_targets_embedded_with_index_comp_and_output(self):
+        script = p.build_unqueue_render_items([self._item(index=3, comp_id=7, output_path="Z:/out.mov")])
+        self.assertIn('"index": 3', script)
+        self.assertIn('"compId": 7', script)
+        self.assertIn('"outputPath": "Z:/out.mov"', script)
+
+    def test_validates_arguments(self):
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items([])
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items(None)
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items("99")
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items([{"index": 0, "compId": 7, "outputPath": "Z:/out.mov"}])
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items([{"index": 3, "compId": "abc", "outputPath": "Z:/out.mov"}])
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items([{"index": 3, "compId": 7, "outputPath": ""}])
+        with self.assertRaises(ValueError):
+            p.build_unqueue_render_items([3])
+
+
 if __name__ == "__main__":
     unittest.main()

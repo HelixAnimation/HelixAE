@@ -9,6 +9,20 @@ still running, the AE inventory appears first and NAS/Kitsu checks follow.
 The displayed FPS, dimensions and frame range are AE values. Published metadata is
 kept separately and appears in tooltips where available.
 
+For compositions, the **Frame Range** cell shows the composition's first and
+last frame, starting where AE's Project panel **In Point** starts. It is
+compared with the Kitsu range and highlighted when they differ.
+
+The end is the **last frame** (Kitsu's convention): **1001-1500 is 500 frames**.
+AE's Project panel **Out Point** shows the frame after the last one, so the same
+composition appears there as **01001-01501**.
+
+If a composition was given its start in seconds, AE can store it just below the
+frame and show it as **01000**. The tracker then shows **1000-1499** and flags
+it against Kitsu's **1001-1500**. Syncing from Kitsu or editing the range sets
+the start as a whole frame, after which AE and the tracker both show 1001.
+
+
 ---
 
 ## The Tree

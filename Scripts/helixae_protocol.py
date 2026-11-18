@@ -24,6 +24,7 @@ Responsibilities:
 """
 
 import json
+import math
 import re
 
 JSON2_POLYFILL = r"""
@@ -99,6 +100,96 @@ def _as_number(value, name):
     if number != number:  # NaN
         raise ValueError("invalid %s: %r" % (name, value))
     return number
+
+
+def _finite_number(value):
+    """Return ``value`` as a finite float, or ``None`` when unusable."""
+    if isinstance(value, bool):
+        return None
+    try:
+        number = float(value)
+    except (TypeError, ValueError):
+        return None
+    if not math.isfinite(number):
+        return None
+    return number
+
+
+def _round_half_up(value):
+    """Round like ExtendScript's ``Math.round`` (half towards +inf)."""
+    return int(math.floor(value + 0.5))
+
+
+def comp_frame_range(comp_info):
+    """Return the inclusive integer frame range of a comp info record.
+
+    ``(startFrame, endFrame)`` with ``startFrame`` = the frame AE's Project
+    panel shows as the comp's In Point: ``floor(displayStartTime * fps)``
+    and ``endFrame = startFrame + round(duration * frameRate) - 1`` (last
+    frame, the same convention as Kitsu).
+
+    AE stores a start written in seconds slightly below the frame (1001 at
+    30 fps reads back as 1000.99995 frames) and shows it as 1000 in the
+    Project panel, although ``displayStartFrame`` still reads 1001.  The
+    tracker must show what AE shows, so the seconds are authoritative and
+    ``displayStartFrame`` is only a fallback for records without them.
+    Only decimal-serialisation noise (``_FRAME_SNAP_TOLERANCE``) is snapped.
+    Raises ``ValueError`` for a record without a usable frame rate,
+    duration or start instead of returning a misleading range.
+    """
+    if not isinstance(comp_info, dict):
+        raise ValueError("comp info must be a dict")
+    fps = _finite_number(comp_info.get("frameRate"))
+    if fps is None or fps <= 0:
+        raise ValueError(
+            "invalid comp frame rate: %r" % (comp_info.get("frameRate"),))
+    duration = _finite_number(comp_info.get("duration"))
+    if duration is None or duration <= 0:
+        raise ValueError(
+            "invalid comp duration: %r" % (comp_info.get("duration"),))
+    frames = duration * fps
+    if not math.isfinite(frames):
+        raise ValueError(
+            "comp duration overflows the frame count: %r"
+            % (comp_info.get("duration"),))
+    frame_count = _round_half_up(frames)
+    if frame_count < 1:
+        raise ValueError(
+            "comp duration covers no frames: %r" % (comp_info.get("duration"),))
+    seconds = _finite_number(comp_info.get("displayStartTime"))
+    if seconds is None:
+        seconds = _finite_number(comp_info.get("inPoint"))
+    if seconds is not None:
+        start = seconds * fps
+        if not math.isfinite(start):
+            raise ValueError(
+                "comp display start overflows: %r"
+                % (comp_info.get("displayStartTime"),))
+        nearest = _round_half_up(start)
+        if abs(start - nearest) <= _FRAME_SNAP_TOLERANCE:
+            start_frame = nearest
+        else:
+            start_frame = int(math.floor(start))
+    else:
+        start = _finite_number(comp_info.get("displayStartFrame"))
+        if start is None:
+            raise ValueError(
+                "invalid comp display start: %r"
+                % (comp_info.get("displayStartFrame"),))
+        start_frame = _round_half_up(start)
+    return start_frame, start_frame + frame_count - 1
+
+
+# Frames.  Covers only decimal serialisation of exact frame times (about
+# 1e-12 frames); AE's real float32 start error (3e-5 to 6e-5 frames at
+# 24/30/60 fps) is far larger and must stay visible as the earlier frame.
+_FRAME_SNAP_TOLERANCE = 0.000001
+
+
+# Relative read-back tolerance for a frame rate comparison only (After
+# Effects stores frameRate as a float, so 23.976 can read back as
+# 23.976000785827637).  It is never added to a mutation value.
+_FPS_READBACK_TOLERANCE = 0.000001
 
 
 def _validate_path(value):
@@ -479,6 +570,60 @@ def build_replace_item(idx, filepath, sequence=False):
 # ---------------------------------------------------------------------------
 
 
+def _output_settings_validation(expected_settings):
+    """Validate readable format/depth/channels again at the moment of queueing."""
+    if expected_settings is None:
+        return ""
+    if not isinstance(expected_settings, dict):
+        raise ValueError("expected output settings must be an object")
+    for key, values in expected_settings.items():
+        if (key not in ("Format", "Depth", "Channels", "Output Audio") or
+                not isinstance(values, list) or not values or
+                any(not isinstance(v, str) or not v for v in values)):
+            raise ValueError("invalid expected output setting: %r" % key)
+    payload = js_string(json.dumps(expected_settings, ensure_ascii=True))
+    # Escape percent signs because build_add_to_render_queue uses % formatting.
+    payload = payload.replace("%", "%%")
+    return (
+        "        try {\n"
+        "            var expectedOutput = JSON.parse(" + payload + ");\n"
+        "            var actualOutput = outputModule.getSettings(GetSettingsFormat.STRING);\n"
+        "            for (var settingKey in expectedOutput) {\n"
+        "                if (!expectedOutput.hasOwnProperty(settingKey)) { continue; }\n"
+        "                var allowed = expectedOutput[settingKey];\n"
+        "                var matches = false;\n"
+        "                for (var settingIndex = 0; settingIndex < allowed.length; settingIndex++) {\n"
+        "                    if (actualOutput[settingKey] === allowed[settingIndex]) { matches = true; }\n"
+        "                }\n"
+        '                if (!matches) { return cleanup("Template settings changed: " + settingKey); }\n'
+        "            }\n"
+        '        } catch (e) { return cleanup("Cannot verify output settings: " + e.toString()); }\n'
+    )
+
+
+def build_inspect_output_template(comp_id, template_name):
+    """Inspect a template on a disposable queue item, always removing it."""
+    comp_id = _as_int(comp_id, "composition id")
+    if comp_id <= 0:
+        raise ValueError("invalid composition id")
+    if not isinstance(template_name, str) or not template_name.strip():
+        raise ValueError("empty output module template name")
+    return _wrap(
+        "        var comp = app.project ? app.project.itemByID(%d) : null;\n"
+        '        if (!comp || !(comp instanceof CompItem)) { throw new Error("Composition no longer exists."); }\n'
+        "        var tempItem = null;\n"
+        "        try {\n"
+        "            tempItem = app.project.renderQueue.items.add(comp);\n"
+        "            tempItem.outputModule(1).applyTemplate(%s);\n"
+        "            var settings = tempItem.outputModule(1).getSettings(GetSettingsFormat.STRING);\n"
+        "            return JSON.stringify({result:true, settings:settings, projectColor:{\n"
+        "                bitsPerChannel:app.project.bitsPerChannel, workingSpace:app.project.workingSpace\n"
+        "            }});\n"
+        "        } finally { if (tempItem) { tempItem.remove(); } }\n"
+        % (comp_id, js_string(template_name))
+    )
+
+
 def build_get_output_module_templates():
     """List output-module templates via a temporary render-queue item."""
     return _wrap(
@@ -580,7 +725,8 @@ def build_comp_dependency_script(comp_id):
     )
 
 
-def build_add_to_render_queue(output_path, template_name, comp_id=None):
+def build_add_to_render_queue(output_path, template_name, comp_id=None,
+                              expected_settings=None):
     """Add a composition to the render queue with full validation.
 
     When ``comp_id`` is omitted the active composition is queued (legacy
@@ -589,9 +735,14 @@ def build_add_to_render_queue(output_path, template_name, comp_id=None):
     The queue item is only kept when the template applies and the output
     file is set; any failure removes the partially created item again and
     reports the reason.  On success the response includes the effective
-    frame range, fps, and the queued composition identity.
+    frame range, fps, and the queued composition identity, plus
+    ``queueItemIndex``/``outputFile`` -- the (index, output path) pair
+    other builders use to re-identify this item later, since
+    ``RenderQueueItem`` has no stable ``.id`` in After Effects scripting
+    (it always reads as ``undefined``, verified live in AE 25.2).
     """
     path = _validate_path(output_path)
+    validation = _output_settings_validation(expected_settings)
     if not isinstance(template_name, str) or not template_name.strip():
         raise ValueError("empty output module template name")
     if comp_id is None:
@@ -615,7 +766,7 @@ def build_add_to_render_queue(output_path, template_name, comp_id=None):
             "        }\n"
             % comp_id
         )
-    return _wrap(
+    return _wrap((
         comp_lookup
         + "        try { if (app.activeViewer) { app.activeViewer.setActive(); } } catch (e) {}\n"
         "        var renderQueueItem = app.project.renderQueue.items.add(comp);\n"
@@ -626,26 +777,226 @@ def build_add_to_render_queue(output_path, template_name, comp_id=None):
         "        var outputModule = renderQueueItem.outputModule(1);\n"
         "        try { outputModule.applyTemplate(%s); }\n"
         '        catch (e) { return cleanup("output module template could not be applied: " + e.toString()); }\n'
-        "        try { outputModule.file = new File(%s); }\n"
+        "        var confirmedOutput;\n"
+        "        try {\n"
+        "            outputModule = renderQueueItem.outputModule(1);\n"
+        "            confirmedOutput = outputModule.getSettings(GetSettingsFormat.STRING);\n"
+        '        } catch (e) { return cleanup("Cannot read output settings: " + e.toString()); }\n'
+        + validation
+        + "        try { outputModule.file = new File(%s); }\n"
         '        catch (e) { return cleanup("output file could not be set: " + e.toString()); }\n'
         "        if (!outputModule.file) {\n"
         '            return cleanup("output file was not set on the render queue item");\n'
         "        }\n"
+        "        var queuedItem = null;\n"
+        "        try { queuedItem = app.project.renderQueue.item(app.project.renderQueue.numItems); } catch (e) { queuedItem = null; }\n"
+        "        if (!queuedItem || !queuedItem.comp || String(queuedItem.comp.id) !== String(comp.id)) {\n"
+        '            return cleanup("render queue item was not created for the composition");\n'
+        "        }\n"
         "        var fps = comp.frameRate;\n"
         "        var frameDuration = comp.frameDuration;\n"
-        "        var displayStartFrame = Math.round(comp.displayStartTime / frameDuration);\n"
-        "        var startFrame = Math.round(renderQueueItem.timeSpanStart / frameDuration) + displayStartFrame;\n"
-        "        var endFrame = Math.round((renderQueueItem.timeSpanStart + renderQueueItem.timeSpanDuration) / frameDuration - 1) + displayStartFrame;\n"
+        "        var displayStartFrame = Math.round(comp.displayStartFrame);\n"
+        "        if (!isFinite(displayStartFrame)) {\n"
+        "            if (isFinite(frameDuration) && frameDuration > 0) {\n"
+        "                displayStartFrame = Math.round(comp.displayStartTime / frameDuration);\n"
+        "            } else {\n"
+        "                displayStartFrame = Math.round(comp.displayStartTime * fps);\n"
+        "            }\n"
+        "        }\n"
+        "        var startFrame = displayStartFrame + Math.round(renderQueueItem.timeSpanStart * fps);\n"
+        "        var frameCount = Math.round(renderQueueItem.timeSpanDuration * fps);\n"
+        "        var endFrame = startFrame + frameCount - 1;\n"
         "        return JSON.stringify({\n"
         "            result: true,\n"
-        "            queueItemId: renderQueueItem.id,\n"
+        "            queueItemIndex: app.project.renderQueue.numItems,\n"
         "            compId: String(comp.id),\n"
         "            compName: comp.name,\n"
         "            startFrame: startFrame,\n"
         "            endFrame: endFrame,\n"
-        "            fps: fps\n"
+        "            frameCount: frameCount,\n"
+        "            displayStartFrame: displayStartFrame,\n"
+        "            fps: fps,\n"
+        "            outputTemplate: %s,\n"
+        "            outputSettings: {Format: confirmedOutput.Format, Depth: confirmedOutput.Depth, Channels: confirmedOutput.Channels, 'Output Audio': confirmedOutput['Output Audio'], 'Audio Sample Rate': confirmedOutput['Audio Sample Rate'], 'Audio Channels': confirmedOutput['Audio Channels']},\n"
+        "            outputFile: outputModule.file.fsName\n"
         "        });\n"
-        % (js_string(template_name), js_string(path))
+        ) % (js_string(template_name), js_string(path), js_string(template_name))
+    )
+
+
+def build_remove_render_queue_item(queue_index, comp_id, output_path):
+    """Remove one render-queue item, verifying index/comp/output first.
+
+    ``RenderQueueItem`` has no stable ``.id`` in After Effects scripting
+    (it always reads as ``undefined``, verified live in AE 25.2), so
+    identity here is the ``(index, comp id, output path)`` triple -- the
+    same one ``build_add_to_render_queue``'s ack carries as
+    ``queueItemIndex``/``outputFile``.  Used to roll back a queue item
+    added by ``build_add_to_render_queue`` when the scene save meant to
+    persist it fails; a queue mutated in between (e.g. by the user) is
+    never removed by mistake.
+    """
+    index = _as_int(queue_index, "queue index")
+    if index <= 0:
+        raise ValueError("invalid queue index: %r" % (queue_index,))
+    comp_id = _as_int(comp_id, "composition id")
+    if comp_id <= 0:
+        raise ValueError("invalid composition id: %r" % (comp_id,))
+    path = _validate_path(output_path)
+    return _wrap(
+        "        if (!app.project || !app.project.renderQueue) {\n"
+        '            return JSON.stringify({ result: false, reason: "no_project", details: "No open project." });\n'
+        "        }\n"
+        "        var rq = app.project.renderQueue;\n"
+        "        var index = %d;\n"
+        "        if (index < 1 || index > rq.numItems) {\n"
+        '            return JSON.stringify({ result: false, reason: "index_out_of_range" });\n'
+        "        }\n"
+        "        var item = rq.item(index);\n"
+        "        if (!item) {\n"
+        '            return JSON.stringify({ result: false, reason: "not_found" });\n'
+        "        }\n"
+        "        if (!item.comp || String(item.comp.id) !== %s) {\n"
+        '            return JSON.stringify({ result: false, reason: "comp_mismatch" });\n'
+        "        }\n"
+        "        var normalize = function (p) { return String(p || '').replace(/\\\\/g, '/').toLowerCase(); };\n"
+        "        var actualOutput = '';\n"
+        "        try { actualOutput = item.outputModule(1).file ? item.outputModule(1).file.fsName : ''; } catch (e) {}\n"
+        "        if (normalize(actualOutput) !== normalize(%s)) {\n"
+        '            return JSON.stringify({ result: false, reason: "output_mismatch", details: actualOutput });\n'
+        "        }\n"
+        "        try { item.remove(); }\n"
+        '        catch (e) { return JSON.stringify({ result: false, details: "could not remove render queue item: " + e.toString() }); }\n'
+        "        return JSON.stringify({ result: true });\n"
+        % (index, js_string(str(comp_id)), js_string(path))
+    )
+
+
+def build_find_other_queued_render_items(comp_id, exclude_index=None, exclude_output_path=None):
+    """List QUEUED render-queue items for ``comp_id``, optionally excluding one.
+
+    ``RenderQueueItem`` has no stable ``.id`` in After Effects scripting
+    (it always reads as ``undefined``, verified live in AE 25.2), so
+    identity here is ``(index, output path)`` instead of an id;
+    ``exclude_index``/``exclude_output_path`` must be given together or
+    not at all. Omit them for the pre-save conflict check in
+    ``renderAndSave`` (the item doesn't exist yet); pass the just-added
+    item's ``queueItemIndex``/``outputFile`` for the post-submit sanity
+    check in ``_submitToDeadline``, so that item doesn't flag itself.
+    Each conflict reports its own ``index``/``compId``/``outputPath``
+    since callers show them to the user or feed them to
+    ``build_unqueue_render_items``.
+    """
+    comp_id = _as_int(comp_id, "composition id")
+    if comp_id <= 0:
+        raise ValueError("invalid composition id: %r" % (comp_id,))
+    if (exclude_index is None) != (exclude_output_path is None):
+        raise ValueError("exclude_index and exclude_output_path must be given together")
+    if exclude_index is None:
+        exclude_check = ""
+    else:
+        exclude_index = _as_int(exclude_index, "exclude index")
+        if exclude_index <= 0:
+            raise ValueError("invalid exclude index: %r" % (exclude_index,))
+        exclude_path = _validate_path(exclude_output_path)
+        exclude_check = (
+            "            if (i === %d && normalize(itemOutput) === normalize(%s)) { continue; }\n"
+            % (exclude_index, js_string(exclude_path))
+        )
+    return _wrap(
+        (
+            "        if (!app.project || !app.project.renderQueue) {\n"
+            '            return JSON.stringify({ result: false, details: "No open project." });\n'
+            "        }\n"
+            "        var rq = app.project.renderQueue;\n"
+            "        var normalize = function (p) { return String(p || '').replace(/\\\\/g, '/').toLowerCase(); };\n"
+            "        var conflicts = [];\n"
+            "        for (var i = 1; i <= rq.numItems; i++) {\n"
+            "            var item = rq.item(i);\n"
+            "            if (!item) { continue; }\n"
+            "            var itemCompId = null;\n"
+            "            try { itemCompId = item.comp ? String(item.comp.id) : null; } catch (e) {}\n"
+            "            if (itemCompId !== %s) { continue; }\n"
+            "            if (item.status !== RQItemStatus.QUEUED) { continue; }\n"
+            "            var itemOutput = '';\n"
+            "            try { itemOutput = item.outputModule(1).file ? item.outputModule(1).file.fsName : ''; } catch (e) {}\n"
+            + exclude_check
+            + "            conflicts.push({ index: i, compId: itemCompId, outputPath: itemOutput });\n"
+            "        }\n"
+            "        return JSON.stringify({ result: true, hasConflict: conflicts.length > 0, conflicts: conflicts });\n"
+        )
+        % js_string(str(comp_id))
+    )
+
+
+def build_unqueue_render_items(items):
+    """Set ``render = false`` on each listed render-queue item.
+
+    ``items`` is a non-empty list of ``{"index", "compId", "outputPath"}``
+    dicts (the shape ``build_find_other_queued_render_items`` returns per
+    conflict) -- ``RenderQueueItem`` has no stable ``.id`` in After
+    Effects scripting, so this is the identity used instead.  Every
+    target is re-verified (still at that index, same comp, still QUEUED,
+    same output path) *before any mutation*; if one fails verification,
+    nothing is changed and the whole call fails with that target's index,
+    rather than unqueueing some items and leaving (or acting on the
+    wrong) others. ``item.render = false`` is the scripting equivalent of
+    unticking the item in the Render Queue panel -- it stops ``aerender
+    -comp`` from picking it up without deleting it.
+    """
+    if not isinstance(items, (list, tuple)) or not items:
+        raise ValueError("items must be a non-empty list")
+    targets = []
+    for entry in items:
+        if not isinstance(entry, dict):
+            raise ValueError("each item must be an object with index/compId/outputPath")
+        index = _as_int(entry.get("index"), "queue index")
+        if index <= 0:
+            raise ValueError("invalid queue index: %r" % (entry.get("index"),))
+        comp_id = _as_int(entry.get("compId"), "composition id")
+        if comp_id <= 0:
+            raise ValueError("invalid composition id: %r" % (entry.get("compId"),))
+        output_path = _validate_path(entry.get("outputPath"))
+        targets.append({"index": index, "compId": comp_id, "outputPath": output_path})
+    return _wrap(
+        "        if (!app.project || !app.project.renderQueue) {\n"
+        '            return JSON.stringify({ result: false, details: "No open project." });\n'
+        "        }\n"
+        "        var rq = app.project.renderQueue;\n"
+        "        var normalize = function (p) { return String(p || '').replace(/\\\\/g, '/').toLowerCase(); };\n"
+        "        var targets = %s;\n"
+        "        for (var t = 0; t < targets.length; t++) {\n"
+        "            var target = targets[t];\n"
+        "            if (target.index < 1 || target.index > rq.numItems) {\n"
+        '                return JSON.stringify({ result: false, reason: "index_out_of_range", index: target.index });\n'
+        "            }\n"
+        "            var item = rq.item(target.index);\n"
+        "            if (!item) {\n"
+        '                return JSON.stringify({ result: false, reason: "not_found", index: target.index });\n'
+        "            }\n"
+        "            if (item.status !== RQItemStatus.QUEUED) {\n"
+        '                return JSON.stringify({ result: false, reason: "not_queued", index: target.index });\n'
+        "            }\n"
+        "            var itemCompId = null;\n"
+        "            try { itemCompId = item.comp ? String(item.comp.id) : null; } catch (e) {}\n"
+        "            if (itemCompId !== String(target.compId)) {\n"
+        '                return JSON.stringify({ result: false, reason: "comp_mismatch", index: target.index });\n'
+        "            }\n"
+        "            var itemOutput = '';\n"
+        "            try { itemOutput = item.outputModule(1).file ? item.outputModule(1).file.fsName : ''; } catch (e) {}\n"
+        "            if (normalize(itemOutput) !== normalize(target.outputPath)) {\n"
+        '                return JSON.stringify({ result: false, reason: "output_mismatch", index: target.index });\n'
+        "            }\n"
+        "        }\n"
+        "        var unqueued = [];\n"
+        "        for (var t2 = 0; t2 < targets.length; t2++) {\n"
+        "            var item2 = rq.item(targets[t2].index);\n"
+        "            try { item2.render = false; }\n"
+        '            catch (e) { return JSON.stringify({ result: false, details: "could not unqueue item at index " + targets[t2].index + ": " + e.toString() }); }\n'
+        "            unqueued.push(targets[t2].index);\n"
+        "        }\n"
+        "        return JSON.stringify({ result: true, unqueued: unqueued });\n"
+        % json.dumps(targets)
     )
 
 
@@ -807,6 +1158,16 @@ def build_collect_comp_records():
         "            try { item = app.project.item(i); } catch (e) { continue; }\n"
         "            if (!item || !(item instanceof CompItem)) { continue; }\n"
         "            var parentComps = parentsById[String(item.id)] || [];\n"
+        "            var startFrame = Math.round(item.displayStartFrame);\n"
+        "            if (!isFinite(startFrame)) {\n"
+        "                var itemFrameDuration = item.frameDuration;\n"
+        "                if (isFinite(itemFrameDuration) && itemFrameDuration > 0) {\n"
+        "                    startFrame = Math.round(item.displayStartTime / itemFrameDuration);\n"
+        "                } else {\n"
+        "                    startFrame = Math.round(item.displayStartTime * item.frameRate);\n"
+        "                }\n"
+        "            }\n"
+        "            var frameCount = Math.round(item.duration * item.frameRate);\n"
         "            records.push({\n"
         "                compId: String(item.id),\n"
         "                name: item.name,\n"
@@ -818,11 +1179,11 @@ def build_collect_comp_records():
         "                frameDuration: item.frameDuration.toString(),\n"
         "                inPoint: item.displayStartTime.toString(),\n"
         "                outPoint: (item.displayStartTime + item.duration).toString(),\n"
-        "                displayStartFrame: item.displayStartFrame,\n"
+        "                displayStartFrame: startFrame,\n"
         "                workAreaStart: item.workAreaStart.toString(),\n"
         "                workAreaDuration: item.workAreaDuration.toString(),\n"
-        "                startFrame: Math.round(item.displayStartTime / item.frameDuration),\n"
-        "                endFrame: Math.round((item.displayStartTime + item.duration) / item.frameDuration - 1),\n"
+        "                startFrame: startFrame,\n"
+        "                endFrame: startFrame + frameCount - 1,\n"
         "                isPrecomp: parentComps.length > 0,\n"
         "                parentComps: parentComps.join(','),\n"
         "                numLayers: item.numLayers\n"
@@ -1209,56 +1570,236 @@ def build_set_footage_fps(footage_id, fps):
 
 
 def build_set_comp_fps(comp_id, fps):
-    """Set comp frame rate while preserving the current frame count/range."""
+    """Set comp frame rate, preserving the integer start frame and frame count.
+
+    ``comp.displayStartFrame`` is the canonical integer start; deriving it
+    from ``displayStartTime`` can land one frame off because the time is a
+    float32.  The whole-frame count is preserved (no epsilon padding).  The
+    derived seconds are written first and the integer start frame last, so
+    After Effects cannot round the seconds back over the integer.  Every
+    value is read back before success is reported; on a mismatch or an
+    exception the previous settings are restored and the response states
+    whether that restore succeeded, with the read-back values, so recovery
+    failures are visible instead of swallowed.
+    """
     comp_id = _as_id(comp_id, "comp id")
     rate = _as_number(fps, "fps")
-    if rate <= 0:
+    if not math.isfinite(rate) or rate <= 0:
         raise ValueError("fps must be positive")
+    tolerance = _FPS_READBACK_TOLERANCE * max(abs(rate), 1.0)
     return _wrap(
         "        var comp = null;\n"
         "        try { comp = app.project.itemByID(%s); } catch (e) { comp = null; }\n"
         "        if (!comp || !(comp instanceof CompItem)) {\n"
         '            return JSON.stringify({ result: false, reason: "comp_not_found" });\n'
         "        }\n"
+        "        var previousRate = comp.frameRate;\n"
+        "        var previousStartFrame = Math.round(comp.displayStartFrame);\n"
+        "        if (!isFinite(previousStartFrame)) {\n"
+        "            if (isFinite(comp.frameDuration) && comp.frameDuration > 0) {\n"
+        "                previousStartFrame = Math.round(comp.displayStartTime / comp.frameDuration);\n"
+        "            } else {\n"
+        "                previousStartFrame = Math.round(comp.displayStartTime * comp.frameRate);\n"
+        "            }\n"
+        "        }\n"
+        "        var previousStartTime = comp.displayStartTime;\n"
+        "        var previousDuration = comp.duration;\n"
+        "        var previousFrameCount = Math.round(previousDuration * previousRate);\n"
+        "        var startFrame = previousStartFrame;\n"
+        "        var frameCount = previousFrameCount;\n"
+        "        if (!isFinite(startFrame) || !isFinite(frameCount) || frameCount < 1) {\n"
+        '            return JSON.stringify({ result: false, reason: "invalid_comp_state", details: "Composition frame range is not usable." });\n'
+        "        }\n"
+        "        var readState = function () {\n"
+        "            var state = { startFrame: NaN, frameRate: NaN, frameCount: NaN };\n"
+        "            try { state.startFrame = Math.round(comp.displayStartFrame); } catch (e) {}\n"
+        "            try { state.frameRate = comp.frameRate; } catch (e) {}\n"
+        "            try { state.frameCount = Math.round(comp.duration * comp.frameRate); } catch (e) {}\n"
+        "            return state;\n"
+        "        };\n"
+        "        var restorePrevious = function () {\n"
+        "            var restoreErrors = [];\n"
+        "            try { comp.frameRate = previousRate; }\n"
+        '            catch (e) { restoreErrors.push("frameRate: " + e.toString()); }\n'
+        "            try { comp.displayStartTime = previousStartTime; }\n"
+        '            catch (e) { restoreErrors.push("displayStartTime: " + e.toString()); }\n'
+        "            try { comp.duration = previousDuration; }\n"
+        '            catch (e) { restoreErrors.push("duration: " + e.toString()); }\n'
+        "            try { comp.displayStartFrame = previousStartFrame; }\n"
+        '            catch (e) { restoreErrors.push("displayStartFrame: " + e.toString()); }\n'
+        "            var state = readState();\n"
+        "            var restored = restoreErrors.length === 0\n"
+        "                && state.startFrame === previousStartFrame\n"
+        "                && state.frameCount === previousFrameCount\n"
+        "                && isFinite(state.frameRate)\n"
+        "                && Math.abs(state.frameRate - previousRate) <= %s;\n"
+        "            return { restored: restored, restoreErrors: restoreErrors, state: state };\n"
+        "        };\n"
+        "        var failure = function (reason, detail, actual) {\n"
+        "            var recovery = restorePrevious();\n"
+        "            app.endUndoGroup();\n"
+        "            var message = detail;\n"
+        "            if (!recovery.restored) {\n"
+        '                message = message + "; previous settings not fully restored";\n'
+        "                if (recovery.restoreErrors.length > 0) {\n"
+        '                    message = message + " (" + recovery.restoreErrors.join("; ") + ")";\n'
+        "                }\n"
+        "            }\n"
+        "            return JSON.stringify({\n"
+        "                result: false,\n"
+        "                reason: reason,\n"
+        "                details: message,\n"
+        "                expectedStartFrame: startFrame,\n"
+        "                expectedFrameCount: frameCount,\n"
+        "                actualStartFrame: actual.startFrame,\n"
+        "                actualFrameCount: actual.frameCount,\n"
+        "                restored: recovery.restored,\n"
+        "                restoredStartFrame: recovery.state.startFrame,\n"
+        "                restoredFrameRate: recovery.state.frameRate,\n"
+        "                restoredFrameCount: recovery.state.frameCount,\n"
+        "                restoreErrors: recovery.restoreErrors\n"
+        "            });\n"
+        "        };\n"
         "        app.beginUndoGroup('HelixAE: Set comp fps');\n"
         "        try {\n"
-        "            var startFrame = Math.floor(comp.displayStartTime * comp.frameRate);\n"
-        "            var frameCount = Math.floor(comp.duration * comp.frameRate);\n"
-        "            var epsilon = 0.000001;\n"
         "            comp.frameRate = %s;\n"
-        "            comp.displayStartTime = startFrame / %s + epsilon;\n"
-        "            comp.duration = frameCount / %s + epsilon;\n"
-        "            app.endUndoGroup();\n"
+        "            comp.displayStartTime = startFrame / comp.frameRate;\n"
+        "            comp.duration = frameCount / comp.frameRate;\n"
+        "            comp.displayStartFrame = startFrame;\n"
         "        } catch (e) {\n"
-        "            app.endUndoGroup();\n"
-        "            return JSON.stringify({ result: false, details: e.toString() });\n"
+        '            return failure("mutation_failed", "After Effects rejected the change: " + e.toString(), readState());\n'
         "        }\n"
-        "        return JSON.stringify({ result: true, frameRate: comp.frameRate });\n"
-        % (comp_id, repr(rate), repr(rate), repr(rate))
+        "        var state = readState();\n"
+        "        if (!isFinite(state.frameRate)\n"
+        "                || Math.abs(state.frameRate - %s) > %s\n"
+        "                || state.startFrame !== startFrame\n"
+        "                || state.frameCount !== frameCount) {\n"
+        '            return failure("verification_failed", "After Effects did not apply the requested frame rate", state);\n'
+        "        }\n"
+        "        app.endUndoGroup();\n"
+        "        return JSON.stringify({\n"
+        "            result: true,\n"
+        "            frameRate: state.frameRate,\n"
+        "            startFrame: state.startFrame,\n"
+        "            endFrame: state.startFrame + state.frameCount - 1,\n"
+        "            frameCount: state.frameCount\n"
+        "        });\n"
+        % (comp_id, repr(tolerance), repr(rate), repr(rate), repr(tolerance))
     )
 
 
 def build_set_comp_frame_range(comp_id, start_frame, end_frame, comp_fps):
+    """Set a comp's inclusive integer frame range.
+
+    ``comp_fps`` is validated for API compatibility, but the comp's own
+    ``frameRate`` is authoritative for the seconds/duration conversion, so
+    a stale tracker record cannot change the requested frame count.  The
+    derived seconds are written first and the integer
+    ``comp.displayStartFrame`` last, so After Effects cannot round those
+    seconds back over the integer.  Both values are read back before
+    success; a mismatch or an exception restores the previous range and
+    reports whether that restore actually succeeded.
+    """
     comp_id = _as_id(comp_id, "comp id")
     start = _as_int(start_frame, "start frame")
     end = _as_int(end_frame, "end frame")
-    rate = _as_number(comp_fps, "comp fps")
-    if rate <= 0:
+    requested_rate = _as_number(comp_fps, "comp fps")
+    if not math.isfinite(requested_rate) or requested_rate <= 0:
         raise ValueError("fps must be positive")
     if end < start:
         raise ValueError("end frame before start frame")
-    display_start = start / rate
-    duration = (end + 1) / rate - display_start
+    frame_count = end - start + 1
     return _wrap(
         "        var comp = null;\n"
         "        try { comp = app.project.itemByID(%s); } catch (e) { comp = null; }\n"
         "        if (!comp || !(comp instanceof CompItem)) {\n"
         '            return JSON.stringify({ result: false, details: "Composition not found" });\n'
         "        }\n"
-        "        comp.displayStartTime = %s;\n"
-        "        comp.duration = %s;\n"
-        "        return JSON.stringify({ result: true });\n"
-        % (comp_id, repr(display_start), repr(duration))
+        "        var rate = comp.frameRate;\n"
+        "        if (!isFinite(rate) || rate <= 0) {\n"
+        '            return JSON.stringify({ result: false, reason: "invalid_comp_frame_rate", details: "Composition frame rate is not usable." });\n'
+        "        }\n"
+        "        var startFrame = %d;\n"
+        "        var frameCount = %d;\n"
+        "        var previousStartFrame = Math.round(comp.displayStartFrame);\n"
+        "        var previousStartTime = comp.displayStartTime;\n"
+        "        var previousDuration = comp.duration;\n"
+        "        var previousFrameCount = Math.round(previousDuration * rate);\n"
+        "        var readState = function () {\n"
+        "            var state = { startFrame: NaN, frameRate: NaN, frameCount: NaN };\n"
+        "            try { state.startFrame = Math.round(comp.displayStartFrame); } catch (e) {}\n"
+        "            try { state.frameRate = comp.frameRate; } catch (e) {}\n"
+        "            try { state.frameCount = Math.round(comp.duration * comp.frameRate); } catch (e) {}\n"
+        "            return state;\n"
+        "        };\n"
+        "        var restorePrevious = function () {\n"
+        "            var restoreErrors = [];\n"
+        "            try { comp.displayStartTime = previousStartTime; }\n"
+        '            catch (e) { restoreErrors.push("displayStartTime: " + e.toString()); }\n'
+        "            try { comp.duration = previousDuration; }\n"
+        '            catch (e) { restoreErrors.push("duration: " + e.toString()); }\n'
+        "            try { comp.displayStartFrame = previousStartFrame; }\n"
+        '            catch (e) { restoreErrors.push("displayStartFrame: " + e.toString()); }\n'
+        "            var state = readState();\n"
+        "            var restored = restoreErrors.length === 0\n"
+        "                && state.startFrame === previousStartFrame\n"
+        "                && state.frameCount === previousFrameCount\n"
+        "                && state.frameRate === rate;\n"
+        "            return { restored: restored, restoreErrors: restoreErrors, state: state };\n"
+        "        };\n"
+        "        var failure = function (reason, detail, actual) {\n"
+        "            var recovery = restorePrevious();\n"
+        "            app.endUndoGroup();\n"
+        "            var message = detail;\n"
+        "            if (!recovery.restored) {\n"
+        '                message = message + "; previous settings not fully restored";\n'
+        "                if (recovery.restoreErrors.length > 0) {\n"
+        '                    message = message + " (" + recovery.restoreErrors.join("; ") + ")";\n'
+        "                }\n"
+        "            }\n"
+        "            return JSON.stringify({\n"
+        "                result: false,\n"
+        "                reason: reason,\n"
+        "                details: message,\n"
+        "                expectedStartFrame: startFrame,\n"
+        "                expectedFrameCount: frameCount,\n"
+        "                actualStartFrame: actual.startFrame,\n"
+        "                actualFrameCount: actual.frameCount,\n"
+        "                restored: recovery.restored,\n"
+        "                restoredStartFrame: recovery.state.startFrame,\n"
+        "                restoredFrameRate: recovery.state.frameRate,\n"
+        "                restoredFrameCount: recovery.state.frameCount,\n"
+        "                restoreErrors: recovery.restoreErrors\n"
+        "            });\n"
+        "        };\n"
+        "        app.beginUndoGroup('HelixAE: Set comp frame range');\n"
+        "        try {\n"
+        "            comp.displayStartTime = startFrame / rate;\n"
+        "            comp.duration = frameCount / rate;\n"
+        "            comp.displayStartFrame = startFrame;\n"
+        "        } catch (e) {\n"
+        '            return failure("mutation_failed", "After Effects rejected the change: " + e.toString(), readState());\n'
+        "        }\n"
+        "        var state = readState();\n"
+        "        var timeStart = NaN;\n"
+        "        try { timeStart = comp.displayStartTime * comp.frameRate; } catch (e) {}\n"
+        "        var shownStart = Math.round(timeStart);\n"
+        "        if (Math.abs(timeStart - shownStart) > %s) { shownStart = Math.floor(timeStart); }\n"
+        "        if (shownStart !== startFrame) { state.startFrame = shownStart; }\n"
+        "        if (state.startFrame !== startFrame || state.frameCount !== frameCount) {\n"
+        '            return failure("verification_failed", "After Effects did not apply the requested frame range", state);\n'
+        "        }\n"
+        "        app.endUndoGroup();\n"
+        "        return JSON.stringify({\n"
+        "            result: true,\n"
+        "            startFrame: state.startFrame,\n"
+        "            endFrame: state.startFrame + state.frameCount - 1,\n"
+        "            frameCount: frameCount,\n"
+        "            frameRate: state.frameRate,\n"
+        "            displayStartTime: comp.displayStartTime,\n"
+        "            duration: comp.duration\n"
+        "        });\n"
+        % (comp_id, start, frame_count, repr(_FRAME_SNAP_TOLERANCE))
     )
 
 
@@ -1819,8 +2360,16 @@ def build_get_comp_info(comp_id):
         "        for (var i = 1; i <= comp.numLayers; i++) {\n"
         "            try { if (comp.layer(i).enabled) { usedLayers++; } } catch (e) {}\n"
         "        }\n"
-        "        var startFrame = Math.round(comp.displayStartTime * comp.frameRate);\n"
-        "        var endFrame = Math.round((comp.displayStartTime + comp.duration) * comp.frameRate) - 1;\n"
+        "        var startFrame = Math.round(comp.displayStartFrame);\n"
+        "        if (!isFinite(startFrame)) {\n"
+        "            if (isFinite(comp.frameDuration) && comp.frameDuration > 0) {\n"
+        "                startFrame = Math.round(comp.displayStartTime / comp.frameDuration);\n"
+        "            } else {\n"
+        "                startFrame = Math.round(comp.displayStartTime * comp.frameRate);\n"
+        "            }\n"
+        "        }\n"
+        "        var frameCount = Math.round(comp.duration * comp.frameRate);\n"
+        "        var endFrame = startFrame + frameCount - 1;\n"
         "        return JSON.stringify({\n"
         "            result: true,\n"
         "            name: comp.name,\n"
@@ -1831,6 +2380,7 @@ def build_get_comp_info(comp_id):
         "            startFrame: startFrame,\n"
         "            endFrame: endFrame,\n"
         "            frameRange: startFrame + '-' + endFrame,\n"
+        "            frameCount: frameCount,\n"
         "            duration: comp.duration,\n"
         "            layerCount: comp.numLayers,\n"
         "            usedLayers: usedLayers,\n"
@@ -1913,6 +2463,7 @@ __all__ = [
     "parse_tracker_identity",
     "parse_footage_records",
     "parse_comp_records",
+    "comp_frame_range",
     "parse_comp_dependency_result",
     "build_import_footage_item",
     "build_get_footage_properties",

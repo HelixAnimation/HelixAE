@@ -9,6 +9,7 @@ from qtpy.QtGui import *
 from qtpy.QtWidgets import *
 
 from PrismUtils.Decorators import err_catcher as err_catcher
+from helixae_protocol import comp_frame_range
 
 
 class TreeRenderer:
@@ -196,8 +197,7 @@ class TreeRenderer:
                 self.issue_counts['total_comps'] += 1
                 kitsu = self.tracker.getKitsuDataForShot(current_shot)
                 fps = float(record['frameRate'])
-                start = int(round(float(record['displayStartTime']) * fps))
-                end = start + int(round(float(record['duration']) * fps)) - 1
+                start, end = comp_frame_range(record)
                 self._createCompFPSWidget(item, record, 4)
                 self._createCompFrameRangeWidget(item, record, 3, kitsu)
                 self._createCompResolutionWidget(item, record, 5, kitsu)
@@ -889,19 +889,9 @@ class TreeRenderer:
         else:
             item.setText(2, f"Layers: {compInfo['numLayers']}")
 
-        # Calculate frame range and FPS for Kitsu comparison
+        # Use AE's integer start frame for both display and Kitsu comparison.
         comp_fps = float(compInfo['frameRate'])
-        # Handle displayStartTime that might have unexpected format (e.g., "1220::ITEM::188")
-        try:
-            display_start_time = float(compInfo['displayStartTime'])
-        except (ValueError, TypeError):
-            # Fallback to displayStartFrame if available, otherwise 0
-            display_start_time = float(compInfo.get('displayStartFrame', 0)) / comp_fps
-
-        duration = float(compInfo['duration'])
-
-        actual_start_frame = int(round(display_start_time * comp_fps))
-        actual_end_frame = int(round((display_start_time + duration) * comp_fps - 1))
+        actual_start_frame, actual_end_frame = comp_frame_range(compInfo)
 
         # Resolution column (column 5) - will be set as widget below
         # No direct setText here - widget handles it
@@ -1402,18 +1392,8 @@ class TreeRenderer:
         frameRangeLabel = QLabel()
         frameRangeLabel.setAlignment(Qt.AlignCenter)
 
-        # Calculate frame range using the exact formula from AE
-        comp_fps = float(compInfo['frameRate'])
-        # Handle displayStartTime that might have unexpected format
-        try:
-            display_start_time = float(compInfo['displayStartTime'])
-        except (ValueError, TypeError):
-            display_start_time = float(compInfo.get('displayStartFrame', 0)) / comp_fps
-
-        duration = float(compInfo['duration'])
-
-        actual_start_frame = int(round(display_start_time * comp_fps))
-        actual_end_frame = int(round((display_start_time + duration) * comp_fps - 1))
+        # Share the same inclusive range as refresh and Kitsu validation.
+        actual_start_frame, actual_end_frame = comp_frame_range(compInfo)
 
         frame_range = f"{actual_start_frame}-{actual_end_frame}"
         frameRangeLabel.setText(frame_range)
