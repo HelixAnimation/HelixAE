@@ -81,4 +81,4 @@ rm -f '$REMOTE_ROOT/Integration/helixae/META-INF/signatures.xml'
 cd '$REMOTE_ROOT'
 sha256sum -c '$REMOTE_TEMP/checksums' > '$REMOTE_TEMP/verification.log' 2>&1 || { cat '$REMOTE_TEMP/verification.log'; exit 1; }"
 printf 'Deployed and checksum-verified: nassk:%s\n' "$REMOTE_ROOT"
-printf 'Reload Prism for Python changes. For panel changes, reinstall the integration in Prism and restart AE.\n'
+printf 'Reload Prism for Python changes. For panel changes, reinstall the integration in Prism and resta
